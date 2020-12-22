@@ -2,6 +2,7 @@
 
 namespace AndreasElia\PostmanGenerator;
 
+use Illuminate\Routing\Router;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
@@ -13,8 +14,10 @@ class ExportPostman extends Command
     /** @var string */
     protected $description = 'Automatically generate a Postman collection for your API routes';
 
-    public function __construct()
+    public function __construct(Router $router)
     {
+        $this->router = $router;
+
         parent::__construct();
     }
 
@@ -22,8 +25,6 @@ class ExportPostman extends Command
     {
         $structured = $this->option('structured') ?? false;
         $bearer = $this->option('bearer') ?? false;
-
-        $routerRoutes = app('router')->getRoutes();
 
         $filename = date('Y_m_d_His') . '_postman';
 
@@ -48,6 +49,8 @@ class ExportPostman extends Command
                 'schema' => 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
             ],
         ];
+
+        $routerRoutes = $this->router->getRoutes();
 
         foreach ($routerRoutes as $route) {
             foreach ($route->methods as $method) {
