@@ -49,24 +49,26 @@ class ExportPostman extends Command
             ],
         ];
 
-        $routeHeaders = [
-            [
-                'key' => 'Content-Type',
-                'value' => 'application/json',
-            ],
-        ];
-
-        if ($bearer) {
-            $routeHeaders[] = [
-                'key' => 'Authorization',
-                'value' => 'Bearer {{token}}',
-            ];
-        }
-
         foreach ($routerRoutes as $route) {
             foreach ($route->methods as $method) {
                 if ($method == 'HEAD' || empty($route->middleware()) || $route->middleware()[0] !== 'api') {
                     continue;
+                }
+
+                $routeHeaders = [
+                    [
+                        'key' => 'Content-Type',
+                        'value' => 'application/json',
+                    ],
+                ];
+
+                // TODO: check if route is within auth middleware before adding
+
+                if ($bearer) {
+                    $routeHeaders[] = [
+                        'key' => 'Authorization',
+                        'value' => 'Bearer {{token}}',
+                    ];
                 }
 
                 // TODO: structured, the "item" below can be replaced with a folder with "item" inside
