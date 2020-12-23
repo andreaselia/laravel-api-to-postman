@@ -16,9 +16,9 @@ class ExportPostman extends Command
 
     public function __construct(Router $router)
     {
-        $this->router = $router;
-
         parent::__construct();
+
+        $this->router = $router;
     }
 
     public function handle(): void
@@ -53,8 +53,10 @@ class ExportPostman extends Command
         $routerRoutes = $this->router->getRoutes();
 
         foreach ($routerRoutes as $route) {
+            $middleware = $route->middleware();
+
             foreach ($route->methods as $method) {
-                if ($method == 'HEAD' || empty($route->middleware()) || $route->middleware()[0] !== 'api') {
+                if ($method == 'HEAD' || empty($middleware) || $middleware[0] !== 'api') {
                     continue;
                 }
 
@@ -65,28 +67,69 @@ class ExportPostman extends Command
                     ],
                 ];
 
-                // TODO: check if route is within auth middleware before adding
-
-                if ($bearer) {
+                if ($bearer && in_array('auth:sanctum', $middleware)) {
                     $routeHeaders[] = [
                         'key' => 'Authorization',
                         'value' => 'Bearer {{token}}',
                     ];
                 }
 
-                // TODO: structured, the "item" below can be replaced with a folder with "item" inside
+                if ($structured) {
+                    // TODO: structured, the "item" below can be replaced with a folder with "item" inside
+                    $not = ['index', 'show', 'store', 'update', 'destroy'];
 
-                $routes['item'][] = [
-                    'name' => $method . ' | ' . $route->uri(),
-                    'request' => [
-                        'method' => strtoupper($method),
-                        'header' => $routeHeaders,
-                        'url' => [
-                            'raw' => '{{base_url}}/' . $route->uri(),
-                            'host' => '{{base_url}}/' . $route->uri(),
+                    $routeName = $route->action['as'] ?? null;
+                    $routeName = explode('.', $routeName);
+                    $routeName = array_filter($routeName, fn ($value) => !is_null($value) && $value !== '' && !in_array($value, $not));
+
+                    $folder = null;
+
+                    // e.g. exploded version of "contests.submissions.index"
+                    // the "index" route would go inside these 2 nested
+                    // folders in order to be structured.
+
+                    if ($routeName) {
+                        $routes['item'][] = [
+                            'name' => 'contests',
+                            'item' => [
+                                [
+                                    'name' => 'submissions',
+                                    'item' => [],
+                                ],
+                            ],
+                        ];
+                    }
+
+                    foreach ($routeName as $name) {
+                        // dd($name);
+                    }
+
+                    // print_r($routes);
+
+                    $routes['item'][] = [
+                        'name' => $method . ' | ' . $route->uri(),
+                        'request' => [
+                            'method' => strtoupper($method),
+                            'header' => $routeHeaders,
+                            'url' => [
+                                'raw' => '{{base_url}}/' . $route->uri(),
+                                'host' => '{{base_url}}/' . $route->uri(),
+                            ],
                         ],
-                    ],
-                ];
+                    ];
+                } else {
+                    $routes['item'][] = [
+                        'name' => $method . ' | ' . $route->uri(),
+                        'request' => [
+                            'method' => strtoupper($method),
+                            'header' => $routeHeaders,
+                            'url' => [
+                                'raw' => '{{base_url}}/' . $route->uri(),
+                                'host' => '{{base_url}}/' . $route->uri(),
+                            ],
+                        ],
+                    ];
+                }
             }
         }
 
