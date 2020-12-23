@@ -14,6 +14,9 @@ class ExportPostman extends Command
     /** @var string */
     protected $description = 'Automatically generate a Postman collection for your API routes';
 
+    /** @var array */
+    protected $routes;
+
     public function __construct(Router $router)
     {
         parent::__construct();
@@ -42,12 +45,13 @@ class ExportPostman extends Command
             ];
         }
 
-        $routes = [
+        $this->routes = [
             'variable' => $variables,
             'info' => [
                 'name' => $filename,
                 'schema' => 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
             ],
+            'item' => [],
         ];
 
         $routerRoutes = $this->router->getRoutes();
@@ -75,66 +79,75 @@ class ExportPostman extends Command
                 }
 
                 if ($structured) {
-                    // TODO: structured, the "item" below can be replaced with a folder with "item" inside
                     $not = ['index', 'show', 'store', 'update', 'destroy'];
 
-                    $routeName = $route->action['as'] ?? null;
-                    $routeName = explode('.', $routeName);
-                    $routeName = array_filter($routeName, fn ($value) => !is_null($value) && $value !== '' && !in_array($value, $not));
+                    $routeNames = $route->action['as'] ?? null;
+                    $routeNames = explode('.', $routeNames);
+                    $routeNames = array_filter($routeNames, function ($value) use ($not) {
+                        return !is_null($value) && $value !== '' && !in_array($value, $not);
+                    });
 
-                    $folder = null;
+                    $destination = end($routeNames);
 
-                    // e.g. exploded version of "contests.submissions.index"
-                    // the "index" route would go inside these 2 nested
-                    // folders in order to be structured.
-
-                    if ($routeName) {
-                        $routes['item'][] = [
-                            'name' => 'contests',
-                            'item' => [
-                                [
-                                    'name' => 'submissions',
-                                    'item' => [],
-                                ],
-                            ],
-                        ];
-                    }
-
-                    foreach ($routeName as $name) {
-                        // dd($name);
-                    }
-
-                    // print_r($routes);
-
-                    $routes['item'][] = [
-                        'name' => $method . ' | ' . $route->uri(),
-                        'request' => [
-                            'method' => strtoupper($method),
-                            'header' => $routeHeaders,
-                            'url' => [
-                                'raw' => '{{base_url}}/' . $route->uri(),
-                                'host' => '{{base_url}}/' . $route->uri(),
-                            ],
-                        ],
-                    ];
-                } else {
-                    $routes['item'][] = [
-                        'name' => $method . ' | ' . $route->uri(),
-                        'request' => [
-                            'method' => strtoupper($method),
-                            'header' => $routeHeaders,
-                            'url' => [
-                                'raw' => '{{base_url}}/' . $route->uri(),
-                                'host' => '{{base_url}}/' . $route->uri(),
-                            ],
-                        ],
-                    ];
+                    $this->nestedRoutes($routeNames, $route, $method, $routeHeaders, $destination);
                 }
             }
         }
 
-        Storage::put($exportName = "$filename.json", json_encode($routes));
+        Storage::put($exportName = "$filename.json", json_encode($this->routes));
 
         $this->info("Postman Collection Exported: $exportName");
+    }
+
+    public function nestedRoutes(&$routeNames, $route, $method, $routeHeaders, $destination)
+    {
+        $item = $this->makeItem($route, $method, $routeHeaders);
+
+        if (empty($routeNames)) {
+            return $item;
+        }
+
+        $index = array_shift($routeNames);
+
+        if ($this->findKeyValue($this->routes, 'name', $index, $item, $destination)) {
+            return;
+        }
+
+        $this->routes['item'][] = [
+            'name' => $index,
+            'item' => [$this->nestedRoutes($routeNames, $route, $method, $routeHeaders, $destination)],
+        ];
+    }
+
+    public function findKeyValue(&$array, $key, $val, $template, $destination)
+    {
+        foreach ($array as &$item) {
+            if (is_array($item) && $this->findKeyValue($item, $key, $val, $template, $destination)) {
+                return true;
+            }
+
+            if (isset($item[$key]) && $item[$key] == $val) {
+                $item['item'][] = $template;
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function makeItem($route, $method, $routeHeaders)
+    {
+        return  [
+            'name' => $route->uri(),
+            'request' => [
+                'method' => strtoupper($method),
+                'header' => $routeHeaders,
+                'url' => [
+                    'raw' => '{{base_url}}/' . $route->uri(),
+                    'host' => '{{base_url}}/' . $route->uri(),
+                ],
+            ],
+        ];
     }
 }
