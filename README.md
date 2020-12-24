@@ -24,14 +24,9 @@ To use the command simply run:
 php artisan export:postman
 ```
 
+You can also supply the `--structured` option to nest the routes into folders based on their name, or `--bearer` to create a bearer authorization token which can be managed in a single place within variables.
+
 The output Postman collection will have a `base_url` variable set by default for ease of use.
-
-## Extra Usage
-
-```bash
---structured # nest the routes into folders based on relationships
---bearer # create a bearer authorization token in variables and all routes that require it
-```
 
 ## Contributing
 

@@ -29,34 +29,28 @@ class ExportPostman extends Command
         $structured = $this->option('structured') ?? false;
         $bearer = $this->option('bearer') ?? false;
 
-        $filename = date('Y_m_d_His') . '_postman';
-
-        $variables = [
-            [
-                'key' => 'base_url',
-                'value' => 'https://api.example.com/',
-            ],
-        ];
-
-        if ($bearer) {
-            $variables[] = [
-                'key' => 'token',
-                'value' => '1|token',
-            ];
-        }
-
         $this->routes = [
-            'variable' => $variables,
+            'variable' => [
+                [
+                    'key' => 'base_url',
+                    'value' => 'https://api.example.com/',
+                ],
+            ],
             'info' => [
-                'name' => $filename,
+                'name' => $filename = date('Y_m_d_His') . '_postman',
                 'schema' => 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
             ],
             'item' => [],
         ];
 
-        $routerRoutes = $this->router->getRoutes();
+        if ($bearer) {
+            $this->routes['variable'][] = [
+                'key' => 'token',
+                'value' => '1|token',
+            ];
+        }
 
-        foreach ($routerRoutes as $route) {
+        foreach ($this->router->getRoutes() as $route) {
             $middleware = $route->middleware();
 
             foreach ($route->methods as $method) {
@@ -78,6 +72,12 @@ class ExportPostman extends Command
                     ];
                 }
 
+                $request = $this->makeItem($route, $method, $routeHeaders);
+
+                if (!$structured) {
+                    $this->routes['item'][] = $request;
+                }
+
                 if ($structured) {
                     $not = ['index', 'show', 'store', 'update', 'destroy'];
 
@@ -89,7 +89,7 @@ class ExportPostman extends Command
 
                     $destination = end($routeNames);
 
-                    $this->nestedRoutes($routeNames, $route, $method, $routeHeaders, $destination);
+                    $this->ensurePath($this->routes, $routeNames, $request, $destination);
                 }
             }
         }
@@ -99,41 +99,40 @@ class ExportPostman extends Command
         $this->info("Postman Collection Exported: $exportName");
     }
 
-    public function nestedRoutes(&$routeNames, $route, $method, $routeHeaders, $destination)
+    protected function ensurePath(array &$root, array $segments, array $request, string $destination): void
     {
-        $item = $this->makeItem($route, $method, $routeHeaders);
+        $parent = &$root;
 
-        if (empty($routeNames)) {
-            return $item;
-        }
+        foreach ($segments as $segment) {
+            $matched = false;
 
-        $index = array_shift($routeNames);
+            foreach ($parent['item'] as &$item) {
+                if ($item['name'] === $segment) {
+                    $parent = &$item;
 
-        if ($this->findKeyValue($this->routes, 'name', $index, $item, $destination)) {
-            return;
-        }
+                    if ($segment === $destination) {
+                        $parent['item'][] = $request;
+                    }
 
-        $this->routes['item'][] = [
-            'name' => $index,
-            'item' => [$this->nestedRoutes($routeNames, $route, $method, $routeHeaders, $destination)],
-        ];
-    }
-
-    public function findKeyValue(&$array, $key, $val, $template, $destination)
-    {
-        foreach ($array as &$item) {
-            if (is_array($item) && $this->findKeyValue($item, $key, $val, $template, $destination)) {
-                return true;
+                    $matched = true;
+                    break;
+                }
             }
 
-            if (isset($item[$key]) && $item[$key] == $val) {
-                $item['item'][] = $template;
+            unset($item);
 
-                return true;
+            if (!$matched) {
+                $item = [
+                    'name' => $segment,
+                    'item' => [$request],
+                ];
+
+                $parent['item'][] = &$item;
+                $parent = &$item;
             }
-        }
 
-        return false;
+            unset($item);
+        }
     }
 
     public function makeItem($route, $method, $routeHeaders)
