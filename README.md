@@ -1,3 +1,6 @@
+[![Latest Stable Version](https://poser.pugx.org/andreaselia/laravel-api-to-postman/v)](//packagist.org/packages/andreaselia/laravel-api-to-postman)
+[![StyleCI](https://github.styleci.io/repos/323709695/shield?branch=master)](https://github.styleci.io/repos/323709695?branch=master)
+
 # Laravel API to Postman
 
 This package allows you to automatically generate a Postman collection based on your API routes.
