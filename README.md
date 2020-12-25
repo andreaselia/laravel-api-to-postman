@@ -35,4 +35,4 @@ The output Postman collection will have a `base_url` variable set by default for
 
 ## Contributing
 
-You're more that welcome to submit a Pull Request, or if you're not feeling up to it - post an issue and someone else may pick it up.
+You're more that welcome to submit a pull request, or if you're not feeling up to it - create an issue so someone else can pick it up.
