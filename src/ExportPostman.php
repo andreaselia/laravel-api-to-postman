@@ -33,7 +33,7 @@ class ExportPostman extends Command
     {
         $structured = $this->option('structured') ?? false;
         $baseUrl = $this->option('base-url') ?? 'https://api.example.com/';
-        $bearer = $this->option('bearer') ?? '1|token';
+        $bearer = $this->option('bearer') ?? false;
 
         $this->routes = [
             'variable' => [
