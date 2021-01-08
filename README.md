@@ -29,10 +29,10 @@ To use the command simply run:
 php artisan export:postman
 ```
 
-You can also supply the `--structured` option to nest the routes into folders based on their name, or `--bearer` to create a bearer authorization token which can be managed in a single place within variables.
-
-The output Postman collection will have a `base_url` variable set by default for ease of use.
+- `--structured` generates routes in folders based on their namespace
+- `--bearer=<token>` generates a token variable in Postman for the specified token
+- `--base-url=<base_url>` defaults to https://api.example.com/ unless specified
 
 ## Contributing
 
-You're more that welcome to submit a pull request, or if you're not feeling up to it - create an issue so someone else can pick it up.
+You're more than welcome to submit a pull request, or if you're not feeling up to it - create an issue so someone else can pick it up.

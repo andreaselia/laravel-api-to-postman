@@ -9,7 +9,12 @@ use Illuminate\Support\Facades\Storage;
 class ExportPostman extends Command
 {
     /** @var string */
-    protected $signature = 'export:postman {--structured} {--bearer}';
+    protected $signature = '
+        export:postman
+        {--structured= : If you want folders to be generated based on namespace}
+        {--base-url= : The base URL for all of your endpoints}
+        {--bearer= : The bearer token to use on your endpoints}
+    ';
 
     /** @var string */
     protected $description = 'Automatically generate a Postman collection for your API routes';
@@ -27,13 +32,14 @@ class ExportPostman extends Command
     public function handle(): void
     {
         $structured = $this->option('structured') ?? false;
+        $baseUrl = $this->option('base-url') ?? 'https://api.example.com/';
         $bearer = $this->option('bearer') ?? false;
 
         $this->routes = [
             'variable' => [
                 [
                     'key' => 'base_url',
-                    'value' => 'https://api.example.com/',
+                    'value' => $baseUrl,
                 ],
             ],
             'info' => [
@@ -46,7 +52,7 @@ class ExportPostman extends Command
         if ($bearer) {
             $this->routes['variable'][] = [
                 'key' => 'token',
-                'value' => '1|token',
+                'value' => $bearer,
             ];
         }
 
