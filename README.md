@@ -33,4 +33,4 @@ You can also supply the `--structured` option to nest the routes into folders ba
 
 ## Contributing
 
-You're more that welcome to submit a pull request, or if you're not feeling up to it - create an issue so someone else can pick it up.
+You're more than welcome to submit a pull request, or if you're not feeling up to it - create an issue so someone else can pick it up.
