@@ -9,7 +9,12 @@ use Illuminate\Support\Facades\Storage;
 class ExportPostman extends Command
 {
     /** @var string */
-    protected $signature = 'export:postman {--structured} {--bearer}';
+    protected $signature = '
+        export:postman
+        {--structured= : If you want folders to be generated based on namespace}
+        {--base-url= : The base URL for all of your endpoints}
+        {--bearer= : The bearer token to use on your endpoints}
+    ';
 
     /** @var string */
     protected $description = 'Automatically generate a Postman collection for your API routes';
@@ -27,17 +32,18 @@ class ExportPostman extends Command
     public function handle(): void
     {
         $structured = $this->option('structured') ?? false;
-        $bearer = $this->option('bearer') ?? false;
+        $baseUrl = $this->option('base-url') ?? 'https://api.example.com/';
+        $bearer = $this->option('bearer') ?? '1|token';
 
         $this->routes = [
             'variable' => [
                 [
                     'key' => 'base_url',
-                    'value' => 'https://api.example.com/',
+                    'value' => $baseUrl,
                 ],
             ],
             'info' => [
-                'name' => $filename = date('Y_m_d_His').'_postman',
+                'name' => $filename = date('Y_m_d_His') . '_postman',
                 'schema' => 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
             ],
             'item' => [],
@@ -46,7 +52,7 @@ class ExportPostman extends Command
         if ($bearer) {
             $this->routes['variable'][] = [
                 'key' => 'token',
-                'value' => '1|token',
+                'value' => $bearer,
             ];
         }
 
@@ -74,7 +80,7 @@ class ExportPostman extends Command
 
                 $request = $this->makeItem($route, $method, $routeHeaders);
 
-                if (! $structured) {
+                if (!$structured) {
                     $this->routes['item'][] = $request;
                 }
 
@@ -84,7 +90,7 @@ class ExportPostman extends Command
                     $routeNames = $route->action['as'] ?? null;
                     $routeNames = explode('.', $routeNames);
                     $routeNames = array_filter($routeNames, function ($value) use ($not) {
-                        return ! is_null($value) && $value !== '' && ! in_array($value, $not);
+                        return !is_null($value) && $value !== '' && !in_array($value, $not);
                     });
 
                     $destination = end($routeNames);
@@ -121,7 +127,7 @@ class ExportPostman extends Command
 
             unset($item);
 
-            if (! $matched) {
+            if (!$matched) {
                 $item = [
                     'name' => $segment,
                     'item' => [$request],
@@ -143,8 +149,8 @@ class ExportPostman extends Command
                 'method' => strtoupper($method),
                 'header' => $routeHeaders,
                 'url' => [
-                    'raw' => '{{base_url}}/'.$route->uri(),
-                    'host' => '{{base_url}}/'.$route->uri(),
+                    'raw' => '{{base_url}}/' . $route->uri(),
+                    'host' => '{{base_url}}/' . $route->uri(),
                 ],
             ],
         ];
