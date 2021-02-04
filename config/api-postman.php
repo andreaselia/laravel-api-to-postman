@@ -16,7 +16,7 @@ return [
      * The base URL for all of your endpoints.
      */
 
-    'base_url' => 'https://api.example.com/',
+    'base_url' => env('APP_URL', 'http://localhost'),
 
     /**
      * Auth Middleware.
