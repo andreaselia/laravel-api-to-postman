@@ -2,7 +2,7 @@
 
 return [
 
-    /**
+    /*
      * Structured.
      *
      * If you want folders to be generated based on namespace.
@@ -10,7 +10,7 @@ return [
 
     'structured' => false,
 
-    /**
+    /*
      * Base URL.
      *
      * The base URL for all of your endpoints.
@@ -18,7 +18,7 @@ return [
 
     'base_url' => env('APP_URL', 'http://localhost'),
 
-    /**
+    /*
      * Auth Middleware.
      *
      * The middleware which wraps your authenticated API routes.
