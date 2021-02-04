@@ -57,17 +57,9 @@ This is with the default configuration and a bearer token passed in:
 php artisan export:postman --bearer=123456789
 ```
 
-Given the following `api.php` routes:
-
-https://gist.github.com/AndreasElia/e4dbfc751e577add2c3eaaccaba5ad11
-
-The output would be the following JSON which can be imported into Postman as a collection:
-
-https://gist.github.com/AndreasElia/ffe8d7def3f108c452927e422d29fa9d
-
-If you specify `structured` as `true` in the configuration file, the output will be:
-
-https://gist.github.com/AndreasElia/7c7aee08dea40b6ff0b8ef30547ab721
+- (Example routes)[/examples/api.php]
+- (Example default output)[/examples/2021_02_04_151948_postman.json]
+- (Example structured output)[/examples/2021_02_04_155327_postman.json]
 
 ## Contributing
 

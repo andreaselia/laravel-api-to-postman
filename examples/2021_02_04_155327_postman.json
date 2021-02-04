@@ -1,0 +1,130 @@
+{
+    "variable": [{
+        "key": "base_url",
+        "value": "https:\/\/api.example.com\/"
+    }, {
+        "key": "token",
+        "value": "123456789"
+    }],
+    "info": {
+        "name": "2021_02_04_155327_postman",
+        "schema": "https:\/\/schema.getpostman.com\/json\/collection\/v2.1.0\/collection.json"
+    },
+    "item": [{
+        "name": "home",
+        "item": [{
+            "name": "api",
+            "request": {
+                "method": "GET",
+                "header": [{
+                    "key": "Content-Type",
+                    "value": "application\/json"
+                }],
+                "url": {
+                    "raw": "{{base_url}}\/api",
+                    "host": "{{base_url}}\/api"
+                }
+            }
+        }]
+    }, {
+        "name": "posts",
+        "item": [{
+            "name": "api\/posts",
+            "request": {
+                "method": "GET",
+                "header": [{
+                    "key": "Content-Type",
+                    "value": "application\/json"
+                }],
+                "url": {
+                    "raw": "{{base_url}}\/api\/posts",
+                    "host": "{{base_url}}\/api\/posts"
+                }
+            }
+        }, {
+            "name": "api\/posts",
+            "request": {
+                "method": "POST",
+                "header": [{
+                    "key": "Content-Type",
+                    "value": "application\/json"
+                }],
+                "url": {
+                    "raw": "{{base_url}}\/api\/posts",
+                    "host": "{{base_url}}\/api\/posts"
+                }
+            }
+        }, {
+            "name": "api\/posts\/{post}",
+            "request": {
+                "method": "GET",
+                "header": [{
+                    "key": "Content-Type",
+                    "value": "application\/json"
+                }],
+                "url": {
+                    "raw": "{{base_url}}\/api\/posts\/{post}",
+                    "host": "{{base_url}}\/api\/posts\/{post}"
+                }
+            }
+        }, {
+            "name": "api\/posts\/{post}",
+            "request": {
+                "method": "PUT",
+                "header": [{
+                    "key": "Content-Type",
+                    "value": "application\/json"
+                }],
+                "url": {
+                    "raw": "{{base_url}}\/api\/posts\/{post}",
+                    "host": "{{base_url}}\/api\/posts\/{post}"
+                }
+            }
+        }, {
+            "name": "api\/posts\/{post}",
+            "request": {
+                "method": "PATCH",
+                "header": [{
+                    "key": "Content-Type",
+                    "value": "application\/json"
+                }],
+                "url": {
+                    "raw": "{{base_url}}\/api\/posts\/{post}",
+                    "host": "{{base_url}}\/api\/posts\/{post}"
+                }
+            }
+        }, {
+            "name": "api\/posts\/{post}",
+            "request": {
+                "method": "DELETE",
+                "header": [{
+                    "key": "Content-Type",
+                    "value": "application\/json"
+                }],
+                "url": {
+                    "raw": "{{base_url}}\/api\/posts\/{post}",
+                    "host": "{{base_url}}\/api\/posts\/{post}"
+                }
+            }
+        }]
+    }, {
+        "name": "user",
+        "item": [{
+            "name": "api\/user",
+            "request": {
+                "method": "POST",
+                "header": [{
+                    "key": "Content-Type",
+                    "value": "application\/json"
+                }, {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                }],
+                "url": {
+                    "raw": "{{base_url}}\/api\/user",
+                    "host": "{{base_url}}\/api\/user"
+                }
+            }
+        }]
+    }]
+}
