@@ -9,15 +9,13 @@ use Illuminate\Support\Facades\Storage;
 class ExportPostman extends Command
 {
     /** @var string */
-    protected $signature = '
-        export:postman
-        {--structured= : If you want folders to be generated based on namespace}
-        {--base-url= : The base URL for all of your endpoints}
-        {--bearer= : The bearer token to use on your endpoints}
-    ';
+    protected $signature = 'export:postman {--bearer= : The bearer token to use on your endpoints}';
 
     /** @var string */
     protected $description = 'Automatically generate a Postman collection for your API routes';
+
+    /** @var \Illuminate\Routing\Router */
+    protected $router;
 
     /** @var array */
     protected $routes;
@@ -31,15 +29,13 @@ class ExportPostman extends Command
 
     public function handle(): void
     {
-        $structured = $this->option('structured') ?? false;
-        $baseUrl = $this->option('base-url') ?? 'https://api.example.com/';
         $bearer = $this->option('bearer') ?? false;
 
         $this->routes = [
             'variable' => [
                 [
                     'key' => 'base_url',
-                    'value' => $baseUrl,
+                    'value' => config('api-postman.base_url'),
                 ],
             ],
             'info' => [
@@ -48,6 +44,8 @@ class ExportPostman extends Command
             ],
             'item' => [],
         ];
+
+        $structured = config('api-postman.structured');
 
         if ($bearer) {
             $this->routes['variable'][] = [
@@ -71,7 +69,7 @@ class ExportPostman extends Command
                     ],
                 ];
 
-                if ($bearer && in_array('auth:sanctum', $middleware)) {
+                if ($bearer && in_array(config('api-postman.auth_middleware'), $middleware)) {
                     $routeHeaders[] = [
                         'key' => 'Authorization',
                         'value' => 'Bearer {{token}}',
