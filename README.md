@@ -57,9 +57,9 @@ This is with the default configuration and a bearer token passed in:
 php artisan export:postman --bearer=123456789
 ```
 
-- (Example routes)[/examples/api.php]
-- (Example default output)[/examples/2021_02_04_151948_postman.json]
-- (Example structured output)[/examples/2021_02_04_155327_postman.json]
+- [Example routes](/examples/api.php)
+- [Example default output](/examples/2021_02_04_151948_postman.json)
+- [Example structured output](/examples/2021_02_04_155327_postman.json)
 
 ## Contributing
 
