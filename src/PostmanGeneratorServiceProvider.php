@@ -10,7 +10,7 @@ class PostmanGeneratorServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
-              __DIR__ . '/../config/api-postman.php' => config_path('api-postman.php'),
+                __DIR__.'/../config/api-postman.php' => config_path('api-postman.php'),
             ], 'config');
         }
 

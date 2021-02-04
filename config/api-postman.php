@@ -3,7 +3,7 @@
 return [
 
     /**
-     * Structured
+     * Structured.
      *
      * If you want folders to be generated based on namespace.
      */
@@ -11,7 +11,7 @@ return [
     'structured' => false,
 
     /**
-     * Base URL
+     * Base URL.
      *
      * The base URL for all of your endpoints.
      */
@@ -19,7 +19,7 @@ return [
     'base_url' => 'https://api.example.com/',
 
     /**
-     * Auth Middleware
+     * Auth Middleware.
      *
      * The middleware which wraps your authenticated API routes.
      *
