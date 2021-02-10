@@ -67,7 +67,7 @@ class ExportPostman extends Command
                     continue;
                 }
 
-                $request = $this->makeItem($route, $method);
+                $request = $this->makeItem($route, $method, $middleware);
 
                 $request = $this->makeItem($route, $method, $routeHeaders);
 
@@ -128,13 +128,13 @@ class ExportPostman extends Command
         }
     }
 
-    public function makeItem(Route $route, $method)
+    public function makeItem(Route $route, $method, $middleware)
     {
         return [
             'name' => $route->uri(),
             'request' => [
                 'method' => strtoupper($method),
-                'header' => $this->configureHeaders($route->gatherMiddleware()),
+                'header' => $this->configureHeaders($middleware),
                 'url' => [
                     'raw' => '{{base_url}}/'.$route->uri(),
                     'host' => '{{base_url}}/'.$route->uri(),
