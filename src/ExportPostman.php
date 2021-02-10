@@ -85,7 +85,8 @@ class ExportPostman extends Command
      * @param  string  $destination
      * @return \void
      */
-    protected function generateCollectionStructure(array &$structure, array $segments, array $request, string $destination): void {
+    protected function generateCollectionStructure(array &$structure, array $segments, array $request, string $destination): void
+    {
         $nestingStructure = &$structure;
 
         foreach ($segments as $segment) {
