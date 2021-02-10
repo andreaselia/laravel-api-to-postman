@@ -55,9 +55,9 @@ class ExportPostman extends Command
                     continue;
                 }
 
-                $request = $this->makeItem($route, $method);
+                $request = $this->makeItem($route, $method, $middleware);
 
-                if ($structured) {
+                if (true) {
                     $routeNames = $route->action['as'] ?? null;
                     $routeNames = explode('.', $routeNames);
                     $routeNames = array_filter($routeNames, function ($value) {
@@ -66,7 +66,9 @@ class ExportPostman extends Command
 
                     $destination = end($routeNames);
 
-                    $this->generateCollectionStructure($this->structure, $routeNames, $request, $destination);
+                    $this->createStructuredItem($routeNames, $request);
+
+//                    $this->ensurePath($this->structure, $routeNames, $request, $destination);
                 } else {
                     $this->structure['item'][] = $request;
                 }
@@ -75,7 +77,9 @@ class ExportPostman extends Command
 
         Storage::put($exportName = "$filename.json", json_encode($this->structure));
 
-        $this->info("Postman Collection Exported: $exportName");
+//        $this->info("Postman Collection Exported: $exportName");
+
+        dump($this->structure);
     }
 
     /**
@@ -133,7 +137,7 @@ class ExportPostman extends Command
             'name' => $route->uri(),
             'request' => [
                 'method' => strtoupper($method),
-                'header' => $this->configureHeaders($route->gatherMiddleware()),
+                'header' => $this->configureHeaders($middleware),
                 'url' => [
                     'raw' => '{{base_url}}/'.$route->uri(),
                     'host' => '{{base_url}}/'.$route->uri(),
@@ -195,5 +199,12 @@ class ExportPostman extends Command
         }
 
         return $headers;
+    }
+
+    protected function createStructuredItem(array $segments, array $request)
+    {
+        foreach ($segments as $segment) {
+            $this->structure['item'][] = $request;
+        }
     }
 }
