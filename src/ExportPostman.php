@@ -67,19 +67,7 @@ class ExportPostman extends Command
                     continue;
                 }
 
-                $routeHeaders = [
-                    [
-                        'key' => 'Content-Type',
-                        'value' => 'application/json',
-                    ],
-                ];
-
-                if ($bearer && in_array($this->config['auth_middleware'], $middleware)) {
-                    $routeHeaders[] = [
-                        'key' => 'Authorization',
-                        'value' => 'Bearer {{token}}',
-                    ];
-                }
+                $request = $this->makeItem($route, $method);
 
                 $request = $this->makeItem($route, $method, $routeHeaders);
 
@@ -140,18 +128,41 @@ class ExportPostman extends Command
         }
     }
 
-    public function makeItem($route, $method, $routeHeaders)
+    public function makeItem(Route $route, $method)
     {
         return [
             'name' => $route->uri(),
             'request' => [
                 'method' => strtoupper($method),
-                'header' => $routeHeaders,
+                'header' => $this->configureHeaders($route->gatherMiddleware()),
                 'url' => [
                     'raw' => '{{base_url}}/'.$route->uri(),
                     'host' => '{{base_url}}/'.$route->uri(),
                 ],
             ],
         ];
+    }
+
+    /**
+     * @param  array  $middleware
+     * @return \string[][]
+     */
+    protected function configureHeaders(array $middleware)
+    {
+        $headers = [
+            [
+                'key' => 'Content-Type',
+                'value' => 'application/json',
+            ],
+        ];
+
+        if ($this->option('bearer') && in_array($this->config['auth_middleware'], $middleware)) {
+            $headers[] = [
+                'key' => 'Authorization',
+                'value' => 'Bearer {{token}}',
+            ];
+        }
+
+        return $headers;
     }
 }
