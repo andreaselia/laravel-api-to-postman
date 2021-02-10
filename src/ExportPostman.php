@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Routing\Route;
 
 class ExportPostman extends Command
 {
@@ -69,8 +70,6 @@ class ExportPostman extends Command
 
                 $request = $this->makeItem($route, $method);
 
-                $request = $this->makeItem($route, $method, $routeHeaders);
-
                 if ($structured) {
                     $routeNames = $route->action['as'] ?? null;
                     $routeNames = explode('.', $routeNames);
@@ -87,7 +86,7 @@ class ExportPostman extends Command
             }
         }
 
-        Storage::put($exportName = "$filename.json", json_encode($this->routes));
+        Storage::put($exportName = "$filename.json", json_encode($this->structure));
 
         $this->info("Postman Collection Exported: $exportName");
     }
