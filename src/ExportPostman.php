@@ -19,7 +19,7 @@ class ExportPostman extends Command
     protected $router;
 
     /** @var array */
-    protected $routes;
+    protected $structure;
 
     /** @var array */
     protected $config;
@@ -36,7 +36,7 @@ class ExportPostman extends Command
     {
         $bearer = $this->option('bearer') ?? false;
 
-        $this->routes = [
+        $this->structure = [
             'variable' => [
                 [
                     'key' => 'base_url',
@@ -53,7 +53,7 @@ class ExportPostman extends Command
         $structured = $this->config['structured'];
 
         if ($bearer) {
-            $this->routes['variable'][] = [
+            $this->structure['variable'][] = [
                 'key' => 'token',
                 'value' => $bearer,
             ];
@@ -80,9 +80,9 @@ class ExportPostman extends Command
 
                     $destination = end($routeNames);
 
-                    $this->ensurePath($this->routes, $routeNames, $request, $destination);
+                    $this->ensurePath($this->structure, $routeNames, $request, $destination);
                 } else {
-                    $this->routes['item'][] = $request;
+                    $this->structure['item'][] = $request;
                 }
             }
         }
