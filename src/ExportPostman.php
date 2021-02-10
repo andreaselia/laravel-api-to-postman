@@ -3,6 +3,7 @@
 namespace AndreasElia\PostmanGenerator;
 
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Config\Repository;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Storage;
 
@@ -20,11 +21,15 @@ class ExportPostman extends Command
     /** @var array */
     protected $routes;
 
-    public function __construct(Router $router)
+    /** @var array */
+    protected $config;
+
+    public function __construct(Router $router, Repository $config)
     {
         parent::__construct();
 
         $this->router = $router;
+        $this->config = $config['api-postman'];
     }
 
     public function handle(): void
@@ -35,7 +40,7 @@ class ExportPostman extends Command
             'variable' => [
                 [
                     'key' => 'base_url',
-                    'value' => config('api-postman.base_url'),
+                    'value' => $this->config['base_url'],
                 ],
             ],
             'info' => [
@@ -45,7 +50,7 @@ class ExportPostman extends Command
             'item' => [],
         ];
 
-        $structured = config('api-postman.structured');
+        $structured = $this->config['structured'];
 
         if ($bearer) {
             $this->routes['variable'][] = [
@@ -69,7 +74,7 @@ class ExportPostman extends Command
                     ],
                 ];
 
-                if ($bearer && in_array(config('api-postman.auth_middleware'), $middleware)) {
+                if ($bearer && in_array($this->config['auth_middleware'], $middleware)) {
                     $routeHeaders[] = [
                         'key' => 'Authorization',
                         'value' => 'Bearer {{token}}',
