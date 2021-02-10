@@ -78,22 +78,18 @@ class ExportPostman extends Command
 
                 $request = $this->makeItem($route, $method, $routeHeaders);
 
-                if (! $structured) {
-                    $this->routes['item'][] = $request;
-                }
-
                 if ($structured) {
-                    $not = ['index', 'show', 'store', 'update', 'destroy'];
-
                     $routeNames = $route->action['as'] ?? null;
                     $routeNames = explode('.', $routeNames);
-                    $routeNames = array_filter($routeNames, function ($value) use ($not) {
-                        return ! is_null($value) && $value !== '' && ! in_array($value, $not);
+                    $routeNames = array_filter($routeNames, function ($value) {
+                        return ! is_null($value) && $value !== '';
                     });
 
                     $destination = end($routeNames);
 
                     $this->ensurePath($this->routes, $routeNames, $request, $destination);
+                } else {
+                    $this->routes['item'][] = $request;
                 }
             }
         }
@@ -141,7 +137,7 @@ class ExportPostman extends Command
 
     public function makeItem($route, $method, $routeHeaders)
     {
-        return  [
+        return [
             'name' => $route->uri(),
             'request' => [
                 'method' => strtoupper($method),
