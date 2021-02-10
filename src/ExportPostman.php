@@ -4,9 +4,9 @@ namespace AndreasElia\PostmanGenerator;
 
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Config\Repository;
+use Illuminate\Routing\Route;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Routing\Route;
 
 class ExportPostman extends Command
 {
