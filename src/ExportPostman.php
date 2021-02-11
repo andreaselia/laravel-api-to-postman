@@ -47,6 +47,8 @@ class ExportPostman extends Command
             $this->generateBearer();
         }
 
+        $this->structure = [];
+
         foreach ($this->router->getRoutes() as $route) {
             $middleware = $route->gatherMiddleware();
 
@@ -56,22 +58,25 @@ class ExportPostman extends Command
                 }
 
                 if ($this->config['structured']) {
-                    $routeNames = $route->action['as'] ?? null;
-                    $segments = explode('.', $routeNames);
+                    // $segment = $route->action['as'] ?? null;
+
+                    $segments = [
+                        'index', 'webhooks.remove'
+                    ];
 
                     Collection::make($segments)->each(function ($segment) use ($route, $method, $middleware) {
-                        $this->structure['item'][] = $this->makeItem($route, $method, $middleware);
+                        $this->structure[$segment] = $this->makeItem($route, $method, $middleware);
                     });
 
-                    $foo = Collection::make($this->structure['item']);
+                    $structure = Collection::make($this->structure);
 
-                    $foo->transform(function ($route, $key) {
+                    $this->structure = $structure->transform(function ($route, $key) {
                         $parts = explode('.', $key);
 
                         return $this->buildTree($parts, $route);
-                    });
+                    })->values();
 
-                    $this->structure[] = $foo;
+                    dd($this->structure);
                 } else {
                     $this->structure['item'][] = $this->makeItem($route, $method, $middleware);
                 }
