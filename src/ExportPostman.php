@@ -60,7 +60,7 @@ class ExportPostman extends Command
                 if ($this->config['structured']) {
                     $segment = $route->action['as'] ?? null;
 
-                    $structuredData[$segment] = [$this->makeItem($route, $method, $middleware)];
+                    $structuredData[$segment][] = $this->makeItem($route, $method, $middleware);
                 } else {
                     $this->structure['item'][] = $this->makeItem($route, $method, $middleware);
                 }
