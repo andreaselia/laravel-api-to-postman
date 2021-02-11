@@ -2,11 +2,13 @@
 
 namespace AndreasElia\PostmanGenerator;
 
-use Illuminate\Console\Command;
-use Illuminate\Contracts\Config\Repository;
+use Illuminate\Support\Arr;
 use Illuminate\Routing\Route;
 use Illuminate\Routing\Router;
+use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Contracts\Config\Repository;
 
 class ExportPostman extends Command
 {
@@ -41,8 +43,6 @@ class ExportPostman extends Command
 
         $this->initStructure($filename);
 
-        $structured = $this->config['structured'];
-
         if ($bearer) {
             $this->generateBearer();
         }
@@ -55,29 +55,57 @@ class ExportPostman extends Command
                     continue;
                 }
 
-                $request = $this->makeItem($route, $method, $middleware);
-
-                if (true) {
+                if ($this->config['structured']) {
                     $routeNames = $route->action['as'] ?? null;
-                    $routeNames = explode('.', $routeNames);
-                    $routeNames = array_filter($routeNames, function ($value) {
-                        return ! is_null($value) && $value !== '';
+                    $segments = explode('.', $routeNames);
+
+                    Collection::make($segments)->each(function ($segment) use ($route, $method, $middleware) {
+                        $this->structure['item'][] = $this->makeItem($route, $method, $middleware);
                     });
 
-                    $destination = end($routeNames);
+                    $foo = Collection::make($this->structure['item']);
 
+                    $foo->transform(function ($route, $key) {
+                        $parts = explode('.', $key);
 
+                        return $this->buildTree($parts, $route);
+                    });
+
+                    $this->structure[] = $foo;
                 } else {
-                    $this->structure['item'][] = $request;
+                    $this->structure['item'][] = $this->makeItem($route, $method, $middleware);
                 }
             }
         }
 
         Storage::put($exportName = "$filename.json", json_encode($this->structure));
 
-//        $this->info("Postman Collection Exported: $exportName");
+       $this->info("Postman Collection Exported: $exportName");
 
-        dump($this->structure);
+    }
+
+    protected function buildTree(array $folders, array $request)
+    {
+        $result = [];
+        $last = end($folders);
+
+        foreach ($folders as $key => $folder) {
+            $key = Collection::times($key + 1, function () {
+                return 'item';
+            })->join('.');
+
+            if ($folder != $last) {
+                // if the folder is not the last, let's make a new item to keep nesting inside of
+                Arr::set($result, $key, [
+                    'name' => $folder,
+                    'item' => [],
+                ]);
+            } else {
+                Arr::set($result, $key, $request);
+            }
+        }
+
+        return $result;
     }
 
     protected function initStructure(string $filename): void
