@@ -75,11 +75,10 @@ class ExportPostman extends Command
             $structure = Collection::make($this->structure);
 
             $structure = $structure->transform(function ($route, $key) {
-                    $parts = explode('.', $key);
+                $parts = explode('.', $key);
 
-                    return $this->buildTree($parts, $route);
-                })->values();
-
+                return $this->buildTree($parts, $route);
+            })->values();
 
             $structure->dump();
         }
