@@ -2,13 +2,13 @@
 
 namespace AndreasElia\PostmanGenerator;
 
-use Illuminate\Support\Arr;
+use Illuminate\Console\Command;
+use Illuminate\Contracts\Config\Repository;
 use Illuminate\Routing\Route;
 use Illuminate\Routing\Router;
-use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Contracts\Config\Repository;
 
 class ExportPostman extends Command
 {
@@ -77,8 +77,7 @@ class ExportPostman extends Command
 
         Storage::put($exportName = "$filename.json", json_encode($this->structure));
 
-       $this->info("Postman Collection Exported: $exportName");
-
+        $this->info("Postman Collection Exported: $exportName");
     }
 
     protected function buildTree(array $folders, array $request)
