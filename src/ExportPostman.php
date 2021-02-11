@@ -128,7 +128,7 @@ class ExportPostman extends Command
         return $headers;
     }
 
-    public function makeItem(Route $route, string $method): array
+    public function makeItem(Route $route, string $method, array $middleware): array
     {
         return [
             'name' => $route->uri(),
