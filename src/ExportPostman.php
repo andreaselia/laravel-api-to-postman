@@ -69,7 +69,10 @@ class ExportPostman extends Command
 
         if ($this->config['structured']) {
             Collection::make($structuredData)->each(function ($request, $segment) {
-                $this->structure[$segment] = $request;
+                $this->structure['item'][$segment] = [
+                    'name' => $segment,
+                    'item' => $request,
+                ];
             });
 
             $structure = Collection::make($this->structure);
