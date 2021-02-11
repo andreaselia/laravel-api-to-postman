@@ -81,7 +81,7 @@ class ExportPostman extends Command
                 $parts = explode('.', $key);
 
                 return $this->buildTree($parts, $route);
-            })->values();
+            });
 
             $structure->dump();
         }
