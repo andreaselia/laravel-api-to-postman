@@ -47,20 +47,20 @@ class ExportPostman extends Command
             $this->generateBearer();
         }
 
-        $structuredData = [];
+        $segments = [];
 
         foreach ($this->router->getRoutes() as $route) {
             $middleware = $route->gatherMiddleware();
 
             foreach ($route->methods as $method) {
-                if ($method == 'HEAD' || empty($middleware) || ! in_array('api', $middleware)) {
+                if ($method === 'HEAD' || empty($middleware) || ! in_array('api', $middleware)) {
                     continue;
                 }
 
                 if ($this->config['structured']) {
                     $segment = $route->action['as'] ?? null;
 
-                    $structuredData[$segment][] = $this->makeItem($route, $method, $middleware);
+                    $segments[$segment][] = $this->makeItem($route, $method, $middleware);
                 } else {
                     $this->structure['item'][] = $this->makeItem($route, $method, $middleware);
                 }
@@ -68,7 +68,7 @@ class ExportPostman extends Command
         }
 
         if ($this->config['structured']) {
-            Collection::make($structuredData)->each(function ($request, $segment) {
+            Collection::make($segments)->each(function ($request, $segment) {
                 $this->structure['item'][] = [
                     'name' => $segment,
                     'item' => $request,
