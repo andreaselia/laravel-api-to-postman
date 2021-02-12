@@ -2,9 +2,10 @@
 
 namespace AndreasElia\PostmanGenerator;
 
-use Illuminate\Console\Command;
 use Illuminate\Routing\Router;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Contracts\Config\Repository;
 
 class ExportPostman extends Command
 {
@@ -20,32 +21,26 @@ class ExportPostman extends Command
     /** @var array */
     protected $routes;
 
-    public function __construct(Router $router)
+    /** @var array */
+    protected $config;
+
+    public function __construct(Router $router, Repository $config)
     {
         parent::__construct();
 
         $this->router = $router;
+        $this->config = $config['api-postman'];
     }
 
     public function handle(): void
     {
         $bearer = $this->option('bearer') ?? false;
 
-        $this->routes = [
-            'variable' => [
-                [
-                    'key' => 'base_url',
-                    'value' => config('api-postman.base_url'),
-                ],
-            ],
-            'info' => [
-                'name' => $filename = date('Y_m_d_His').'_postman',
-                'schema' => 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
-            ],
-            'item' => [],
-        ];
+        $filename = date('Y_m_d_His').'_postman';
 
-        $structured = config('api-postman.structured');
+        $this->initRoutes($filename);
+
+        $structured = $this->config['structured'];
 
         if ($bearer) {
             $this->routes['variable'][] = [
@@ -62,14 +57,9 @@ class ExportPostman extends Command
                     continue;
                 }
 
-                $routeHeaders = [
-                    [
-                        'key' => 'Content-Type',
-                        'value' => 'application/json',
-                    ],
-                ];
+                $routeHeaders = $this->config['route_headers'];
 
-                if ($bearer && in_array(config('api-postman.auth_middleware'), $middleware)) {
+                if ($bearer && in_array($this->config['auth_middleware'], $middleware)) {
                     $routeHeaders[] = [
                         'key' => 'Authorization',
                         'value' => 'Bearer {{token}}',
@@ -150,6 +140,23 @@ class ExportPostman extends Command
                     'host' => '{{base_url}}/'.$route->uri(),
                 ],
             ],
+        ];
+    }
+
+    protected function initRoutes(string $filename): void
+    {
+        $this->routes = [
+            'variable' => [
+                [
+                    'key' => 'base_url',
+                    'value' => $this->config['base_url'],
+                ],
+            ],
+            'info' => [
+                'name' => $filename,
+                'schema' => 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+            ],
+            'item' => [],
         ];
     }
 }

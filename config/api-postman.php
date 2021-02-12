@@ -28,4 +28,21 @@ return [
 
     'auth_middleware' => 'auth:api',
 
+    /*
+     * Route Headers.
+     *
+     * The headers applied to all routes within the collection.
+     */
+
+    'route_headers' => [
+        [
+            'key' => 'Accept',
+            'value' => 'application/json',
+        ],
+        [
+            'key' => 'Content-Type',
+            'value' => 'application/json',
+        ],
+    ],
+
 ];

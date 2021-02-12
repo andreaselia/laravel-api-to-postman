@@ -6,14 +6,31 @@ use Illuminate\Support\ServiceProvider;
 
 class PostmanGeneratorServiceProvider extends ServiceProvider
 {
-    public function register()
+    /**
+     * Bootstrap any package services.
+     *
+     * @return void
+     */
+    public function boot()
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
                 __DIR__.'/../config/api-postman.php' => config_path('api-postman.php'),
-            ], 'config');
+            ], 'postman-config');
         }
 
         $this->commands(ExportPostman::class);
+    }
+
+    /**
+     * Register any application services.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        $this->mergeConfigFrom(
+            __DIR__.'/../config/api-postman.php', 'api-postman'
+        );
     }
 }
