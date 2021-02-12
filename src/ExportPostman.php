@@ -83,12 +83,10 @@ class ExportPostman extends Command
                 }
 
                 if ($structured) {
-                    $not = ['index', 'show', 'store', 'update', 'destroy'];
-
                     $routeNames = $route->action['as'] ?? null;
                     $routeNames = explode('.', $routeNames);
-                    $routeNames = array_filter($routeNames, function ($value) use ($not) {
-                        return ! is_null($value) && $value !== '' && ! in_array($value, $not);
+                    $routeNames = array_filter($routeNames, function ($value) {
+                        return ! is_null($value) && $value !== '';
                     });
 
                     $destination = end($routeNames);
