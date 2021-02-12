@@ -107,8 +107,11 @@ class ExportPostman extends Command
 
         foreach ($segments as $segmentKey => $segment) {
             $matched = false;
+            $segmentItemKey = 0;
 
-            foreach ($parent['item'] as &$item) {
+            foreach ($parent['item'] as $itemKey => &$item) {
+                $segmentItemKey = $itemKey;
+
                 if ($item['name'] === $segment) {
                     $parent = &$item;
 
@@ -117,6 +120,7 @@ class ExportPostman extends Command
                     }
 
                     $matched = true;
+
                     break;
                 }
             }
@@ -124,9 +128,15 @@ class ExportPostman extends Command
             unset($item);
 
             if (! $matched) {
+                $seggies = implode(';', $segments);
+                $segCount = count($segments);
+                $endSegment = end($segments);
+
+                print_r("$segmentItemKey - $endSegment - $seggies ;; $segment - $segmentKey - $segCount\n");
+
                 $item = [
                     'name' => $segment,
-                    'item' => $segmentKey !== 0 ? [$request] : [],
+                    'item' => $segment == $endSegment ? [$request] : [],
                 ];
 
                 $parent['item'][] = &$item;
