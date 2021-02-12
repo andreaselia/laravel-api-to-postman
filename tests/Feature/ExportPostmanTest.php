@@ -2,9 +2,6 @@
 
 namespace AndreasElia\PostmanGenerator\Tests\Feature;
 
-use Illuminate\Support\Facades\Artisan;
-use Symfony\Component\Console\Output\BufferedOutput;
-
 class ExportPostmanTest extends \AndreasElia\PostmanGenerator\Tests\TestCase
 {
     public function test_standard_export_works()
