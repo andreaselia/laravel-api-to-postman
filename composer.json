@@ -21,9 +21,14 @@
             "AndreasElia\\PostmanGenerator\\": "src/"
         }
     },
-    "minimum-stability": "dev",
     "require": {
-        "php": "^7.4|^8.0"
+        "php": "^7.4|^8.0",
+        "ext-json": "*",
+        "illuminate/config": "^8.0",
+        "illuminate/console": "^8.0",
+        "illuminate/contracts": "^8.0",
+        "illuminate/support": "^8.0",
+        "illuminate/routing": "^8.0"
     },
     "extra": {
         "laravel": {
@@ -31,5 +36,7 @@
                 "AndreasElia\\PostmanGenerator\\PostmanGeneratorServiceProvider"
             ]
         }
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

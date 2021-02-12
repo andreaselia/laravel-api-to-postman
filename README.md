@@ -22,7 +22,7 @@ composer require andreaselia/laravel-api-to-postman
 Publish the config file:
 
 ```bash
-php artisan vendor:publish --provider="AndreasElia\PostmanGenerator\PostmanGeneratorServiceProvider" --tag="config"
+php artisan vendor:publish --provider="AndreasElia\PostmanGenerator\PostmanGeneratorServiceProvider" --tag="postman-config"
 ```
 
 ## Configuration
