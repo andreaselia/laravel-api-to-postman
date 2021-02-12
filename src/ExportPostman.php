@@ -105,7 +105,7 @@ class ExportPostman extends Command
     {
         $parent = &$routes;
 
-        foreach ($segments as  $segment) {
+        foreach ($segments as $segment) {
             $matched = false;
 
             foreach ($parent['item'] as &$item) {
