@@ -3,41 +3,38 @@
 namespace AndreasElia\PostmanGenerator\Tests\Feature;
 
 use Illuminate\Support\Facades\Artisan;
+use Symfony\Component\Console\Output\BufferedOutput;
 
 class ExportPostmanTest extends \AndreasElia\PostmanGenerator\Tests\TestCase
 {
-    protected function setUp(): void
+    public function test_standard_export_works()
     {
-        parent::setUp();
-    }
-
-    protected function test_standard_export_works()
-    {
-        Artisan::call('export:postman');
-
-        // get output
+        $this->artisan('export:postman')
+            ->assertExitCode(0);
 
         // ensure output contains json x
     }
 
-    protected function test_bearer_export_works()
+    public function test_bearer_export_works()
     {
-        Artisan::call('export:postman --bearer=1234567890');
+        $this->artisan('export:postman --bearer=1234567890')
+            ->assertExitCode(0);
 
-        // get output
+        $this->assertTrue(true);
 
         // ensure output contains json x
 
         // ensure output has headers and variable json
     }
 
-    protected function test_structured_export_works()
+    public function test_structured_export_works()
     {
         // set structured to true in config
 
-        Artisan::call('export:postman');
+        $this->artisan('export:postman')
+            ->assertExitCode(0);
 
-        // get output
+        $this->assertTrue(true);
 
         // ensure output contains json x
     }
