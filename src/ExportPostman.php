@@ -101,11 +101,11 @@ class ExportPostman extends Command
         $this->info("Postman Collection Exported: $exportName");
     }
 
-    protected function ensurePath(array &$root, array $segments, array $request, string $destination): void
+    protected function ensurePath(array &$routes, array $segments, array $request, string $destination): void
     {
-        $parent = &$root;
+        $parent = &$routes;
 
-        foreach ($segments as $segment) {
+        foreach ($segments as $segmentKey => $segment) {
             $matched = false;
 
             foreach ($parent['item'] as &$item) {
@@ -126,7 +126,7 @@ class ExportPostman extends Command
             if (! $matched) {
                 $item = [
                     'name' => $segment,
-                    'item' => [$request],
+                    'item' => $segmentKey !== 0 ? [$request] : [],
                 ];
 
                 $parent['item'][] = &$item;
