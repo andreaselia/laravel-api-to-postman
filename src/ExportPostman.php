@@ -38,7 +38,7 @@ class ExportPostman extends Command
 
         $filename = date('Y_m_d_His').'_postman';
 
-        $this->initRoutes($filename);
+        $this->initStructure($filename);
 
         $structured = $this->config['structured'];
 
