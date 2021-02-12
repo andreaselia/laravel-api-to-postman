@@ -143,7 +143,7 @@ class ExportPostman extends Command
         ];
     }
 
-    protected function initRoutes(string $filename): void
+    protected function initStructure(string $filename): void
     {
         $this->structure = [
             'variable' => [
