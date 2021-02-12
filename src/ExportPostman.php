@@ -127,7 +127,7 @@ class ExportPostman extends Command
             if (! $matched) {
                 $item = [
                     'name' => $segment,
-                    'item' => $segment == $destination ? [$request] : [],
+                    'item' => $segment === $destination ? [$request] : [],
                 ];
 
                 $parent['item'][] = &$item;
