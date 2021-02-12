@@ -19,7 +19,7 @@ class ExportPostman extends Command
     protected $router;
 
     /** @var array */
-    protected $routes;
+    protected $structure;
 
     /** @var array */
     protected $config;
@@ -43,7 +43,7 @@ class ExportPostman extends Command
         $structured = $this->config['structured'];
 
         if ($bearer) {
-            $this->routes['variable'][] = [
+            $this->structure['variable'][] = [
                 'key' => 'token',
                 'value' => $bearer,
             ];
@@ -57,7 +57,7 @@ class ExportPostman extends Command
                     continue;
                 }
 
-                $routeHeaders = $this->config['route_headers'];
+                $routeHeaders = $this->config['headers'];
 
                 if ($bearer && in_array($this->config['auth_middleware'], $middleware)) {
                     $routeHeaders[] = [
@@ -69,7 +69,7 @@ class ExportPostman extends Command
                 $request = $this->makeItem($route, $method, $routeHeaders);
 
                 if (! $structured) {
-                    $this->routes['item'][] = $request;
+                    $this->structure['item'][] = $request;
                 }
 
                 if ($structured) {
@@ -81,12 +81,12 @@ class ExportPostman extends Command
 
                     $destination = end($routeNames);
 
-                    $this->ensurePath($this->routes, $routeNames, $request, $destination);
+                    $this->ensurePath($this->structure, $routeNames, $request, $destination);
                 }
             }
         }
 
-        Storage::put($exportName = "$filename.json", json_encode($this->routes));
+        Storage::put($exportName = "$filename.json", json_encode($this->structure));
 
         $this->info("Postman Collection Exported: $exportName");
     }
@@ -145,7 +145,7 @@ class ExportPostman extends Command
 
     protected function initRoutes(string $filename): void
     {
-        $this->routes = [
+        $this->structure = [
             'variable' => [
                 [
                     'key' => 'base_url',
