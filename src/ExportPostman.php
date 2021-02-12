@@ -105,7 +105,7 @@ class ExportPostman extends Command
     {
         $parent = &$routes;
 
-        foreach ($segments as $segmentKey => $segment) {
+        foreach ($segments as $segment) {
             $matched = false;
 
             foreach ($parent['item'] as &$item) {
@@ -117,6 +117,7 @@ class ExportPostman extends Command
                     }
 
                     $matched = true;
+
                     break;
                 }
             }
@@ -126,7 +127,7 @@ class ExportPostman extends Command
             if (! $matched) {
                 $item = [
                     'name' => $segment,
-                    'item' => $segmentKey !== 0 ? [$request] : [],
+                    'item' => $segment === $destination ? [$request] : [],
                 ];
 
                 $parent['item'][] = &$item;
