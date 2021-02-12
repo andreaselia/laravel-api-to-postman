@@ -4,7 +4,7 @@ namespace AndreasElia\PostmanGenerator\Tests\Feature;
 
 use Illuminate\Support\Facades\Artisan;
 
-class ExportPostmanTest extends \Tests\TestCase
+class ExportPostmanTest extends \AndreasElia\PostmanGenerator\Tests\TestCase
 {
     protected function setUp(): void
     {
