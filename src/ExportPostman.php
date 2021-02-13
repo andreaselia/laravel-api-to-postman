@@ -57,6 +57,10 @@ class ExportPostman extends Command
                     continue;
                 }
 
+                // if ($route->hasParameters()) {
+                //     dd(123);
+                // }
+
                 $routeHeaders = $this->config['headers'];
 
                 if ($bearer && in_array($this->config['auth_middleware'], $middleware)) {
@@ -73,7 +77,12 @@ class ExportPostman extends Command
                 }
 
                 if ($structured) {
-                    $routeNames = $route->action['as'] ?? null;
+                    $routeUri = explode('/', $route->uri());
+                    // remove "api"
+                    unset($routeUri[0]);
+
+                    $routeNames = $route->action['as'] ?? implode('.', $routeUri);
+
                     $routeNames = explode('.', $routeNames);
                     $routeNames = array_filter($routeNames, function ($value) {
                         return ! is_null($value) && $value !== '';
