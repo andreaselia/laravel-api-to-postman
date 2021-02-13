@@ -2,10 +2,12 @@
 
 namespace AndreasElia\PostmanGenerator;
 
-use Illuminate\Console\Command;
-use Illuminate\Contracts\Config\Repository;
+use ReflectionClass;
 use Illuminate\Routing\Router;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Contracts\Config\Repository;
 
 class ExportPostman extends Command
 {
@@ -52,10 +54,23 @@ class ExportPostman extends Command
         foreach ($this->router->getRoutes() as $route) {
             $middleware = $route->middleware();
 
+            // if ($route->hasParameters()) {
+                // dd(gettype($route));
+            // }
+
             foreach ($route->methods as $method) {
                 if ($method == 'HEAD' || empty($middleware) || $middleware[0] !== 'api') {
                     continue;
                 }
+
+                $routeAction = $route->getAction();
+                $routeData = explode('@', $routeAction['uses']);
+
+                $reflection = new ReflectionClass($routeData[0]);
+
+                $method = $reflection->getMethod($routeData[1]);
+
+                dd($method->getName());
 
                 $routeHeaders = $this->config['headers'];
 
