@@ -2,12 +2,11 @@
 
 namespace AndreasElia\PostmanGenerator;
 
-use ReflectionClass;
-use Illuminate\Routing\Router;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Contracts\Config\Repository;
+use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Storage;
+use ReflectionClass;
 
 class ExportPostman extends Command
 {
@@ -54,23 +53,28 @@ class ExportPostman extends Command
         foreach ($this->router->getRoutes() as $route) {
             $middleware = $route->middleware();
 
-            // if ($route->hasParameters()) {
-                // dd(gettype($route));
-            // }
-
             foreach ($route->methods as $method) {
                 if ($method == 'HEAD' || empty($middleware) || $middleware[0] !== 'api') {
                     continue;
                 }
 
-                $routeAction = $route->getAction();
-                $routeData = explode('@', $routeAction['uses']);
+                $requestRules = [];
 
-                $reflection = new ReflectionClass($routeData[0]);
+                if (true) {
+                    $routeAction = $route->getAction();
 
-                $method = $reflection->getMethod($routeData[1]);
+                    $routeData = explode('@', $routeAction['uses']);
 
-                dd($method->getName());
+                    $reflection = new ReflectionClass($routeData[0]);
+                    $reflectionMethod = $reflection->getMethod($routeData[1]);
+                    $firstParameter = $reflectionMethod->getParameters()[0];
+
+                    if ($firstParameter->name === 'request') {
+                        $requestClass = $firstParameter->getType()->getName();
+                        $requestRules = (new $requestClass)->rules();
+                        $requestRules = array_keys($requestRules);
+                    }
+                }
 
                 $routeHeaders = $this->config['headers'];
 
@@ -81,7 +85,7 @@ class ExportPostman extends Command
                     ];
                 }
 
-                $request = $this->makeItem($route, $method, $routeHeaders);
+                $request = $this->makeItem($route, $method, $routeHeaders, $requestRules);
 
                 if (! $structured) {
                     $this->structure['item'][] = $request;
@@ -143,9 +147,9 @@ class ExportPostman extends Command
         }
     }
 
-    public function makeItem($route, $method, $routeHeaders)
+    public function makeItem($route, $method, $routeHeaders, $requestRules)
     {
-        return  [
+        $data = [
             'name' => $route->uri(),
             'request' => [
                 'method' => strtoupper($method),
@@ -156,6 +160,25 @@ class ExportPostman extends Command
                 ],
             ],
         ];
+
+        if ($requestRules) {
+            $ruleData = [];
+
+            foreach ($requestRules as $rule) {
+                $ruleData[] = [
+                    'key' => $rule,
+                    'value' => $this->config['formdata'][$rule] ?? null,
+                    'type' => 'text',
+                ];
+            }
+
+            $data['request']['body'] = [
+                'mode' => 'urlencoded',
+                'urlencoded' => $ruleData,
+            ];
+        }
+
+        return $data;
     }
 
     protected function initStructure(string $filename): void
