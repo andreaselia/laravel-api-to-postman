@@ -1,6 +1,6 @@
 <?php
 
-namespace AndreasElia\PostmanGenerator;
+namespace AndreasElia\PostmanGenerator\Commands;
 
 use Closure;
 use Illuminate\Console\Command;
@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 use ReflectionClass;
 use ReflectionFunction;
 
-class ExportPostman extends Command
+class ExportPostmanCommand extends Command
 {
     /** @var string */
     protected $signature = 'export:postman {--bearer= : The bearer token to use on your endpoints}';
