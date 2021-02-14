@@ -2,14 +2,40 @@
 
 namespace AndreasElia\PostmanGenerator\Tests\Feature;
 
-class ExportPostmanTest extends \AndreasElia\PostmanGenerator\Tests\TestCase
+use AndreasElia\PostmanGenerator\Tests\TestCase;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Storage;
+
+class ExportPostmanTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config()->set('api-postman.filename', 'test.json');
+
+        Storage::disk()->deleteDirectory('postman');
+    }
+
     public function test_standard_export_works()
     {
-        $this->artisan('export:postman')
-            ->assertExitCode(0);
+        $this->artisan('export:postman')->assertExitCode(0);
 
-        // ensure output contains json x
+        $collection = json_decode(Storage::get('postman/'.config('api-postman.filename')), true);
+
+        $routes = $this->app['router']->getRoutes();
+
+        $collectionItems = $collection['item'];
+
+        $this->assertCount(count($routes), $collectionItems);
+        foreach ($routes as $route) {
+            $collectionRoute = Arr::first($collectionItems, function ($item) use ($route) {
+                return $item['name'] == $route->uri();
+            });
+
+            $this->assertNotNull($collectionRoute);
+            $this->assertTrue(in_array($collectionRoute['request']['method'], $route->methods()));
+        }
     }
 
     public function test_bearer_export_works()
