@@ -3,11 +3,11 @@
 namespace AndreasElia\PostmanGenerator;
 
 use Closure;
-use ReflectionClass;
-use Illuminate\Routing\Router;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Contracts\Config\Repository;
+use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Storage;
+use ReflectionClass;
 
 class ExportPostman extends Command
 {
@@ -63,11 +63,8 @@ class ExportPostman extends Command
                     $routeAction = $route->getAction();
 
                     if ($routeAction['uses'] instanceof Closure) {
-                        // dd($routeAction['uses']);
                         $reflection = new ReflectionClass($routeAction['uses']);
-                        // dd($reflection->getMethods());
                         $reflectionMethod = $reflection->getMethod('__invoke');
-                        // dd($reflectionMethod->getParameters());
                     } else {
                         $routeData = explode('@', $routeAction['uses']);
                         $reflection = new ReflectionClass($routeData[0]);
