@@ -43,11 +43,9 @@ class ExportPostmanCommand extends Command
 
     public function handle(): void
     {
-        $bearer = $this->option('bearer') ?? false;
-
         $this->initStructure();
 
-        if ($bearer) {
+        if ($bearer = $this->option('bearer') ?? false) {
             $this->structure['variable'][] = [
                 'key' => 'token',
                 'value' => $bearer,
@@ -100,7 +98,7 @@ class ExportPostmanCommand extends Command
 
                 $request = $this->makeItem($route, $method, $routeHeaders, $requestRules);
 
-                if ($this->config['structured']) {
+                if ($this->isStructured()) {
                     $routeNames = $route->action['as'] ?? null;
 
                     if (! $routeNames) {
@@ -226,5 +224,10 @@ class ExportPostmanCommand extends Command
             [date('Y_m_d_His'), Str::snake(config('app.name'))],
             $this->config['filename']
         );
+    }
+
+    protected function isStructured()
+    {
+        return $this->config['structured'];
     }
 }
