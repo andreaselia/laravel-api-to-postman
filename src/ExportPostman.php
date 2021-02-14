@@ -9,6 +9,7 @@ use Illuminate\Routing\Router;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Contracts\Config\Repository;
+use Illuminate\Foundation\Http\FormRequest;
 
 class ExportPostman extends Command
 {
@@ -73,10 +74,15 @@ class ExportPostman extends Command
 
                     $firstParameter = $reflectionMethod->getParameters()[0] ?? false;
 
-                    if ($firstParameter && $firstParameter->name === 'request') {
+                    if ($firstParameter) {
                         $requestClass = $firstParameter->getType()->getName();
-                        $requestRules = (new $requestClass)->rules();
-                        $requestRules = array_keys($requestRules);
+                        $requestClass = new $requestClass();
+
+                        if ($requestClass instanceof FormRequest) {
+                            $requestRules = $requestClass->rules();
+
+                            $requestRules = array_keys($requestRules);
+                        }
                     }
                 }
 
