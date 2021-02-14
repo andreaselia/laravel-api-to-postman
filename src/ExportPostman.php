@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ExportPostman extends Command
 {
@@ -24,21 +25,23 @@ class ExportPostman extends Command
     /** @var array */
     protected $config;
 
+    /** @var null */
+    protected $filename;
+
     public function __construct(Router $router, Repository $config)
     {
         parent::__construct();
 
         $this->router = $router;
         $this->config = $config['api-postman'];
+        $this->filename = $this->formatFilename();
     }
 
     public function handle(): void
     {
         $bearer = $this->option('bearer') ?? false;
 
-        $filename = date('Y_m_d_His').'_postman';
-
-        $this->initStructure($filename);
+        $this->initStructure();
 
         $structured = $this->config['structured'];
 
@@ -86,7 +89,7 @@ class ExportPostman extends Command
             }
         }
 
-        Storage::put($exportName = "$filename.json", json_encode($this->structure));
+        Storage::put($exportName = "postman/$this->filename", json_encode($this->structure));
 
         $this->info("Postman Collection Exported: $exportName");
     }
@@ -143,7 +146,7 @@ class ExportPostman extends Command
         ];
     }
 
-    protected function initStructure(string $filename): void
+    protected function initStructure(): void
     {
         $this->structure = [
             'variable' => [
@@ -153,10 +156,19 @@ class ExportPostman extends Command
                 ],
             ],
             'info' => [
-                'name' => $filename,
+                'name' => $this->filename,
                 'schema' => 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
             ],
             'item' => [],
         ];
+    }
+
+    protected function formatFilename()
+    {
+        return str_replace(
+            ['{timestamp}', '{app}'],
+            [date('Y_m_d_His'), Str::snake(config('app.name'))],
+            $this->config['filename']
+        );
     }
 }
