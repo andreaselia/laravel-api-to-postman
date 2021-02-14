@@ -2,6 +2,7 @@
 
 namespace AndreasElia\PostmanGenerator;
 
+use AndreasElia\PostmanGenerator\Commands\ExportPostmanCommand;
 use Illuminate\Support\ServiceProvider;
 
 class PostmanGeneratorServiceProvider extends ServiceProvider
@@ -19,7 +20,7 @@ class PostmanGeneratorServiceProvider extends ServiceProvider
             ], 'postman-config');
         }
 
-        $this->commands(ExportPostman::class);
+        $this->commands(ExportPostmanCommand::class);
     }
 
     /**
