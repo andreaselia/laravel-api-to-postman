@@ -3,20 +3,20 @@
 return [
 
     /*
-     * Structured.
-     *
-     * If you want folders to be generated based on namespace.
-     */
-
-    'structured' => false,
-
-    /*
      * Base URL.
      *
      * The base URL for all of your endpoints.
      */
 
     'base_url' => env('APP_URL', 'http://localhost'),
+
+    /*
+     * Structured.
+     *
+     * If you want folders to be generated based on namespace.
+     */
+
+    'structured' => false,
 
     /*
      * Auth Middleware.
