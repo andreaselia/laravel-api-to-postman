@@ -3,13 +3,13 @@
 namespace AndreasElia\PostmanGenerator;
 
 use Closure;
-use ReflectionClass;
-use ReflectionFunction;
-use Illuminate\Routing\Router;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Storage;
+use ReflectionClass;
+use ReflectionFunction;
 
 class ExportPostman extends Command
 {
