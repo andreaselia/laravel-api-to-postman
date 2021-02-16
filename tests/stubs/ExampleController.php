@@ -1,8 +1,8 @@
 <?php
 
-namespace AndreasElia\Tests\Stubs;
+namespace AndreasElia\PostmanGenerator\Tests\Stubs;
 
-use App\Http\Controllers\Controller;
+use Illuminate\Routing\Controller;
 
 class ExampleController extends Controller
 {
