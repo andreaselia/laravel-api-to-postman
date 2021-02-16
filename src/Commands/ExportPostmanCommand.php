@@ -53,10 +53,11 @@ class ExportPostmanCommand extends Command
         }
 
         foreach ($this->router->getRoutes() as $route) {
-            $middleware = $route->middleware();
+            $methods = collect($route->methods())->reject(fn($method) => $method == 'HEAD');
+            $middleware = $route->gatherMiddleware();
 
-            foreach ($route->methods as $method) {
-                if ($method == 'HEAD' || empty($middleware) || $middleware[0] !== 'api') {
+            foreach ($methods as $method) {
+                if (empty($middleware) || !in_array('api', $middleware)) {
                     continue;
                 }
 
