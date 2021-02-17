@@ -97,7 +97,7 @@ class ExportPostmanCommand extends Command
                     ];
                 }
 
-                $request = $this->makeItem($route, $method, $routeHeaders, $requestRules);
+                $request = $this->makeRequest($route, $method, $routeHeaders, $requestRules);
 
                 if ($this->isStructured()) {
                     $routeNames = $route->action['as'] ?? null;
@@ -116,9 +116,7 @@ class ExportPostmanCommand extends Command
                         return ! is_null($value) && $value !== '';
                     });
 
-                    $destination = end($routeNames);
-
-                    $this->ensurePath($this->structure, $routeNames, $request, $destination);
+                    $this->buildTree($this->structure, $routeNames, $request);
                 } else {
                     $this->structure['item'][] = $request;
                 }
@@ -130,9 +128,10 @@ class ExportPostmanCommand extends Command
         $this->info("Postman Collection Exported: $exportName");
     }
 
-    protected function ensurePath(array &$routes, array $segments, array $request, string $destination): void
+    protected function buildTree(array &$routes, array $segments, array $request): void
     {
         $parent = &$routes;
+        $destination = end($segments);
 
         foreach ($segments as $segment) {
             $matched = false;
@@ -167,7 +166,7 @@ class ExportPostmanCommand extends Command
         }
     }
 
-    public function makeItem($route, $method, $routeHeaders, $requestRules)
+    public function makeRequest($route, $method, $routeHeaders, $requestRules)
     {
         $data = [
             'name' => $route->uri(),
