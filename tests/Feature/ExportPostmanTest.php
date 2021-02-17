@@ -28,6 +28,7 @@ class ExportPostmanTest extends TestCase
         $collectionItems = $collection['item'];
 
         $this->assertCount(count($routes), $collectionItems);
+
         foreach ($routes as $route) {
             $collectionRoute = Arr::first($collectionItems, function ($item) use ($route) {
                 return $item['name'] == $route->uri();
@@ -40,14 +41,34 @@ class ExportPostmanTest extends TestCase
 
     public function test_bearer_export_works()
     {
-        $this->artisan('export:postman --bearer=1234567890')
-            ->assertExitCode(0);
+        $this->artisan('export:postman --bearer=1234567890')->assertExitCode(0);
 
-        $this->assertTrue(true);
+        $collection = json_decode(Storage::get('postman/'.config('api-postman.filename')), true);
 
-        // ensure output contains json x
+        $routes = $this->app['router']->getRoutes();
 
-        // ensure output has headers and variable json
+        $collectionVariables = $collection['variable'];
+
+        foreach ($collectionVariables as $variable) {
+            if ($variable['key'] != 'token') continue;
+
+            $this->assertEquals($variable['value'], '1234567890');
+        }
+
+        $this->assertCount(2, $collectionVariables);
+
+        $collectionItems = $collection['item'];
+
+        $this->assertCount(count($routes), $collectionItems);
+
+        foreach ($routes as $route) {
+            $collectionRoute = Arr::first($collectionItems, function ($item) use ($route) {
+                return $item['name'] == $route->uri();
+            });
+
+            $this->assertNotNull($collectionRoute);
+            $this->assertTrue(in_array($collectionRoute['request']['method'], $route->methods()));
+        }
     }
 
     public function test_structured_export_works()
@@ -59,6 +80,21 @@ class ExportPostmanTest extends TestCase
 
         $this->assertTrue(true);
 
-        // ensure output contains json x
+        $collection = json_decode(Storage::get('postman/'.config('api-postman.filename')), true);
+
+        $routes = $this->app['router']->getRoutes();
+
+        $collectionItems = $collection['item'];
+
+        $this->assertCount(count($routes), $collectionItems);
+
+        foreach ($routes as $route) {
+            $collectionRoute = Arr::first($collectionItems, function ($item) use ($route) {
+                return $item['name'] == $route->uri();
+            });
+
+            $this->assertNotNull($collectionRoute);
+            $this->assertTrue(in_array($collectionRoute['request']['method'], $route->methods()));
+        }
     }
 }

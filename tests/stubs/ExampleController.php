@@ -6,19 +6,23 @@ use App\Http\Controllers\Controller;
 
 class ExampleController extends Controller
 {
-    public function index() {
+    public function index(): string
+    {
         return 'index';
     }
 
-    public function show() {
+    public function show(): string
+    {
         return 'show';
     }
 
-    public function store() {
+    public function store(): string
+    {
         return 'store';
     }
 
-    public function delete() {
+    public function delete(): string
+    {
         return 'delete';
     }
 }
