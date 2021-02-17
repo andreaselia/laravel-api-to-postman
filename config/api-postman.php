@@ -45,4 +45,23 @@ return [
         ],
     ],
 
+    /*
+     * Enable Form Data.
+     *
+     * Determines whether or not form data should be handled.
+     */
+
+    'enable_formdata' => false,
+
+    /*
+     * Form Data.
+     *
+     * The key/values to requests for form data dummy information.
+     */
+
+    'formdata' => [
+        // 'email' => 'john@example.com',
+        // 'password' => 'changeme',
+    ],
+
 ];
