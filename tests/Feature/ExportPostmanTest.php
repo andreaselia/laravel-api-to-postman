@@ -50,7 +50,9 @@ class ExportPostmanTest extends TestCase
         $collectionVariables = $collection['variable'];
 
         foreach ($collectionVariables as $variable) {
-            if ($variable['key'] != 'token') continue;
+            if ($variable['key'] != 'token') {
+                continue;
+            }
 
             $this->assertEquals($variable['value'], '1234567890');
         }
@@ -73,6 +75,8 @@ class ExportPostmanTest extends TestCase
 
     public function test_structured_export_works()
     {
+        config()->set('api-postman.structured', true);
+
         // set structured to true in config
 
         $this->artisan('export:postman')
@@ -86,15 +90,6 @@ class ExportPostmanTest extends TestCase
 
         $collectionItems = $collection['item'];
 
-        $this->assertCount(count($routes), $collectionItems);
-
-        foreach ($routes as $route) {
-            $collectionRoute = Arr::first($collectionItems, function ($item) use ($route) {
-                return $item['name'] == $route->uri();
-            });
-
-            $this->assertNotNull($collectionRoute);
-            $this->assertTrue(in_array($collectionRoute['request']['method'], $route->methods()));
-        }
+        $this->assertCount(count($routes), $collectionItems[0]['item']);
     }
 }
