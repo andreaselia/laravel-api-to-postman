@@ -74,6 +74,16 @@ class ExportPostman extends Command
 
                 if ($structured) {
                     $routeNames = $route->action['as'] ?? null;
+
+                    if (! $routeNames) {
+                        $routeUri = explode('/', $route->uri());
+
+                        // remove "api" from the start
+                        unset($routeUri[0]);
+
+                        $routeNames = implode('.', $routeUri);
+                    }
+
                     $routeNames = explode('.', $routeNames);
                     $routeNames = array_filter($routeNames, function ($value) {
                         return ! is_null($value) && $value !== '';
