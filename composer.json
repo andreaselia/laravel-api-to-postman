@@ -21,6 +21,11 @@
             "AndreasElia\\PostmanGenerator\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "AndreasElia\\PostmanGenerator\\Tests\\": "tests"
+        }
+    },
     "require": {
         "php": "^7.4|^8.0",
         "ext-json": "*",
@@ -38,5 +43,8 @@
         }
     },
     "minimum-stability": "dev",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "require-dev": {
+        "orchestra/testbench": "^6.12"
+    }
 }

@@ -3,20 +3,28 @@
 return [
 
     /*
-     * Structured.
-     *
-     * If you want folders to be generated based on namespace.
-     */
-
-    'structured' => false,
-
-    /*
      * Base URL.
      *
      * The base URL for all of your endpoints.
      */
 
     'base_url' => env('APP_URL', 'http://localhost'),
+
+    /*
+     * Collection filename.
+     *
+     * The name for the collection file to be saved.
+     */
+
+    'filename' => '{timestamp}_{app}_collection.json',
+
+    /*
+     * Structured.
+     *
+     * If you want folders to be generated based on namespace.
+     */
+
+    'structured' => false,
 
     /*
      * Auth Middleware.

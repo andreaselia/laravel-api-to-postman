@@ -1,6 +1,6 @@
 <?php
 
-namespace AndreasElia\PostmanGenerator;
+namespace AndreasElia\PostmanGenerator\Commands;
 
 use Closure;
 use Illuminate\Console\Command;
@@ -8,10 +8,11 @@ use Illuminate\Contracts\Config\Repository;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use ReflectionClass;
 use ReflectionFunction;
 
-class ExportPostman extends Command
+class ExportPostmanCommand extends Command
 {
     /** @var string */
     protected $signature = 'export:postman {--bearer= : The bearer token to use on your endpoints}';
@@ -28,23 +29,23 @@ class ExportPostman extends Command
     /** @var array */
     protected $config;
 
+    /** @var null */
+    protected $filename;
+
     public function __construct(Router $router, Repository $config)
     {
         parent::__construct();
 
         $this->router = $router;
         $this->config = $config['api-postman'];
+        $this->filename = $this->formatFilename();
     }
 
     public function handle(): void
     {
-        $bearer = $this->option('bearer') ?? false;
+        $this->initStructure();
 
-        $filename = date('Y_m_d_His').'_postman';
-
-        $this->initStructure($filename);
-
-        if ($bearer) {
+        if ($bearer = $this->option('bearer') ?? false) {
             $this->structure['variable'][] = [
                 'key' => 'token',
                 'value' => $bearer,
@@ -52,10 +53,11 @@ class ExportPostman extends Command
         }
 
         foreach ($this->router->getRoutes() as $route) {
-            $middleware = $route->middleware();
+            $methods = collect($route->methods())->reject(fn ($method) => $method == 'HEAD');
+            $middleware = $route->gatherMiddleware();
 
-            foreach ($route->methods as $method) {
-                if ($method == 'HEAD' || empty($middleware) || $middleware[0] !== 'api') {
+            foreach ($methods as $method) {
+                if (empty($middleware) || ! in_array('api', $middleware)) {
                     continue;
                 }
 
@@ -95,9 +97,9 @@ class ExportPostman extends Command
                     ];
                 }
 
-                $request = $this->makeItem($route, $method, $routeHeaders, $requestRules);
+                $request = $this->makeRequest($route, $method, $routeHeaders, $requestRules);
 
-                if ($this->config['structured']) {
+                if ($this->isStructured()) {
                     $routeNames = $route->action['as'] ?? null;
 
                     if (! $routeNames) {
@@ -114,23 +116,22 @@ class ExportPostman extends Command
                         return ! is_null($value) && $value !== '';
                     });
 
-                    $destination = end($routeNames);
-
-                    $this->ensurePath($this->structure, $routeNames, $request, $destination);
+                    $this->buildTree($this->structure, $routeNames, $request);
                 } else {
                     $this->structure['item'][] = $request;
                 }
             }
         }
 
-        Storage::put($exportName = "$filename.json", json_encode($this->structure));
+        Storage::put($exportName = "postman/$this->filename", json_encode($this->structure));
 
         $this->info("Postman Collection Exported: $exportName");
     }
 
-    protected function ensurePath(array &$routes, array $segments, array $request, string $destination): void
+    protected function buildTree(array &$routes, array $segments, array $request): void
     {
         $parent = &$routes;
+        $destination = end($segments);
 
         foreach ($segments as $segment) {
             $matched = false;
@@ -165,7 +166,7 @@ class ExportPostman extends Command
         }
     }
 
-    public function makeItem($route, $method, $routeHeaders, $requestRules)
+    public function makeRequest($route, $method, $routeHeaders, $requestRules)
     {
         $data = [
             'name' => $route->uri(),
@@ -199,7 +200,7 @@ class ExportPostman extends Command
         return $data;
     }
 
-    protected function initStructure(string $filename): void
+    protected function initStructure(): void
     {
         $this->structure = [
             'variable' => [
@@ -209,10 +210,24 @@ class ExportPostman extends Command
                 ],
             ],
             'info' => [
-                'name' => $filename,
+                'name' => $this->filename,
                 'schema' => 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
             ],
             'item' => [],
         ];
+    }
+
+    protected function formatFilename()
+    {
+        return str_replace(
+            ['{timestamp}', '{app}'],
+            [date('Y_m_d_His'), Str::snake(config('app.name'))],
+            $this->config['filename']
+        );
+    }
+
+    protected function isStructured()
+    {
+        return $this->config['structured'];
     }
 }
