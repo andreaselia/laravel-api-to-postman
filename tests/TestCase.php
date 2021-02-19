@@ -2,7 +2,7 @@
 
 namespace AndreasElia\PostmanGenerator\Tests;
 
-use AndreasElia\PostmanGenerator\Tests\Stubs\ExampleController;
+use AndreasElia\PostmanGenerator\Tests\Fixtures\ExampleController;
 
 class TestCase extends \Orchestra\Testbench\TestCase
 {
