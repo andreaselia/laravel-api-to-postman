@@ -27,14 +27,9 @@ php artisan vendor:publish --provider="AndreasElia\PostmanGenerator\PostmanGener
 
 ## Configuration
 
-You can modify the `api-postman.php` config values:
+You can modify any of the `api-postman.php` config values to suit your export requirements.
 
-- `structured` - If you want folders to be generated based on route names.
-- `base_url` - The base URL for all of your endpoints.
-- `auth_middleware` - The middleware which wraps your authenticated API routes.
-- `headers` - The headers applied to all routes within the collection.
-- `enable_formdata` - Determines whether or not form data should be handled.
-- `formdata` - The key/values to requests for form data dummy information.
+Click [here](/config/api-postman.php) to view the config attributes.
 
 ## Usage
 
