@@ -72,4 +72,13 @@ return [
         // 'password' => 'changeme',
     ],
 
+    /*
+     * Include Middleware.
+     *
+     * The middleware items you want to include for export.
+     */
+
+    'include_middleware' => ['api'],
+
+
 ];

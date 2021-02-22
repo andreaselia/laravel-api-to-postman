@@ -57,7 +57,17 @@ class ExportPostmanCommand extends Command
             $middleware = $route->gatherMiddleware();
 
             foreach ($methods as $method) {
-                if (empty($middleware) || ! in_array('api', $middleware)) {
+                $includedMiddleware = false;
+
+                foreach ($middleware as $mw) {
+                    if (! in_array($mw, $this->config['include_middleware'])) {
+                        continue;
+                    }
+
+                    $includedMiddleware = true;
+                }
+
+                if (empty($middleware) && ! $includedMiddleware) {
                     continue;
                 }
 
