@@ -74,17 +74,24 @@ class ExportPostmanCommand extends Command
                         $reflectionMethod = $reflection->getMethod($routeData[1]);
                     }
 
-                    $firstParameter = $reflectionMethod->getParameters()[0] ?? false;
+                    $rulesParameter = null;
 
-                    if ($firstParameter) {
-                        $requestClass = $firstParameter->getType()->getName();
-                        $requestClass = class_exists($requestClass) ? new $requestClass() : null;
-
-                        if ($requestClass instanceof FormRequest) {
-                            $requestRules = $requestClass->rules();
-
-                            $requestRules = array_keys($requestRules);
+                    foreach ($reflectionMethod->getParameters() as $parameter) {
+                        if (! $parameterType = $parameter->getType()) {
+                            continue;
                         }
+
+                        $requestClass = $parameterType->getName();
+
+                        if (class_exists($requestClass)) {
+                            $rulesParameter = new $requestClass();
+                        }
+                    }
+
+                    if ($rulesParameter && $rulesParameter instanceof FormRequest) {
+                        $requestRules = $rulesParameter->rules();
+
+                        $requestRules = array_keys($requestRules);
                     }
                 }
 
