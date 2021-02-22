@@ -77,9 +77,7 @@ class ExportPostmanCommand extends Command
                     $rulesParameter = null;
 
                     foreach ($reflectionMethod->getParameters() as $parameter) {
-                        $parameterType = $parameter->getType();
-
-                        if (! $parameterType) {
+                        if (! $parameterType = $parameter->getType()) {
                             continue;
                         }
 
