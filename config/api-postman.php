@@ -80,5 +80,4 @@ return [
 
     'include_middleware' => ['api'],
 
-
 ];
