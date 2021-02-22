@@ -54,20 +54,18 @@ class ExportPostmanCommand extends Command
 
         foreach ($this->router->getRoutes() as $route) {
             $methods = collect($route->methods())->reject(fn ($method) => $method == 'HEAD');
-            $middleware = $route->gatherMiddleware();
+            $middlewares = $route->gatherMiddleware();
 
             foreach ($methods as $method) {
                 $includedMiddleware = false;
 
-                foreach ($middleware as $mw) {
-                    if (! in_array($mw, $this->config['include_middleware'])) {
-                        continue;
+                foreach ($middlewares as $middleware) {
+                    if (in_array($middleware, $this->config['include_middleware'])) {
+                        $includedMiddleware = true;
                     }
-
-                    $includedMiddleware = true;
                 }
 
-                if (empty($middleware) && ! $includedMiddleware) {
+                if (empty($middlewares) || ! $includedMiddleware) {
                     continue;
                 }
 
@@ -100,7 +98,7 @@ class ExportPostmanCommand extends Command
 
                 $routeHeaders = $this->config['headers'];
 
-                if ($bearer && in_array($this->config['auth_middleware'], $middleware)) {
+                if ($bearer && in_array($this->config['auth_middleware'], $middlewares)) {
                     $routeHeaders[] = [
                         'key' => 'Authorization',
                         'value' => 'Bearer {{token}}',
