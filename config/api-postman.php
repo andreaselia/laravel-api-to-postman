@@ -80,4 +80,11 @@ return [
 
     'include_middleware' => ['api'],
 
+    /*
+     * Disk to use
+     *
+     * Default to output on local disk
+     */
+    'disk' => 'local'
+
 ];
