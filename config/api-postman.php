@@ -85,6 +85,6 @@ return [
      *
      * Default to output on local disk
      */
-    'disk' => 'local'
+    'disk' => 'local',
 
 ];
