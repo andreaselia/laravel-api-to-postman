@@ -81,9 +81,9 @@ return [
     'include_middleware' => ['api'],
 
     /*
-     * Disk to use
+     * Disk Driver.
      *
-     * Default to output on local disk
+     * Specify the configured disk for storing the postman collection file.
      */
     'disk' => 'local',
 
