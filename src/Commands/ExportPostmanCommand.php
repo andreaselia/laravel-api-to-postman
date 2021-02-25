@@ -150,7 +150,7 @@ class ExportPostmanCommand extends Command
         $routeData = explode('@', $routeAction['uses']);
         $reflection = new ReflectionClass($routeData[0]);
 
-        if ($this->config['available_methods_only'] && ! $reflection->hasMethod($routeData[1])) {
+        if (! $reflection->hasMethod($routeData[1])) {
             return null;
         }
 
