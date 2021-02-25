@@ -65,27 +65,25 @@ class ExportPostmanCommand extends Command
                     }
                 }
 
-                if (empty($middlewares) || ! $includedMiddleware) {
+                if (empty($middlewares) || !$includedMiddleware) {
                     continue;
                 }
 
                 $requestRules = [];
 
+                $routeAction = $route->getAction();
+
+                $reflectionMethod = $this->getReflectionMethod($routeAction);
+
+                if (!$reflectionMethod) {
+                    continue;
+                }
+
                 if ($this->config['enable_formdata']) {
-                    $routeAction = $route->getAction();
-
-                    if ($routeAction['uses'] instanceof Closure) {
-                        $reflectionMethod = new ReflectionFunction($routeAction['uses']);
-                    } else {
-                        $routeData = explode('@', $routeAction['uses']);
-                        $reflection = new ReflectionClass($routeData[0]);
-                        $reflectionMethod = $reflection->getMethod($routeData[1]);
-                    }
-
                     $rulesParameter = null;
 
                     foreach ($reflectionMethod->getParameters() as $parameter) {
-                        if (! $parameterType = $parameter->getType()) {
+                        if (!$parameterType = $parameter->getType()) {
                             continue;
                         }
 
@@ -117,7 +115,7 @@ class ExportPostmanCommand extends Command
                 if ($this->isStructured()) {
                     $routeNames = $route->action['as'] ?? null;
 
-                    if (! $routeNames) {
+                    if (!$routeNames) {
                         $routeUri = explode('/', $route->uri());
 
                         // remove "api" from the start
@@ -128,7 +126,7 @@ class ExportPostmanCommand extends Command
 
                     $routeNames = explode('.', $routeNames);
                     $routeNames = array_filter($routeNames, function ($value) {
-                        return ! is_null($value) && $value !== '';
+                        return !is_null($value) && $value !== '';
                     });
 
                     $this->buildTree($this->structure, $routeNames, $request);
@@ -141,6 +139,22 @@ class ExportPostmanCommand extends Command
         Storage::disk($this->config['disk'])->put($exportName = "postman/$this->filename", json_encode($this->structure));
 
         $this->info("Postman Collection Exported: $exportName");
+    }
+
+    protected function getReflectionMethod(array $routeAction): ?object
+    {
+        if ($routeAction['uses'] instanceof Closure) {
+            return new ReflectionFunction($routeAction['uses']);
+        }
+
+        $routeData = explode('@', $routeAction['uses']);
+        $reflection = new ReflectionClass($routeData[0]);
+
+        if ($this->config['available_methods_only'] && !$reflection->hasMethod($routeData[1])) {
+            return null;
+        }
+
+        return $reflection->getMethod($routeData[1]);
     }
 
     protected function buildTree(array &$routes, array $segments, array $request): void
@@ -167,7 +181,7 @@ class ExportPostmanCommand extends Command
 
             unset($item);
 
-            if (! $matched) {
+            if (!$matched) {
                 $item = [
                     'name' => $segment,
                     'item' => $segment === $destination ? [$request] : [],
@@ -189,8 +203,8 @@ class ExportPostmanCommand extends Command
                 'method' => strtoupper($method),
                 'header' => $routeHeaders,
                 'url' => [
-                    'raw' => '{{base_url}}/'.$route->uri(),
-                    'host' => '{{base_url}}/'.$route->uri(),
+                    'raw' => '{{base_url}}/' . $route->uri(),
+                    'host' => '{{base_url}}/' . $route->uri(),
                 ],
             ],
         ];

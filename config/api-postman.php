@@ -87,4 +87,12 @@ return [
      */
     'disk' => 'local',
 
+    /*
+     * Generate for available controller methods only
+     *
+     * Forces generation to only generate items for actual methods instead of all the
+     * standard scaffolded ones. Useful for API resources where form routes are not used.
+     */
+    'available_methods_only' => true,
+
 ];
