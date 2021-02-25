@@ -126,7 +126,7 @@ class ExportPostmanCommand extends Command
 
                     $routeNames = explode('.', $routeNames);
                     $routeNames = array_filter($routeNames, function ($value) {
-                        return ! is_null($value) && $value ! == '';
+                        return ! is_null($value) && $value !== '';
                     });
 
                     $this->buildTree($this->structure, $routeNames, $request);
