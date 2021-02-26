@@ -71,17 +71,15 @@ class ExportPostmanCommand extends Command
 
                 $requestRules = [];
 
+                $routeAction = $route->getAction();
+
+                $reflectionMethod = $this->getReflectionMethod($routeAction);
+
+                if (! $reflectionMethod) {
+                    continue;
+                }
+
                 if ($this->config['enable_formdata']) {
-                    $routeAction = $route->getAction();
-
-                    if ($routeAction['uses'] instanceof Closure) {
-                        $reflectionMethod = new ReflectionFunction($routeAction['uses']);
-                    } else {
-                        $routeData = explode('@', $routeAction['uses']);
-                        $reflection = new ReflectionClass($routeData[0]);
-                        $reflectionMethod = $reflection->getMethod($routeData[1]);
-                    }
-
                     $rulesParameter = null;
 
                     foreach ($reflectionMethod->getParameters() as $parameter) {
@@ -141,6 +139,22 @@ class ExportPostmanCommand extends Command
         Storage::disk($this->config['disk'])->put($exportName = "postman/$this->filename", json_encode($this->structure));
 
         $this->info("Postman Collection Exported: $exportName");
+    }
+
+    protected function getReflectionMethod(array $routeAction): ?object
+    {
+        if ($routeAction['uses'] instanceof Closure) {
+            return new ReflectionFunction($routeAction['uses']);
+        }
+
+        $routeData = explode('@', $routeAction['uses']);
+        $reflection = new ReflectionClass($routeData[0]);
+
+        if (! $reflection->hasMethod($routeData[1])) {
+            return null;
+        }
+
+        return $reflection->getMethod($routeData[1]);
     }
 
     protected function buildTree(array &$routes, array $segments, array $request): void

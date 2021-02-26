@@ -86,5 +86,4 @@ return [
      * Specify the configured disk for storing the postman collection file.
      */
     'disk' => 'local',
-
 ];
