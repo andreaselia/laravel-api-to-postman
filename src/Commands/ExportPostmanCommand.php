@@ -38,12 +38,12 @@ class ExportPostmanCommand extends Command
 
         $this->router = $router;
         $this->config = $config['api-postman'];
-        $this->filename = $this->formatFilename();
     }
 
     public function handle(): void
     {
-        $this->initStructure();
+        $this->setFilename();
+        $this->initializeStructure();
 
         if ($bearer = $this->option('bearer') ?? false) {
             $this->structure['variable'][] = [
@@ -229,7 +229,7 @@ class ExportPostmanCommand extends Command
         return $data;
     }
 
-    protected function initStructure(): void
+    protected function initializeStructure(): void
     {
         $this->structure = [
             'variable' => [
@@ -246,9 +246,9 @@ class ExportPostmanCommand extends Command
         ];
     }
 
-    protected function formatFilename()
+    protected function setFilename()
     {
-        return str_replace(
+        $this->filename = str_replace(
             ['{timestamp}', '{app}'],
             [date('Y_m_d_His'), Str::snake(config('app.name'))],
             $this->config['filename']
