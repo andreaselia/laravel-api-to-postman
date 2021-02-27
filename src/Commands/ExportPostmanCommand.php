@@ -45,13 +45,6 @@ class ExportPostmanCommand extends Command
         $this->setFilename();
         $this->initializeStructure();
 
-        if ($bearer = $this->option('bearer') ?? false) {
-            $this->structure['variable'][] = [
-                'key' => 'token',
-                'value' => $bearer,
-            ];
-        }
-
         foreach ($this->router->getRoutes() as $route) {
             $methods = collect($route->methods())->reject(fn ($method) => $method == 'HEAD');
             $middlewares = $route->gatherMiddleware();
@@ -244,6 +237,13 @@ class ExportPostmanCommand extends Command
             ],
             'item' => [],
         ];
+
+        if ($bearer = $this->option('bearer') ?? false) {
+            $this->structure['variable'][] = [
+                'key' => 'token',
+                'value' => $bearer,
+            ];
+        }
     }
 
     protected function setFilename()
