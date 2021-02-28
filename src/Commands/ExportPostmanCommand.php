@@ -50,7 +50,7 @@ class ExportPostmanCommand extends Command
         $this->initializeStructure();
 
         foreach ($this->router->getRoutes() as $route) {
-            $methods = collect($route->methods())->reject(fn ($method) => $method == 'HEAD');
+            $methods = array_filter($route->methods(), fn ($value) => $value !== 'HEAD');
             $middlewares = $route->gatherMiddleware();
 
             foreach ($methods as $method) {
