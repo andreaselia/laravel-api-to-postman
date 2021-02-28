@@ -32,28 +32,25 @@ class ExportPostmanCommand extends Command
     /** @var null */
     protected $filename;
 
+    /** @var string */
+    private $bearer;
+
     public function __construct(Router $router, Repository $config)
     {
         parent::__construct();
 
         $this->router = $router;
         $this->config = $config['api-postman'];
-        $this->filename = $this->formatFilename();
     }
 
     public function handle(): void
     {
-        $this->initStructure();
-
-        if ($bearer = $this->option('bearer') ?? false) {
-            $this->structure['variable'][] = [
-                'key' => 'token',
-                'value' => $bearer,
-            ];
-        }
+        $this->setFilename();
+        $this->setBearerToken();
+        $this->initializeStructure();
 
         foreach ($this->router->getRoutes() as $route) {
-            $methods = collect($route->methods())->reject(fn ($method) => $method == 'HEAD');
+            $methods = array_filter($route->methods(), fn ($value) => $value !== 'HEAD');
             $middlewares = $route->gatherMiddleware();
 
             foreach ($methods as $method) {
@@ -103,7 +100,7 @@ class ExportPostmanCommand extends Command
 
                 $routeHeaders = $this->config['headers'];
 
-                if ($bearer && in_array($this->config['auth_middleware'], $middlewares)) {
+                if ($this->bearer && in_array($this->config['auth_middleware'], $middlewares)) {
                     $routeHeaders[] = [
                         'key' => 'Authorization',
                         'value' => 'Bearer {{token}}',
@@ -229,7 +226,7 @@ class ExportPostmanCommand extends Command
         return $data;
     }
 
-    protected function initStructure(): void
+    protected function initializeStructure(): void
     {
         $this->structure = [
             'variable' => [
@@ -244,15 +241,27 @@ class ExportPostmanCommand extends Command
             ],
             'item' => [],
         ];
+
+        if ($this->bearer) {
+            $this->structure['variable'][] = [
+                'key' => 'token',
+                'value' => $this->bearer,
+            ];
+        }
     }
 
-    protected function formatFilename()
+    protected function setFilename()
     {
-        return str_replace(
+        $this->filename = str_replace(
             ['{timestamp}', '{app}'],
             [date('Y_m_d_His'), Str::snake(config('app.name'))],
             $this->config['filename']
         );
+    }
+
+    protected function setBearerToken()
+    {
+        $this->bearer = $this->option('bearer') ?? null;
     }
 
     protected function isStructured()
