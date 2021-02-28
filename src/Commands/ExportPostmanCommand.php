@@ -32,6 +32,9 @@ class ExportPostmanCommand extends Command
     /** @var null */
     protected $filename;
 
+    /** @var string */
+    private $bearer;
+
     public function __construct(Router $router, Repository $config)
     {
         parent::__construct();
@@ -43,6 +46,7 @@ class ExportPostmanCommand extends Command
     public function handle(): void
     {
         $this->setFilename();
+        $this->setBearerToken();
         $this->initializeStructure();
 
         foreach ($this->router->getRoutes() as $route) {
@@ -96,7 +100,7 @@ class ExportPostmanCommand extends Command
 
                 $routeHeaders = $this->config['headers'];
 
-                if ($bearer && in_array($this->config['auth_middleware'], $middlewares)) {
+                if ($this->bearer && in_array($this->config['auth_middleware'], $middlewares)) {
                     $routeHeaders[] = [
                         'key' => 'Authorization',
                         'value' => 'Bearer {{token}}',
@@ -238,10 +242,10 @@ class ExportPostmanCommand extends Command
             'item' => [],
         ];
 
-        if ($bearer = $this->option('bearer') ?? false) {
+        if ($this->bearer) {
             $this->structure['variable'][] = [
                 'key' => 'token',
-                'value' => $bearer,
+                'value' => $this->bearer,
             ];
         }
     }
@@ -253,6 +257,11 @@ class ExportPostmanCommand extends Command
             [date('Y_m_d_His'), Str::snake(config('app.name'))],
             $this->config['filename']
         );
+    }
+
+    protected function setBearerToken()
+    {
+        $this->bearer = $this->option('bearer') ?? null;
     }
 
     protected function isStructured()
