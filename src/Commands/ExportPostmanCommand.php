@@ -69,7 +69,6 @@ class ExportPostmanCommand extends Command
                 $requestRules = [];
 
                 $routeAction = $route->getAction();
-
                 $reflectionMethod = $this->getReflectionMethod($routeAction);
 
                 if (! $reflectionMethod) {
@@ -95,6 +94,8 @@ class ExportPostmanCommand extends Command
                         $requestRules = $rulesParameter->rules();
 
                         $requestRules = array_keys($requestRules);
+                    } else {
+                        $requestRules = $this->parseForInlineRules($reflectionMethod);
                     }
                 }
 
@@ -136,6 +137,57 @@ class ExportPostmanCommand extends Command
         Storage::disk($this->config['disk'])->put($exportName = "postman/$this->filename", json_encode($this->structure));
 
         $this->info("Postman Collection Exported: $exportName");
+    }
+
+    /**
+     * Look for inline validations such as $request->make() and
+     * Validator::make().
+     * 
+     * @param object $reflectionMethod
+     * @return array
+     */
+    protected function parseForInlineRules($reflectionMethod)
+    {
+        $controllerPath = $reflectionMethod->getFileName();
+        $controllerContents = file_get_contents($controllerPath);
+
+        $tokens = token_get_all($controllerContents);
+        
+        $fields = [];
+
+        $inMethod = '';
+        $inValidation = false;
+        $parsedFields = false;
+        foreach ($tokens as $k => $token) {
+            if (is_array($token)) {
+                if(token_name($token[0]) === 'T_FUNCTION') $inMethod = $tokens[$k + 2][1];
+                if($inMethod === $reflectionMethod->name) {
+                    if(token_name($token[0]) === 'T_STRING' && 
+                        ($token[1] === 'validate' && $tokens[$k-1][1] === '->') || // Matching $request->make
+                        ($token[1] === 'make' && $tokens[$k-2][1] === 'Validator')) { // Matching Validator::make
+                        $inValidation = true;
+                        continue;
+                    }
+
+                    if(in_array(token_name($token[0]), ['T_STRING', 'T_VARIABLE', 'T_FUNCTION']) && $parsedFields) { // When we're outside the validator
+                        $inValidation = false;
+                        continue;
+                    }
+
+                    if($inValidation) {
+                        if(token_name($token[0]) === 'T_DOUBLE_ARROW') {
+                            $field = $tokens[$k-1];
+                            if(token_name($tokens[$k-1][0]) == 'T_WHITESPACE') $field = $tokens[$k-2];
+
+                            $fields[] = str_replace(['"', "'"], "", $field[1]);
+                            $parsedFields = true;
+                        }
+                    }
+                }
+            }
+        }
+        
+        return $fields;
     }
 
     protected function getReflectionMethod(array $routeAction): ?object
