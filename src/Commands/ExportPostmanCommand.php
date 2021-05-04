@@ -140,6 +140,11 @@ class ExportPostmanCommand extends Command
 
     protected function getReflectionMethod(array $routeAction): ?object
     {
+        // Hydrates the closure if it is an instance of Opis\Closure\SerializableClosure
+        if (is_string($routeAction['uses']) && Str::startsWith($routeAction['uses'], 'C:32:"Opis\\Closure\\SerializableClosure') !== false) {
+            $routeAction['uses'] = unserialize($routeAction['uses'])->getClosure();
+        }
+
         if ($routeAction['uses'] instanceof Closure) {
             return new ReflectionFunction($routeAction['uses']);
         }
