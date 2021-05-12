@@ -7,6 +7,7 @@ use Illuminate\Console\Command;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Routing\Router;
+use Illuminate\Routing\RouteAction;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use ReflectionClass;
@@ -141,7 +142,7 @@ class ExportPostmanCommand extends Command
     protected function getReflectionMethod(array $routeAction): ?object
     {
         // Hydrates the closure if it is an instance of Opis\Closure\SerializableClosure
-        if (is_string($routeAction['uses']) && Str::startsWith($routeAction['uses'], 'C:32:"Opis\\Closure\\SerializableClosure') !== false) {
+        if (RouteAction::containsSerializedClosure($routeAction)) {
             $routeAction['uses'] = unserialize($routeAction['uses'])->getClosure();
         }
 
