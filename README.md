@@ -44,7 +44,7 @@ php artisan export:postman
 The following usage will generate routes with the bearer token specified.
 
 ```bash
-php artisan export:postman --bearer=1|XXNKXXqJjfzG8XXSvXX1Q4pxxnkXmp8tT8TXXKXX
+php artisan export:postman --bearer="1|XXNKXXqJjfzG8XXSvXX1Q4pxxnkXmp8tT8TXXKXX"
 ```
 
 ## Examples
