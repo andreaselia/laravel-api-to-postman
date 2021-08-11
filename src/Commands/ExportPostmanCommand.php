@@ -87,12 +87,12 @@ class ExportPostmanCommand extends Command
 
                         $requestClass = $parameterType->getName();
 
-                        if (class_exists($requestClass)) {
+                        if (is_subclass_of($requestRules, FormRequest::class)) {
                             $rulesParameter = new $requestClass();
                         }
                     }
 
-                    if ($rulesParameter && $rulesParameter instanceof FormRequest) {
+                    if ($rulesParameter instanceof FormRequest) {
                         $requestRules = $rulesParameter->rules();
 
                         $requestRules = array_keys($requestRules);

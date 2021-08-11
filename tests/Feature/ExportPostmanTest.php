@@ -17,8 +17,13 @@ class ExportPostmanTest extends TestCase
         Storage::disk()->deleteDirectory('postman');
     }
 
-    public function test_standard_export_works()
+    /**
+     * @dataProvider providerFormDataEnabled
+     */
+    public function test_standard_export_works(bool $formDataEnabled)
     {
+        config()->set('api-postman.enable_formdata', $formDataEnabled);
+    
         $this->artisan('export:postman')->assertExitCode(0);
 
         $collection = json_decode(Storage::get('postman/'.config('api-postman.filename')), true);
@@ -28,6 +33,7 @@ class ExportPostmanTest extends TestCase
         $collectionItems = $collection['item'];
 
         $this->assertCount(count($routes), $collectionItems);
+    
         foreach ($routes as $route) {
             $collectionRoute = Arr::first($collectionItems, function ($item) use ($route) {
                 return $item['name'] == $route->uri();
@@ -38,14 +44,19 @@ class ExportPostmanTest extends TestCase
         }
     }
 
-    public function test_bearer_export_works()
+    /**
+     * @dataProvider providerFormDataEnabled
+     */
+    public function test_bearer_export_works(bool $formDataEnabled)
     {
+        config()->set('api-postman.enable_formdata', $formDataEnabled);
+    
         $this->artisan('export:postman --bearer=1234567890')->assertExitCode(0);
 
         $collection = json_decode(Storage::get('postman/'.config('api-postman.filename')), true);
 
         $routes = $this->app['router']->getRoutes();
-
+    
         $collectionVariables = $collection['variable'];
 
         foreach ($collectionVariables as $variable) {
@@ -72,12 +83,17 @@ class ExportPostmanTest extends TestCase
         }
     }
 
-    public function test_structured_export_works()
+    /**
+     * @dataProvider providerFormDataEnabled
+     */
+    public function test_structured_export_works(bool $formDataEnabled)
     {
-        config()->set('api-postman.structured', true);
+        config([
+            'api-postman.structured' => true,
+            'api-postman.enable_formdata' => $formDataEnabled,
+        ]);
 
-        $this->artisan('export:postman')
-            ->assertExitCode(0);
+        $this->artisan('export:postman')->assertExitCode(0);
 
         $this->assertTrue(true);
 
@@ -88,5 +104,17 @@ class ExportPostmanTest extends TestCase
         $collectionItems = $collection['item'];
 
         $this->assertCount(count($routes), $collectionItems[0]['item']);
+    }
+
+    public function providerFormDataEnabled(): array
+    {
+        return [
+            [
+                false,
+            ],
+            [
+                true,
+            ],
+        ];
     }
 }

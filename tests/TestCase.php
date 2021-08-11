@@ -18,6 +18,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
             $router->get('show', [ExampleController::class, 'show'])->name('show');
             $router->post('store', [ExampleController::class, 'store'])->name('store');
             $router->delete('delete', [ExampleController::class, 'delete'])->name('delete');
+            $router->get('showWithReflectionMethod', [ExampleController::class, 'showWithReflectionMethod'])->name('show-with-reflection-method');
         });
     }
 }
