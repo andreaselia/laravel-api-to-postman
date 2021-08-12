@@ -6,7 +6,6 @@ use Closure;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Routing\RouteAction;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -142,7 +141,7 @@ class ExportPostmanCommand extends Command
     protected function getReflectionMethod(array $routeAction): ?object
     {
         // Hydrates the closure if it is an instance of Opis\Closure\SerializableClosure
-        if (RouteAction::containsSerializedClosure($routeAction)) {
+        if ($this->containsSerializedClosure($routeAction)) {
             $routeAction['uses'] = unserialize($routeAction['uses'])->getClosure();
         }
 
@@ -158,6 +157,12 @@ class ExportPostmanCommand extends Command
         }
 
         return $reflection->getMethod($routeData[1]);
+    }
+
+    public static function containsSerializedClosure(array $action): bool
+    {
+        return is_string($action['uses']) &&
+            Str::startsWith($action['uses'], 'C:32:"Opis\\Closure\\SerializableClosure') !== false;
     }
 
     protected function buildTree(array &$routes, array $segments, array $request): void
