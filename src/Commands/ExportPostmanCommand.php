@@ -77,24 +77,34 @@ class ExportPostmanCommand extends Command
                 }
 
                 if ($this->config['enable_formdata']) {
-                    $rulesParameter = null;
+                    $rulesParameter = collect($reflectionMethod->getParameters())
+                        ->filter(function ($value, $key) {
+                            $value = $value->getType();
 
-                    foreach ($reflectionMethod->getParameters() as $parameter) {
-                        if (! $parameterType = $parameter->getType()) {
-                            continue;
-                        }
+                            return $value && is_subclass_of($value->getName(), FormRequest::class);
+                        })
+                        ->first();
 
-                        $requestClass = $parameterType->getName();
-
-                        if (is_subclass_of($requestClass, FormRequest::class)) {
-                            $rulesParameter = new $requestClass();
-                        }
+                    if (! $rulesParameter) {
+                        continue;
                     }
 
-                    if ($rulesParameter instanceof FormRequest) {
-                        $requestRules = $rulesParameter->rules();
+                    $rulesParameter = $rulesParameter->getType()->getName();
+                    $rulesParameter = new $rulesParameter;
 
-                        $requestRules = array_keys($requestRules);
+                    $requestRules = [];
+                    $rules = method_exists($rulesParameter, 'rules') ? $rulesParameter->rules() : [];
+
+                    foreach ($rules as $fieldName => $rule) {
+                        $requestRules[] = $fieldName;
+
+                        if (is_string($rule)) {
+                            $rule = preg_split('/\s*\|\s*/', $rule);
+                        }
+
+                        if (in_array('confirmed', $rule)) {
+                            $requestRules[] = $fieldName.'_confirmation';
+                        }
                     }
                 }
 
