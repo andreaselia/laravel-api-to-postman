@@ -80,7 +80,7 @@ class ExportPostmanCommand extends Command
                     $rulesParameter = collect($reflectionMethod->getParameters())
                         ->filter(function ($value, $key) {
                             $value = $value->getType();
-                        
+
                             return $value && is_subclass_of($value->getName(), FormRequest::class);
                         })
                         ->first();
@@ -103,7 +103,7 @@ class ExportPostmanCommand extends Command
                         }
 
                         if (in_array('confirmed', $rule)) {
-                            $requestRules[] = $fieldName . '_confirmation';
+                            $requestRules[] = $fieldName.'_confirmation';
                         }
                     }
                 }
