@@ -85,25 +85,21 @@ class ExportPostmanCommand extends Command
                         })
                         ->first();
 
-                    if (! $rulesParameter) {
-                        continue;
-                    }
+                    if ($rulesParameter) {
+                        $rulesParameter = $rulesParameter->getType()->getName();
+                        $rulesParameter = new $rulesParameter;
+                        $rules = method_exists($rulesParameter, 'rules') ? $rulesParameter->rules() : [];
 
-                    $rulesParameter = $rulesParameter->getType()->getName();
-                    $rulesParameter = new $rulesParameter;
+                        foreach ($rules as $fieldName => $rule) {
+                            $requestRules[] = $fieldName;
 
-                    $requestRules = [];
-                    $rules = method_exists($rulesParameter, 'rules') ? $rulesParameter->rules() : [];
+                            if (is_string($rule)) {
+                                $rule = preg_split('/\s*\|\s*/', $rule);
+                            }
 
-                    foreach ($rules as $fieldName => $rule) {
-                        $requestRules[] = $fieldName;
-
-                        if (is_string($rule)) {
-                            $rule = preg_split('/\s*\|\s*/', $rule);
-                        }
-
-                        if (in_array('confirmed', $rule)) {
-                            $requestRules[] = $fieldName.'_confirmation';
+                            if (in_array('confirmed', $rule)) {
+                                $requestRules[] = $fieldName.'_confirmation';
+                            }
                         }
                     }
                 }
