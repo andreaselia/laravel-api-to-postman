@@ -97,7 +97,7 @@ class ExportPostmanCommand extends Command
                                 $rule = preg_split('/\s*\|\s*/', $rule);
                             }
 
-                            if (in_array('confirmed', $rule)) {
+                            if (is_array($rule) && in_array('confirmed', $rule)) {
                                 $requestRules[] = $fieldName.'_confirmation';
                             }
                         }
