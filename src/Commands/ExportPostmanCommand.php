@@ -219,8 +219,8 @@ class ExportPostmanCommand extends Command
                 'method' => strtoupper($method),
                 'header' => $routeHeaders,
                 'url' => [
-                    'raw' => '{{base_url}}/' . $routeStr,
-                    'host' => '{{base_url}}/' . $routeStr,
+                    'raw' => '{{base_url}}/'.$routeStr,
+                    'host' => '{{base_url}}/'.$routeStr,
                 ],
             ],
         ];
