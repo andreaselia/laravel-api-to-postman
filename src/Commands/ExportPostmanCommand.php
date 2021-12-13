@@ -211,14 +211,16 @@ class ExportPostmanCommand extends Command
 
     public function makeRequest($route, $method, $routeHeaders, $requestRules)
     {
+        $routeStr = str_replace('}', '}}', str_replace('{', '{{', $route->uri()));
+
         $data = [
             'name' => $route->uri(),
             'request' => [
                 'method' => strtoupper($method),
                 'header' => $routeHeaders,
                 'url' => [
-                    'raw' => '{{base_url}}/'.$route->uri(),
-                    'host' => '{{base_url}}/'.$route->uri(),
+                    'raw' => '{{base_url}}/' . $routeStr,
+                    'host' => '{{base_url}}/' . $routeStr,
                 ],
             ],
         ];
