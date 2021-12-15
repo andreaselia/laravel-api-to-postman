@@ -227,13 +227,13 @@ class ExportPostmanCommand extends Command
                 'method' => strtoupper($method),
                 'header' => $routeHeaders,
                 'url' => [
-                    'raw' => '{{base_url}}/' . $routeStr,
-                    'host' => '{{base_url}}/' . $routeStr,
+                    'raw' => '{{base_url}}/'.$routeStr,
+                    'host' => '{{base_url}}/'.$routeStr,
                     'path' => explode('/', $routeStr),
-					'variable' => array_reduce($variables, function($varKeyValues, $variable){
+                    'variable' => array_reduce($variables, function ($varKeyValues, $variable) {
                         $varKeyValues[] = [
                             'key' => $variable,
-							'value' => '',
+                            'value' => '',
                         ];
 
                         return $varKeyValues;
@@ -261,7 +261,7 @@ class ExportPostmanCommand extends Command
 
         return $data;
     }
-
+    
     protected function initializeStructure(): void
     {
         $this->structure = [
