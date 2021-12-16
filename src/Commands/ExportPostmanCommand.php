@@ -211,15 +211,9 @@ class ExportPostmanCommand extends Command
 
     public function makeRequest($route, $method, $routeHeaders, $requestRules)
     {
-        preg_match_all('/(?={([[:alnum:]]+)})/si', $route->uri(), $variables, PREG_SET_ORDER, 0);
+        $uri = Str::of($route->uri());
 
-        if (count($variables)) {
-            // Flatten Matches and Filter Empty Values
-            $variables = array_filter(array_merge(...array_values($variables)));
-        }
-
-        // Replace URI {variable} with :variable
-        $routeStr = str_replace(['}', '{'], ['', ':'], $route->uri());
+        $variables = $uri->matchAll('/(?<={)[[:alnum:]]+(?=})/m');
 
         $data = [
             'name' => $route->uri(),
@@ -227,21 +221,16 @@ class ExportPostmanCommand extends Command
                 'method' => strtoupper($method),
                 'header' => $routeHeaders,
                 'url' => [
-                    'raw' => '{{base_url}}/'.$routeStr,
-                    'host' => '{{base_url}}/'.$routeStr,
-                    'path' => explode('/', $routeStr),
-                    'variable' => array_reduce($variables, function ($varKeyValues, $variable) {
-                        $varKeyValues[] = [
-                            'key' => $variable,
-                            'value' => '',
-                        ];
-
-                        return $varKeyValues;
-                    }, []),
+                    'raw' => '{{base_url}}/'.$uri->replaceMatches('/{([[:alnum:]]+)}/', ':$1'),
+                    'host' => ['{{base_url}}'],
+                    'path' => $uri->explode('/'),
+                    'variable' => $variables->transform(function ($variable) {
+                        return ['key' => $variable, 'value' => ''];
+                    })->all()
                 ],
             ],
         ];
-
+        
         if ($requestRules) {
             $ruleData = [];
 
