@@ -230,7 +230,7 @@ class ExportPostmanCommand extends Command
                 ],
             ],
         ];
-        
+
         if ($requestRules) {
             $ruleData = [];
 
@@ -250,7 +250,7 @@ class ExportPostmanCommand extends Command
 
         return $data;
     }
-    
+
     protected function initializeStructure(): void
     {
         $this->structure = [
