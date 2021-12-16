@@ -223,7 +223,7 @@ class ExportPostmanCommand extends Command
                 'url' => [
                     'raw' => '{{base_url}}/'.$uri->replaceMatches('/{([[:alnum:]]+)}/', ':$1'),
                     'host' => ['{{base_url}}'],
-                    'path' => $uri->explode('/'),
+                    'path' => $uri->explode('/')->filter(),
                     'variable' => $variables->transform(function ($variable) {
                         return ['key' => $variable, 'value' => ''];
                     })->all(),
