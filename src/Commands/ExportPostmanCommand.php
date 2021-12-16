@@ -211,14 +211,22 @@ class ExportPostmanCommand extends Command
 
     public function makeRequest($route, $method, $routeHeaders, $requestRules)
     {
+        $uri = Str::of($route->uri())->replaceMatches('/{([[:alnum:]]+)}/', ':$1');
+
+        $variables = $uri->matchAll('/(?<={)[[:alnum:]]+(?=})/m');
+
         $data = [
             'name' => $route->uri(),
             'request' => [
                 'method' => strtoupper($method),
                 'header' => $routeHeaders,
                 'url' => [
-                    'raw' => '{{base_url}}/'.$route->uri(),
-                    'host' => '{{base_url}}/'.$route->uri(),
+                    'raw' => '{{base_url}}/'.$uri,
+                    'host' => ['{{base_url}}'],
+                    'path' => $uri->explode('/')->filter(),
+                    'variable' => $variables->transform(function ($variable) {
+                        return ['key' => $variable, 'value' => ''];
+                    })->all(),
                 ],
             ],
         ];
