@@ -226,7 +226,7 @@ class ExportPostmanCommand extends Command
                     'path' => $uri->explode('/'),
                     'variable' => $variables->transform(function ($variable) {
                         return ['key' => $variable, 'value' => ''];
-                    })->all()
+                    })->all(),
                 ],
             ],
         ];
