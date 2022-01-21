@@ -36,14 +36,14 @@ class ExportPostmanCommand extends Command
 
     /** @var string */
     private $token;
-    
+
     /** @var string */
     private $authType;
-    
+
     /** @var array */
     private const AUTH_OPTIONS = [
         'bearer',
-        'basic'
+        'basic',
     ];
 
     public function __construct(Router $router, Repository $config)
@@ -119,14 +119,14 @@ class ExportPostmanCommand extends Command
 
                 if ($this->token && in_array($this->config['auth_middleware'], $middlewares)) {
                     
-                    switch($this->authType) {
+                    switch ($this->authType) {
                         case 'bearer': 
                             $routeHeaders[] = [
                                 'key' => 'Authorization',
                                 'value' => 'Bearer {{token}}',
                             ];
                             break;
-                        
+
                         case 'basic':
                             $routeHeaders[] = [
                                 'key' => 'Authorization',
@@ -310,7 +310,7 @@ class ExportPostmanCommand extends Command
     protected function setAuthToken()
     {
         foreach (self::AUTH_OPTIONS as $option) {
-            if($token = $this->option($option)) {
+            if ($token = $this->option($option)) {
                 $this->token = $token ?? null;
                 $this->authType = $option;
             }
