@@ -67,7 +67,7 @@ class ExportPostmanCommand extends Command
                     }
                 }
 
-                if (empty($middlewares) || !$includedMiddleware) {
+                if (empty($middlewares) || ! $includedMiddleware) {
                     continue;
                 }
 
@@ -77,7 +77,7 @@ class ExportPostmanCommand extends Command
 
                 $reflectionMethod = $this->getReflectionMethod($routeAction);
 
-                if (!$reflectionMethod) {
+                if (! $reflectionMethod) {
                     continue;
                 }
 
@@ -104,7 +104,7 @@ class ExportPostmanCommand extends Command
 
                             if (is_array($rule) && in_array('confirmed', $rule)) {
                                 $requestRules[] = [
-                                    'name' => $fieldName . '_confirmation',
+                                    'name' => $fieldName.'_confirmation',
                                     'description' => $rule ?? '',
                                 ];
                             }
@@ -126,7 +126,7 @@ class ExportPostmanCommand extends Command
                 if ($this->isStructured()) {
                     $routeNames = $route->action['as'] ?? null;
 
-                    if (!$routeNames) {
+                    if (! $routeNames) {
                         $routeUri = explode('/', $route->uri());
 
                         // remove "api" from the start
@@ -137,7 +137,7 @@ class ExportPostmanCommand extends Command
 
                     $routeNames = explode('.', $routeNames);
                     $routeNames = array_filter($routeNames, function ($value) {
-                        return !is_null($value) && $value !== '';
+                        return ! is_null($value) && $value !== '';
                     });
 
                     $this->buildTree($this->structure, $routeNames, $request);
@@ -169,7 +169,7 @@ class ExportPostmanCommand extends Command
         $routeData = explode('@', $routeAction['uses']);
         $reflection = new ReflectionClass($routeData[0]);
 
-        if (!$reflection->hasMethod($routeData[1])) {
+        if (! $reflection->hasMethod($routeData[1])) {
             return null;
         }
 
@@ -206,7 +206,7 @@ class ExportPostmanCommand extends Command
 
             unset($item);
 
-            if (!$matched) {
+            if (! $matched) {
                 $item = [
                     'name' => $segment,
                     'item' => $segment === $destination ? [$request] : [],
@@ -232,7 +232,7 @@ class ExportPostmanCommand extends Command
                 'method' => strtoupper($method),
                 'header' => $routeHeaders,
                 'url' => [
-                    'raw' => '{{base_url}}/' . $uri,
+                    'raw' => '{{base_url}}/'.$uri,
                     'host' => ['{{base_url}}'],
                     'path' => $uri->explode('/')->filter(),
                     'variable' => $variables->transform(function ($variable) {
@@ -269,7 +269,6 @@ class ExportPostmanCommand extends Command
      *
      * @param $attribute
      * @param $rules
-     *
      * @return string
      */
     protected function parseRulesIntoHumanReadable($attribute, $rules)
@@ -350,7 +349,6 @@ class ExportPostmanCommand extends Command
      * We need to add a human readable message.
      *
      * @param array $messages
-     *
      * @return array
      */
     protected function handleEdgeCases(array $messages): array
