@@ -118,9 +118,8 @@ class ExportPostmanCommand extends Command
                 $routeHeaders = $this->config['headers'];
 
                 if ($this->token && in_array($this->config['auth_middleware'], $middlewares)) {
-                    
                     switch ($this->authType) {
-                        case 'bearer': 
+                        case 'bearer':
                             $routeHeaders[] = [
                                 'key' => 'Authorization',
                                 'value' => 'Bearer {{token}}',
