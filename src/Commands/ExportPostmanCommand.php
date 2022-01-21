@@ -15,7 +15,9 @@ use ReflectionFunction;
 class ExportPostmanCommand extends Command
 {
     /** @var string */
-    protected $signature = 'export:postman {--bearer= : The bearer token to use on your endpoints}';
+    protected $signature = 'export:postman 
+                            {--bearer= : The bearer token to use on your endpoints}
+                            {--basic= : The basic auth to use on your endpoints}';
 
     /** @var string */
     protected $description = 'Automatically generate a Postman collection for your API routes';
@@ -33,7 +35,16 @@ class ExportPostmanCommand extends Command
     protected $filename;
 
     /** @var string */
-    private $bearer;
+    private $token;
+    
+    /** @var string */
+    private $authType;
+    
+    /** @var array */
+    private const AUTH_OPTIONS = [
+        'bearer',
+        'basic'
+    ];
 
     public function __construct(Router $router, Repository $config)
     {
@@ -46,7 +57,7 @@ class ExportPostmanCommand extends Command
     public function handle(): void
     {
         $this->setFilename();
-        $this->setBearerToken();
+        $this->setAuthToken();
         $this->initializeStructure();
 
         foreach ($this->router->getRoutes() as $route) {
@@ -106,11 +117,23 @@ class ExportPostmanCommand extends Command
 
                 $routeHeaders = $this->config['headers'];
 
-                if ($this->bearer && in_array($this->config['auth_middleware'], $middlewares)) {
-                    $routeHeaders[] = [
-                        'key' => 'Authorization',
-                        'value' => 'Bearer {{token}}',
-                    ];
+                if ($this->token && in_array($this->config['auth_middleware'], $middlewares)) {
+                    
+                    switch($this->authType) {
+                        case 'bearer': 
+                            $routeHeaders[] = [
+                                'key' => 'Authorization',
+                                'value' => 'Bearer {{token}}',
+                            ];
+                            break;
+                        
+                        case 'basic':
+                            $routeHeaders[] = [
+                                'key' => 'Authorization',
+                                'value' => 'Basic {{token}}',
+                            ];
+                            break;
+                    }
                 }
 
                 $request = $this->makeRequest($route, $method, $routeHeaders, $requestRules);
@@ -267,10 +290,10 @@ class ExportPostmanCommand extends Command
             'item' => [],
         ];
 
-        if ($this->bearer) {
+        if ($this->token) {
             $this->structure['variable'][] = [
                 'key' => 'token',
-                'value' => $this->bearer,
+                'value' => $this->token,
             ];
         }
     }
@@ -284,9 +307,14 @@ class ExportPostmanCommand extends Command
         );
     }
 
-    protected function setBearerToken()
+    protected function setAuthToken()
     {
-        $this->bearer = $this->option('bearer') ?? null;
+        foreach (self::AUTH_OPTIONS as $option) {
+            if($token = $this->option($option)) {
+                $this->token = $token ?? null;
+                $this->authType = $option;
+            }
+        }
     }
 
     protected function isStructured()

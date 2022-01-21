@@ -5,7 +5,8 @@
 
 # Laravel API to Postman
 
-This package allows you to automatically generate a Postman collection based on your API routes. It also provides basic configuration and support for bearer auth tokens for routes behind an auth middleware.
+This package allows you to automatically generate a Postman collection based on your API routes. It also provides basic configuration and support for bearer auth tokens and basic auth
+for routes behind an auth middleware.
 
 ## Postman Schema
 
@@ -46,6 +47,14 @@ The following usage will generate routes with the bearer token specified.
 ```bash
 php artisan export:postman --bearer="1|XXNKXXqJjfzG8XXSvXX1Q4pxxnkXmp8tT8TXXKXX"
 ```
+
+The following usage will generate routes with the basic auth specified.
+
+```bash
+php artisan export:postman --basic="username:password123"
+```
+
+If both auths are specified, bearer will be favored.
 
 ## Examples
 
