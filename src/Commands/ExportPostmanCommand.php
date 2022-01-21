@@ -348,7 +348,7 @@ class ExportPostmanCommand extends Command
      * Certain fields are not handled via the normal throw failure method in the validator
      * We need to add a human readable message.
      *
-     * @param array $messages
+     * @param  array  $messages
      * @return array
      */
     protected function handleEdgeCases(array $messages): array
