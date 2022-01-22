@@ -86,6 +86,45 @@ class ExportPostmanTest extends TestCase
     /**
      * @dataProvider providerFormDataEnabled
      */
+    public function test_basic_export_works(bool $formDataEnabled)
+    {
+        config()->set('api-postman.enable_formdata', $formDataEnabled);
+
+        $this->artisan('export:postman --basic=username:password1234')->assertExitCode(0);
+
+        $collection = json_decode(Storage::get('postman/'.config('api-postman.filename')), true);
+
+        $routes = $this->app['router']->getRoutes();
+
+        $collectionVariables = $collection['variable'];
+
+        foreach ($collectionVariables as $variable) {
+            if ($variable['key'] != 'token') {
+                continue;
+            }
+
+            $this->assertEquals($variable['value'], 'username:password1234');
+        }
+
+        $this->assertCount(2, $collectionVariables);
+
+        $collectionItems = $collection['item'];
+
+        $this->assertCount(count($routes), $collectionItems);
+
+        foreach ($routes as $route) {
+            $collectionRoute = Arr::first($collectionItems, function ($item) use ($route) {
+                return $item['name'] == $route->uri();
+            });
+
+            $this->assertNotNull($collectionRoute);
+            $this->assertTrue(in_array($collectionRoute['request']['method'], $route->methods()));
+        }
+    }
+
+    /**
+     * @dataProvider providerFormDataEnabled
+     */
     public function test_structured_export_works(bool $formDataEnabled)
     {
         config([
