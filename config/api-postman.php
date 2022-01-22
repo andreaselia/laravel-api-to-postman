@@ -79,8 +79,6 @@ return [
 
     'enable_formdata' => false,
 
-
-
     /*
     |--------------------------------------------------------------------------
     | Parse Form Request Rules
@@ -93,7 +91,6 @@ return [
 
     'print_rules' => true, // @requires: 'enable_formdata' ===  true
     'rules_to_human_readable' => true, // @requires: 'parse_rules' ===  true
-
 
     /*
     |--------------------------------------------------------------------------

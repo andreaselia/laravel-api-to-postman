@@ -300,10 +300,9 @@ class ExportPostmanCommand extends Command
      */
     protected function parseRulesIntoHumanReadable($attribute, $rules): string
     {
-
         if(! $this->config['rules_to_human_readable'])
         {
-            return is_array($rules) ? implode(', ', $rules)  : $rules->__toString();
+            return is_array($rules) ? implode(', ', $rules) : $rules->__toString();
         }
 
         /*
@@ -312,7 +311,7 @@ class ExportPostmanCommand extends Command
         if (is_object($rules)) {
             try {
                 $rules = [$rules->__toString()];
-            } catch (\Exception $e)  {
+            } catch (\Exception $e) {
                 $rules = '';
             }
         }
@@ -337,6 +336,8 @@ class ExportPostmanCommand extends Command
 
             return implode(', ', is_array($messages) ? $messages : $messages->toArray());
         }
+
+        return '';
     }
 
     protected function initializeStructure(): void
