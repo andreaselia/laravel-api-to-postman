@@ -42,7 +42,7 @@ class ExampleController extends Controller
      * @note DO NOT REMOVE THIS BLOCK, IT IS USED IN TESTING.
      * We want to extract this text and nothing else.
      *
-     * @param ExampleFormRequest $request
+     * @param  ExampleFormRequest  $request
      * @return string
      */
     public function storeWithFormRequest(ExampleFormRequest $request): string
