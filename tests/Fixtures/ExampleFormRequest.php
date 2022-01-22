@@ -18,5 +18,4 @@ class ExampleFormRequest extends FormRequest
             'field_6' => new In([1, 2, 3]),
         ];
     }
-
 }
