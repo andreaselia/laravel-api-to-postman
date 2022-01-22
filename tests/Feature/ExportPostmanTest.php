@@ -212,18 +212,27 @@ class ExportPostmanTest extends TestCase
 
         $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['item']);
 
+        $deprecationRequest = $collection
+            ->where('name', 'example/show')
+            ->first();
+        $this->assertSame("### This URI is deprecated.", $deprecationRequest['request']['description']);
+
+        $plannedDeprecationRequest = $collection
+            ->where('name', 'example/store')
+            ->first();
+        $this->assertSame("### This URI is planned to be deprecated.", $plannedDeprecationRequest['request']['description']);
+
         $targetRequest = $collection
             ->where('name', 'example/storeWithFormRequest')
             ->first();
 
-        $this->assertSame($targetRequest['request']['description'], "We want to extract this text and nothing else.\r");
+        $this->assertSame("We want to extract this text and nothing else.\r", $targetRequest['request']['description']);
 
         $multiLinedRequest = $collection
             ->where('name', 'example/delete')
             ->first();
 
-        $this->assertSame($multiLinedRequest['request']['description'], "We want to extract this text and the next line
- This is the second line we are extracting to show it works multilines\r");
+        $this->assertEquals("We want to extract this text and the next line\rThis is the second line we are extracting to show it works multilines\r", $multiLinedRequest['request']['description']);
     }
 
     public function test_export_with_disabled_request_description_works()

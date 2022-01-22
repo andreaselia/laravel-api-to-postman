@@ -426,11 +426,27 @@ class ExportPostmanCommand extends Command
             return trim($line, ' *');
         }, explode("\n", $doc));
 
-        // Retain lines that do not start with @ or / or simple empty
+        // Retain lines that do not start with @ or / or simple empty and check for deprecation.
         $lines = array_filter($lines, function ($line) {
-            return strpos($line, '@') !== 0 && strpos($line, '/') !== 0 && $line != "\r";
+            return (
+                strpos($line, '@') !== 0 &&
+                strpos($line, '/') !== 0 &&
+                $line != "\r"
+            ) ||
+                strpos($line, '@deprecated') === 0 ||
+                strpos($line, '@expectedDeprecation') === 0;
         });
 
-        return implode("\n ", $lines);
+        foreach($lines as $key => $line) {
+            if(strpos($line, '@deprecated') === 0) {
+                $lines[$key] = '### This URI is deprecated.';
+                continue;
+            }
+            if(strpos($line, '@expectedDeprecation') === 0) {
+                $lines[$key] = '### This URI is planned to be deprecated.';
+            }
+        }
+
+        return implode("\r", $lines);
     }
 }

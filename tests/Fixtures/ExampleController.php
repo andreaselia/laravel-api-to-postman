@@ -11,11 +11,19 @@ class ExampleController extends Controller
         return 'index';
     }
 
+    /**
+     * @deprecated
+     * @return string
+     */
     public function show(): string
     {
         return 'show';
     }
 
+    /**
+     * @expectedDeprecation
+     * @return string
+     */
     public function store(): string
     {
         return 'store';
