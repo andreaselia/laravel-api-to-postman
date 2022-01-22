@@ -422,7 +422,7 @@ class ExportPostmanCommand extends Command
         $doc = $method->getDocComment();
 
         // Trim each line from space and star chars
-        $lines = array_map(function($line) {
+        $lines = array_map(function ($line) {
             return trim($line, ' *');
         }, explode("\n", $doc));
 
