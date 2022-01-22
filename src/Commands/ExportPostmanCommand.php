@@ -214,7 +214,7 @@ class ExportPostmanCommand extends Command
             Str::startsWith($action['uses'], 'C:32:"Opis\\Closure\\SerializableClosure') !== false;
     }
 
-    protected function buildTree(array &$routes,array $segments,array $request): void
+    protected function buildTree(array &$routes, array $segments, array $request): void
     {
         $parent = &$routes;
         $destination = end($segments);
@@ -416,7 +416,7 @@ class ExportPostmanCommand extends Command
         return $messages;
     }
 
-    private function extractDescriptionFromMethodDoc($method) : string
+    private function extractDescriptionFromMethodDoc($method): string
     {
         // Retrieve the full PhpDoc comment block
         $doc = $method->getDocComment();
@@ -426,11 +426,11 @@ class ExportPostmanCommand extends Command
             return trim($line, " *");
         }, explode("\n", $doc));
 
-        // Retain lines that start with an @
-        $lines = array_filter($lines, function($line){
+        // Retain lines that do not start with @ or /
+        $lines = array_filter($lines, function ($line){
             return strpos($line, "@") !== 0 && strpos($line, "/") !== 0;
         });
 
-        return implode("\n ",$lines);
+        return implode("\n ", $lines);
     }
 }
