@@ -199,6 +199,59 @@ class ExportPostmanTest extends TestCase
         $this->assertCount(1, $fields->where('key', 'field_6')->where('description', 'The selected field 6 is invalid.'));
     }
 
+    public function test_export_with_request_description_works()
+    {
+        config([
+            'api-postman.enable_formdata' => false,
+            'api-postman.extract_description_from_controller' => true,
+        ]);
+
+        $this->artisan('export:postman')->assertExitCode(0);
+
+        $this->assertTrue(true);
+
+        $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['item']);
+
+        $targetRequest = $collection
+            ->where('name', 'example/storeWithFormRequest')
+            ->first();
+
+        $this->assertSame($targetRequest['request']['description'], "We want to extract this text and nothing else.\r");
+
+        $multiLinedRequest = $collection
+            ->where('name', 'example/delete')
+            ->first();
+
+        $this->assertSame($multiLinedRequest['request']['description'], "We want to extract this text and the next line
+ This is the second line we are extracting to show it works multilines\r");
+    }
+
+    public function test_export_with_disabled_request_description_works()
+    {
+        config([
+            'api-postman.enable_formdata' => false,
+            'api-postman.extract_description_from_controller' => false,
+        ]);
+
+        $this->artisan('export:postman')->assertExitCode(0);
+
+        $this->assertTrue(true);
+
+        $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['item']);
+
+        $targetRequest = $collection
+            ->where('name', 'example/storeWithFormRequest')
+            ->first();
+
+        $this->assertSame($targetRequest['request']['description'], "");
+
+        $multiLinedRequest = $collection
+            ->where('name', 'example/delete')
+            ->first();
+
+        $this->assertSame($multiLinedRequest['request']['description'], "");
+    }
+
     public function providerFormDataEnabled(): array
     {
         return [

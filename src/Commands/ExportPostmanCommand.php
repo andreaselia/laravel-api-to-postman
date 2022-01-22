@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Routing\Route;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -148,7 +149,11 @@ class ExportPostmanCommand extends Command
                     }
                 }
 
-                $request = $this->makeRequest($route, $method, $routeHeaders, $requestRules);
+                $requestDescription = $this->config['extract_description_from_controller']
+                    ? $this->extractDescriptionFromMethodDoc($reflectionMethod)
+                    : '';
+
+                $request = $this->makeRequest($route, $method, $routeHeaders, $requestRules, $requestDescription);
 
                 if ($this->isStructured()) {
                     $routeNames = $route->action['as'] ?? null;
@@ -209,7 +214,7 @@ class ExportPostmanCommand extends Command
             Str::startsWith($action['uses'], 'C:32:"Opis\\Closure\\SerializableClosure') !== false;
     }
 
-    protected function buildTree(array &$routes, array $segments, array $request): void
+    protected function buildTree(array &$routes,array $segments,array $request): void
     {
         $parent = &$routes;
         $destination = end($segments);
@@ -247,7 +252,7 @@ class ExportPostmanCommand extends Command
         }
     }
 
-    public function makeRequest($route, $method, $routeHeaders, $requestRules)
+    public function makeRequest(Route $route, string $method, array $routeHeaders, array $requestRules, string $requestDescription)
     {
         $uri = Str::of($route->uri())->replaceMatches('/{([[:alnum:]]+)}/', ':$1');
 
@@ -258,6 +263,7 @@ class ExportPostmanCommand extends Command
             'request' => [
                 'method' => strtoupper($method),
                 'header' => $routeHeaders,
+                'description' => $requestDescription,
                 'url' => [
                     'raw' => '{{base_url}}/'.$uri,
                     'host' => ['{{base_url}}'],
@@ -408,5 +414,23 @@ class ExportPostmanCommand extends Command
         }
 
         return $messages;
+    }
+
+    private function extractDescriptionFromMethodDoc($method) : string
+    {
+        // Retrieve the full PhpDoc comment block
+        $doc = $method->getDocComment();
+
+        // Trim each line from space and star chars
+        $lines = array_map(function($line){
+            return trim($line, " *");
+        }, explode("\n", $doc));
+
+        // Retain lines that start with an @
+        $lines = array_filter($lines, function($line){
+            return strpos($line, "@") !== 0 && strpos($line, "/") !== 0;
+        });
+
+        return implode("\n ",$lines);
     }
 }

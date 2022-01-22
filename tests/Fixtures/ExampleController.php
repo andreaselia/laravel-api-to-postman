@@ -21,6 +21,12 @@ class ExampleController extends Controller
         return 'store';
     }
 
+    /**
+     * @note DO NOT REMOVE THIS BLOCK, IT IS USED IN TESTING.
+     * We want to extract this text and the next line
+     * This is the second line we are extracting to show it works multilines
+     * @return string
+     */
     public function delete(): string
     {
         return 'delete';
@@ -31,6 +37,12 @@ class ExampleController extends Controller
         return $service->getRequestData();
     }
 
+    /**
+     * @note DO NOT REMOVE THIS BLOCK, IT IS USED IN TESTING.
+     * We want to extract this text and nothing else.
+     * @param ExampleFormRequest $request
+     * @return string
+     */
     public function storeWithFormRequest(ExampleFormRequest $request): string
     {
         return 'storeWithFormRequest';

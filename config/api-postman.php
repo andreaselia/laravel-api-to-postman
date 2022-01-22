@@ -37,6 +37,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Use Method Doc Tags to generate Request Description
+    |--------------------------------------------------------------------------
+    |
+    | Should we take the non @ text of the method docs to describe the methods?
+    |
+    */
+
+    'extract_description_from_controller' => false,
+
+    /*
+    |--------------------------------------------------------------------------
     | Auth Middleware
     |--------------------------------------------------------------------------
     |
