@@ -300,8 +300,7 @@ class ExportPostmanCommand extends Command
      */
     protected function parseRulesIntoHumanReadable($attribute, $rules): string
     {
-        if(! $this->config['rules_to_human_readable'])
-        {
+        if (! $this->config['rules_to_human_readable']) {
             return is_array($rules) ? implode(', ', $rules) : $rules->__toString();
         }
 
