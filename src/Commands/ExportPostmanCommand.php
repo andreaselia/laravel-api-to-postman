@@ -18,7 +18,7 @@ use ReflectionFunction;
 class ExportPostmanCommand extends Command
 {
     /** @var string */
-    protected $signature = 'export:postman 
+    protected $signature = 'export:postman
                             {--bearer= : The bearer token to use on your endpoints}
                             {--basic= : The basic auth to use on your endpoints}';
 
@@ -428,7 +428,7 @@ class ExportPostmanCommand extends Command
 
         // Retain lines that do not start with @ or / or simple empty
         $lines = array_filter($lines, function ($line) {
-            return strpos($line, '@') !== 0 && strpos($line, "/") !== 0 && $line != "\r";
+            return strpos($line, '@') !== 0 && strpos($line, '/') !== 0 && $line != "\r";
         });
 
         return implode("\n ", $lines);
