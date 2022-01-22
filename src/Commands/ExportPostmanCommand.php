@@ -437,12 +437,12 @@ class ExportPostmanCommand extends Command
                 strpos($line, '@expectedDeprecation') === 0;
         });
 
-        foreach($lines as $key => $line) {
-            if(strpos($line, '@deprecated') === 0) {
+        foreach ($lines as $key => $line) {
+            if (strpos($line, '@deprecated') === 0) {
                 $lines[$key] = '### This URI is deprecated.';
                 continue;
             }
-            if(strpos($line, '@expectedDeprecation') === 0) {
+            if (strpos($line, '@expectedDeprecation') === 0) {
                 $lines[$key] = '### This URI is planned to be deprecated.';
             }
         }

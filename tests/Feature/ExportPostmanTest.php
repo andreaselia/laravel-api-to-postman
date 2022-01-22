@@ -215,12 +215,12 @@ class ExportPostmanTest extends TestCase
         $deprecationRequest = $collection
             ->where('name', 'example/show')
             ->first();
-        $this->assertSame("### This URI is deprecated.", $deprecationRequest['request']['description']);
+        $this->assertSame('### This URI is deprecated.', $deprecationRequest['request']['description']);
 
         $plannedDeprecationRequest = $collection
             ->where('name', 'example/store')
             ->first();
-        $this->assertSame("### This URI is planned to be deprecated.", $plannedDeprecationRequest['request']['description']);
+        $this->assertSame('### This URI is planned to be deprecated.', $plannedDeprecationRequest['request']['description']);
 
         $targetRequest = $collection
             ->where('name', 'example/storeWithFormRequest')

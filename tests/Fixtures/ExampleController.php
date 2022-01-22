@@ -13,6 +13,7 @@ class ExampleController extends Controller
 
     /**
      * @deprecated
+     *
      * @return string
      */
     public function show(): string
@@ -22,6 +23,7 @@ class ExampleController extends Controller
 
     /**
      * @expectedDeprecation
+     *
      * @return string
      */
     public function store(): string
