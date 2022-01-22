@@ -111,15 +111,17 @@ class ExportPostmanCommand extends Command
                                 $rule = preg_split('/\s*\|\s*/', $rule);
                             }
 
+                            $printRules = $this->config['print_rules'];
+
                             $requestRules[] = [
                                 'name' => $fieldName,
-                                'description' => $rule ?? '',
+                                'description' => $printRules ? $rule ?? '' : '',
                             ];
 
                             if (is_array($rule) && in_array('confirmed', $rule)) {
                                 $requestRules[] = [
                                     'name' => $fieldName.'_confirmation',
-                                    'description' => $rule ?? '',
+                                    'description' => $printRules ? $rule ?? '' : '',
                                 ];
                             }
                         }
@@ -296,16 +298,22 @@ class ExportPostmanCommand extends Command
      * @param $rules
      * @return string
      */
-    protected function parseRulesIntoHumanReadable($attribute, $rules)
+    protected function parseRulesIntoHumanReadable($attribute, $rules): string
     {
+
+        if(! $this->config['rules_to_human_readable'])
+        {
+            return is_array($rules) ? implode(', ', $rules)  : $rules->__toString();
+        }
+
         /*
          * Handle Rule::class based rules:
          */
         if (is_object($rules)) {
             try {
-                $rules = explode(',', $rules->__toString());
-            } catch (\Exception) {
-                $rules = [];
+                $rules = [$rules->__toString()];
+            } catch (\Exception $e)  {
+                $rules = '';
             }
         }
 
@@ -390,12 +398,12 @@ class ExportPostmanCommand extends Command
     {
         foreach ($messages as $key => $message) {
             if ($message === 'validation.nullable') {
-                $messages[$key] = 'Can be empty';
+                $messages[$key] = '(Nullable)';
                 continue;
             }
 
             if ($message === 'validation.sometimes') {
-                $messages[$key] = 'Optional, when present Rules apply.';
+                $messages[$key] = '(Optional)';
             }
         }
 

@@ -79,6 +79,22 @@ return [
 
     'enable_formdata' => false,
 
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Parse Form Request Rules
+    |--------------------------------------------------------------------------
+    |
+    | If you want form requests to be printed in the field description field,
+    | and if so, whether they will be in a human readable form.
+    |
+    */
+
+    'print_rules' => true, // @requires: 'enable_formdata' ===  true
+    'rules_to_human_readable' => true, // @requires: 'parse_rules' ===  true
+
+
     /*
     |--------------------------------------------------------------------------
     | Form Data
