@@ -100,7 +100,10 @@ class ExportPostmanCommand extends Command
                                 $rule = preg_split('/\s*\|\s*/', $rule);
                             }
 
-                            $requestRules[] = ['name' => $fieldName, 'description' => $rule ?? ''];
+                            $requestRules[] = [
+                                'name' => $fieldName,
+                                'description' => $rule ?? '',
+                            ];
 
                             if (is_array($rule) && in_array('confirmed', $rule)) {
                                 $requestRules[] = [
@@ -283,16 +286,21 @@ class ExportPostmanCommand extends Command
                 $rules = [];
             }
         }
+
         /*
          * Handle string based rules
          */
         if (is_array($rules)) {
             $this->validator = Validator::make([], [$attribute => implode('|', $rules)]);
+
             foreach ($rules as $rule) {
                 [$rule, $parameters] = ValidationRuleParser::parse($rule);
+
                 $this->validator->addFailure($attribute, $rule, $parameters);
             }
+
             $messages = $this->validator->getMessageBag()->toArray()[$attribute];
+
             if (is_array($messages)) {
                 $messages = $this->handleEdgeCases($messages);
             }
@@ -358,6 +366,7 @@ class ExportPostmanCommand extends Command
                 $messages[$key] = 'Can be empty';
                 continue;
             }
+
             if ($message === 'validation.sometimes') {
                 $messages[$key] = 'Optional, when present Rules apply.';
             }
