@@ -422,13 +422,13 @@ class ExportPostmanCommand extends Command
         $doc = $method->getDocComment();
 
         // Trim each line from space and star chars
-        $lines = array_map(function($line){
+        $lines = array_map(function($line) {
             return trim($line, " *");
         }, explode("\n", $doc));
 
-        // Retain lines that do not start with @ or /
-        $lines = array_filter($lines, function ($line){
-            return strpos($line, "@") !== 0 && strpos($line, "/") !== 0;
+        // Retain lines that do not start with @ or / or simple empty
+        $lines = array_filter($lines, function ($line) {
+            return strpos($line, "@") !== 0 && strpos($line, "/") !== 0 && $line != "\r";
         });
 
         return implode("\n ", $lines);

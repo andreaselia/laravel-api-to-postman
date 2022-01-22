@@ -25,6 +25,7 @@ class ExampleController extends Controller
      * @note DO NOT REMOVE THIS BLOCK, IT IS USED IN TESTING.
      * We want to extract this text and the next line
      * This is the second line we are extracting to show it works multilines
+     *
      * @return string
      */
     public function delete(): string
@@ -40,6 +41,7 @@ class ExampleController extends Controller
     /**
      * @note DO NOT REMOVE THIS BLOCK, IT IS USED IN TESTING.
      * We want to extract this text and nothing else.
+     *
      * @param ExampleFormRequest $request
      * @return string
      */

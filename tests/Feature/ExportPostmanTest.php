@@ -243,13 +243,13 @@ class ExportPostmanTest extends TestCase
             ->where('name', 'example/storeWithFormRequest')
             ->first();
 
-        $this->assertSame($targetRequest['request']['description'], "");
+        $this->assertSame($targetRequest['request']['description'], '');
 
         $multiLinedRequest = $collection
             ->where('name', 'example/delete')
             ->first();
 
-        $this->assertSame($multiLinedRequest['request']['description'], "");
+        $this->assertSame($multiLinedRequest['request']['description'], '');
     }
 
     public function providerFormDataEnabled(): array
