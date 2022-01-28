@@ -421,6 +421,7 @@ class ExportPostmanCommand extends Command
         if (is_object($probableRule) && (is_subclass_of($probableRule, Rule::class) || method_exists($probableRule, '__toString'))) {
             return (string) $probableRule->__toString();
         }
+
         return '';
     }
 }
