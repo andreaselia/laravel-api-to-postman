@@ -5,17 +5,20 @@ namespace AndreasElia\PostmanGenerator\Commands;
 use Closure;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Config\Repository;
+use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationRuleParser;
 use ReflectionClass;
 use ReflectionFunction;
 
 class ExportPostmanCommand extends Command
 {
     /** @var string */
-    protected $signature = 'export:postman 
+    protected $signature = 'export:postman
                             {--bearer= : The bearer token to use on your endpoints}
                             {--basic= : The basic auth to use on your endpoints}';
 
@@ -45,6 +48,9 @@ class ExportPostmanCommand extends Command
         'bearer',
         'basic',
     ];
+
+    /** @var \Illuminate\Validation\Validator */
+    private $validator;
 
     public function __construct(Router $router, Repository $config)
     {
@@ -102,14 +108,22 @@ class ExportPostmanCommand extends Command
                         $rules = method_exists($rulesParameter, 'rules') ? $rulesParameter->rules() : [];
 
                         foreach ($rules as $fieldName => $rule) {
-                            $requestRules[] = $fieldName;
-
                             if (is_string($rule)) {
                                 $rule = preg_split('/\s*\|\s*/', $rule);
                             }
 
+                            $printRules = $this->config['print_rules'];
+
+                            $requestRules[] = [
+                                'name' => $fieldName,
+                                'description' => $printRules ? $rule : '',
+                            ];
+
                             if (is_array($rule) && in_array('confirmed', $rule)) {
-                                $requestRules[] = $fieldName.'_confirmation';
+                                $requestRules[] = [
+                                    'name' => $fieldName.'_confirmation',
+                                    'description' => $printRules ? $rule : '',
+                                ];
                             }
                         }
                     }
@@ -233,6 +247,8 @@ class ExportPostmanCommand extends Command
 
     public function makeRequest($route, $method, $routeHeaders, $requestRules)
     {
+        $printRules = $this->config['print_rules'];
+
         $uri = Str::of($route->uri())->replaceMatches('/{([[:alnum:]]+)}/', ':$1');
 
         $variables = $uri->matchAll('/(?<={)[[:alnum:]]+(?=})/m');
@@ -258,9 +274,10 @@ class ExportPostmanCommand extends Command
 
             foreach ($requestRules as $rule) {
                 $ruleData[] = [
-                    'key' => $rule,
-                    'value' => $this->config['formdata'][$rule] ?? null,
+                    'key' => $rule['name'],
+                    'value' => $this->config['formdata'][$rule['name']] ?? null,
                     'type' => 'text',
+                    'description' => $printRules ? $this->parseRulesIntoHumanReadable($rule['name'], $rule['description']) : '',
                 ];
             }
 
@@ -271,6 +288,55 @@ class ExportPostmanCommand extends Command
         }
 
         return $data;
+    }
+
+    /**
+     * Process a rule set and utilize the Validator to create human readable descriptions
+     * to help users provide valid data.
+     *
+     * @param $attribute
+     * @param $rules
+     * @return string
+     */
+    protected function parseRulesIntoHumanReadable($attribute, $rules): string
+    {
+
+        // ... bail if user has asked for non interpreted strings:
+        if (! $this->config['rules_to_human_readable']) {
+            return is_array($rules) ? implode(', ', $rules) : $this->safelyStringifyClassBasedRule($rules);
+        }
+
+        /*
+         * An object based rule is presumably a Laravel default class based rule or one that implements the Illuminate
+         * Rule interface. Lets try to safely access the string representation...
+         */
+        if (is_object($rules)) {
+            $rules = [$this->safelyStringifyClassBasedRule($rules)];
+        }
+
+        /*
+         * Handle string based rules (e.g. required|string|max:30)
+         */
+        if (is_array($rules)) {
+            $this->validator = Validator::make([], [$attribute => implode('|', $rules)]);
+
+            foreach ($rules as $rule) {
+                [$rule, $parameters] = ValidationRuleParser::parse($rule);
+
+                $this->validator->addFailure($attribute, $rule, $parameters);
+            }
+
+            $messages = $this->validator->getMessageBag()->toArray()[$attribute];
+
+            if (is_array($messages)) {
+                $messages = $this->handleEdgeCases($messages);
+            }
+
+            return implode(', ', is_array($messages) ? $messages : $messages->toArray());
+        }
+
+        // ...safely return a safe value if we encounter neither a string or object based rule set:
+        return '';
     }
 
     protected function initializeStructure(): void
@@ -319,5 +385,43 @@ class ExportPostmanCommand extends Command
     protected function isStructured()
     {
         return $this->config['structured'];
+    }
+
+    /**
+     * Certain fields are not handled via the normal throw failure method in the validator
+     * We need to add a human readable message.
+     *
+     * @param  array  $messages
+     * @return array
+     */
+    protected function handleEdgeCases(array $messages): array
+    {
+        foreach ($messages as $key => $message) {
+            if ($message === 'validation.nullable') {
+                $messages[$key] = '(Nullable)';
+                continue;
+            }
+
+            if ($message === 'validation.sometimes') {
+                $messages[$key] = '(Optional)';
+            }
+        }
+
+        return $messages;
+    }
+
+    /**
+     * In this case we have received what is most likely a Rule Object but are not certain.
+     *
+     * @param $probableRule
+     * @return string
+     */
+    protected function safelyStringifyClassBasedRule($probableRule): string
+    {
+        if (is_object($probableRule) && (is_subclass_of($probableRule, Rule::class) || method_exists($probableRule, '__toString'))) {
+            return (string) $probableRule;
+        }
+
+        return '';
     }
 }

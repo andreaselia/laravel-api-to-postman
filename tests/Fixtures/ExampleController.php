@@ -30,4 +30,9 @@ class ExampleController extends Controller
     {
         return $service->getRequestData();
     }
+
+    public function storeWithFormRequest(ExampleFormRequest $request): string
+    {
+        return 'storeWithFormRequest';
+    }
 }
