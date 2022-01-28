@@ -419,7 +419,7 @@ class ExportPostmanCommand extends Command
     protected function safelyStringifyClassBasedRule($probableRule): string
     {
         if (is_object($probableRule) && (is_subclass_of($probableRule, Rule::class) || method_exists($probableRule, '__toString'))) {
-            return (string) $probableRule->__toString();
+            return (string) $probableRule;
         }
 
         return '';
