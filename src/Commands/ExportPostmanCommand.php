@@ -412,13 +412,13 @@ class ExportPostmanCommand extends Command
 
     /**
      * In this case we have received what is most likely a Rule Object but are not certain.
+     *
      * @param $probableRule
      * @return string
      */
-    protected function safelyStringifyClassBasedRule($probableRule):string
+    protected function safelyStringifyClassBasedRule($probableRule): string
     {
-        if (is_object($probableRule) && (is_subclass_of($probableRule, Rule::class) || method_exists($probableRule, '__toString'))  )
-        {
+        if (is_object($probableRule) && (is_subclass_of($probableRule, Rule::class) || method_exists($probableRule, '__toString'))) {
             return (string) $probableRule->__toString();
         }
         return '';
