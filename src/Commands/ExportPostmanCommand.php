@@ -5,6 +5,7 @@ namespace AndreasElia\PostmanGenerator\Commands;
 use Closure;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Config\Repository;
+use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Storage;
@@ -17,7 +18,7 @@ use ReflectionFunction;
 class ExportPostmanCommand extends Command
 {
     /** @var string */
-    protected $signature = 'export:postman 
+    protected $signature = 'export:postman
                             {--bearer= : The bearer token to use on your endpoints}
                             {--basic= : The basic auth to use on your endpoints}';
 
@@ -115,13 +116,13 @@ class ExportPostmanCommand extends Command
 
                             $requestRules[] = [
                                 'name' => $fieldName,
-                                'description' => $printRules ? $rule ?? '' : '',
+                                'description' => $printRules ? $rule : '',
                             ];
 
                             if (is_array($rule) && in_array('confirmed', $rule)) {
                                 $requestRules[] = [
                                     'name' => $fieldName.'_confirmation',
-                                    'description' => $printRules ? $rule ?? '' : '',
+                                    'description' => $printRules ? $rule : '',
                                 ];
                             }
                         }
@@ -174,10 +175,7 @@ class ExportPostmanCommand extends Command
             }
         }
 
-        Storage::disk($this->config['disk'])->put(
-            $exportName = "postman/$this->filename",
-            json_encode($this->structure)
-        );
+        Storage::disk($this->config['disk'])->put($exportName = "postman/$this->filename", json_encode($this->structure));
 
         $this->info("Postman Collection Exported: $exportName");
     }
@@ -249,6 +247,8 @@ class ExportPostmanCommand extends Command
 
     public function makeRequest($route, $method, $routeHeaders, $requestRules)
     {
+        $printRules = $this->config['print_rules'];
+
         $uri = Str::of($route->uri())->replaceMatches('/{([[:alnum:]]+)}/', ':$1');
 
         $variables = $uri->matchAll('/(?<={)[[:alnum:]]+(?=})/m');
@@ -277,7 +277,7 @@ class ExportPostmanCommand extends Command
                     'key' => $rule['name'],
                     'value' => $this->config['formdata'][$rule['name']] ?? null,
                     'type' => 'text',
-                    'description' => $this->parseRulesIntoHumanReadable($rule['name'], $rule['description'] ?? []),
+                    'description' => $printRules ? $this->parseRulesIntoHumanReadable($rule['name'], $rule['description']) : '',
                 ];
             }
 
@@ -300,23 +300,22 @@ class ExportPostmanCommand extends Command
      */
     protected function parseRulesIntoHumanReadable($attribute, $rules): string
     {
+
+        // ... bail if user has asked for non interpreted strings:
         if (! $this->config['rules_to_human_readable']) {
-            return is_array($rules) ? implode(', ', $rules) : $rules->__toString();
+            return is_array($rules) ? implode(', ', $rules) : $this->safelyStringifyClassBasedRule($rules);
         }
 
         /*
-         * Handle Rule::class based rules:
+         * An object based rule is presumably a Laravel default class based rule or one that implements the Illuminate
+         * Rule interface. Lets try to safely access the string representation...
          */
         if (is_object($rules)) {
-            try {
-                $rules = [$rules->__toString()];
-            } catch (\Exception $e) {
-                $rules = '';
-            }
+            $rules = [$this->safelyStringifyClassBasedRule($rules)];
         }
 
         /*
-         * Handle string based rules
+         * Handle string based rules (e.g. required|string|max:30)
          */
         if (is_array($rules)) {
             $this->validator = Validator::make([], [$attribute => implode('|', $rules)]);
@@ -336,6 +335,7 @@ class ExportPostmanCommand extends Command
             return implode(', ', is_array($messages) ? $messages : $messages->toArray());
         }
 
+        // ...safely return a safe value if we encounter neither a string or object based rule set:
         return '';
     }
 
@@ -408,5 +408,19 @@ class ExportPostmanCommand extends Command
         }
 
         return $messages;
+    }
+
+    /**
+     * In this case we have received what is most likely a Rule Object but are not certain.
+     * @param $probableRule
+     * @return string
+     */
+    protected function safelyStringifyClassBasedRule($probableRule):string
+    {
+        if (is_object($probableRule) && (is_subclass_of($probableRule, Rule::class) || method_exists($probableRule, '__toString'))  )
+        {
+            return (string) $probableRule->__toString();
+        }
+        return '';
     }
 }
