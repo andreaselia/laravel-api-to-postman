@@ -177,7 +177,7 @@ class ExportPostmanCommand extends Command
 
         Storage::disk($this->config['disk'])->put($exportName = "postman/$this->filename", json_encode($this->structure));
 
-        $this->info("Postman Collection Exported: $exportName");
+        $this->info('Postman Collection Exported: '.storage_path('app/'.$exportName));
     }
 
     protected function getReflectionMethod(array $routeAction): ?object
