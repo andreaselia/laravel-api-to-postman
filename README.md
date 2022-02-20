@@ -68,6 +68,24 @@ php artisan export:postman --bearer=123456789
 - [Example default output](/examples/2021_02_04_151948_postman.json)
 - [Example structured output](/examples/2021_02_04_155327_postman.json)
 
+## Lumen
+
+The package is compatible with Lumen.
+
+Make sure you have the `league/flysystem` package installed:
+
+```bash
+composer require league/flysystem
+```
+
+Register the provider in your application `bootstrap/app.php` file:
+
+```php
+$app->register(AndreasElia\PostmanGenerator\PostmanGeneratorServiceProvider::class);
+```
+
+You can now use the package in your Lumen application.
+
 ## Contributing
 
 You're more than welcome to submit a pull request, or if you're not feeling up to it - create an issue so someone else can pick it up.
