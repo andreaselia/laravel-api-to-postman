@@ -70,9 +70,7 @@ php artisan export:postman --bearer=123456789
 
 ## Lumen
 
-The package is compatible with Lumen.
-
-Make sure you have the `league/flysystem` package installed:
+Make sure you have the `league/flysystem` package installed for storage:
 
 ```bash
 composer require league/flysystem
