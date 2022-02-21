@@ -190,7 +190,7 @@ class ExportPostmanTest extends TestCase
         $this->assertCount(1, $fields->where('key', 'field_2')->where('description', 'The field 2 field is required., The field 2 must be an integer.'));
         $this->assertCount(1, $fields->where('key', 'field_3')->where('description', '(Optional), The field 3 must be an integer.'));
         $this->assertCount(1, $fields->where('key', 'field_4')->where('description', '(Nullable), The field 4 must be an integer.'));
-        $this->assertCount(1, $fields->where('key', 'field_5')->where('description', 'The field 5 field is required., The field 5 must be an integer., The field 5 must not be greater than 30., The field 5 must be at least 1.'));
+        $this->assertCount(1, $fields->where('key', 'field_5')->where('description', 'The field 5 field is required., The field 5 must be an integer., The field 5 may not be greater than 30., The field 5 must be at least 1.'));
 
         /** This looks bad, but this is the default message in lang/en/validation.php, you can update to:.
          *
