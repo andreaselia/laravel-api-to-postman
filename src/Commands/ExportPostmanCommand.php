@@ -192,6 +192,9 @@ class ExportPostmanCommand extends Command
         }
 
         $routeData = explode('@', $routeAction['uses']);
+        if($routeData[0] == '') {
+            return null;
+        }
         $reflection = new ReflectionClass($routeData[0]);
 
         if (! $reflection->hasMethod($routeData[1])) {
