@@ -168,7 +168,7 @@ class ExportPostmanCommand extends Command
                         return ! is_null($value) && $value !== '';
                     });
 
-                    if (!$this->createCrudFolders()) {
+                    if (! $this->createCrudFolders()) {
                         if (in_array(end($routeNames), ['index', 'store', 'show', 'update', 'destroy'])) {
                             unset($routeNames[array_key_last($routeNames)]);
                         }
