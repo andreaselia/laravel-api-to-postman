@@ -31,9 +31,12 @@ return [
     |
     | If you want folders to be generated based on namespace.
     |
+    | Set "crud_folders" to "false" if you don't want the api, index, store, show etc. folders.
+    |
     */
 
     'structured' => false,
+    'crud_folders' => true,
 
     /*
     |--------------------------------------------------------------------------
