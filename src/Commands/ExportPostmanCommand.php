@@ -3,6 +3,7 @@
 namespace AndreasElia\PostmanGenerator\Commands;
 
 use Illuminate\Support\Str;
+use Illuminate\Routing\Router;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Contracts\Config\Repository;
@@ -18,8 +19,6 @@ class ExportPostmanCommand extends Command
 
     protected array $config;
 
-    protected array $structure;
-
     public function handle(Router $router, Repository $config): void
     {
         $this->config = $config['api-postman'];
@@ -30,11 +29,11 @@ class ExportPostmanCommand extends Command
             $this->config['filename']
         );
 
-        $mapper = (new PostmanExporter)
+        $exporter = (new PostmanExporter)
             ->setFilename($filename);
 
         Storage::disk($this->config['disk'])
-            ->put('postman/'.$filename, json_encode($this->structure));
+            ->put('postman/'.$filename, $exporter->getStructure());
 
         $this->info('Postman Collection Exported: '.storage_path('app/postman/'.$filename));
     }
