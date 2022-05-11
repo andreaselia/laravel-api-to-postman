@@ -3,7 +3,6 @@
 namespace AndreasElia\PostmanGenerator\Commands;
 
 use Illuminate\Support\Str;
-use Illuminate\Routing\Router;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Contracts\Config\Repository;
@@ -17,15 +16,12 @@ class ExportPostmanCommand extends Command
 
     protected $description = 'Automatically generate a Postman collection for your API routes';
 
-    protected Router $router;
-
     protected array $config;
 
     protected array $structure;
 
     public function handle(Router $router, Repository $config): void
     {
-        $this->router = $router;
         $this->config = $config['api-postman'];
 
         $filename = str_replace(
