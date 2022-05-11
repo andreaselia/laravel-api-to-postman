@@ -19,6 +19,11 @@ class ExportPostmanCommand extends Command
 
     protected array $config;
 
+    protected array $authOptions = [
+        'bearer',
+        'basic',
+    ];
+
     public function handle(Router $router, Repository $config): void
     {
         $this->config = $config['api-postman'];
@@ -29,8 +34,11 @@ class ExportPostmanCommand extends Command
             $this->config['filename']
         );
 
+        $authType = $this->option('bearer') ? 'bearer' : ($this->option('basic') ? 'basic' : null);
+
         $exporter = (new PostmanExporter)
-            ->setFilename($filename);
+            ->setFilename($filename)
+            ->setAuthType($authType);
 
         Storage::disk($this->config['disk'])
             ->put('postman/'.$filename, $exporter->getStructure());
