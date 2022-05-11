@@ -2,12 +2,12 @@
 
 namespace AndreasElia\PostmanGenerator\Commands;
 
-use Illuminate\Support\Str;
-use Illuminate\Routing\Router;
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Contracts\Config\Repository;
 use AndreasElia\PostmanGenerator\PostmanExporter;
+use Illuminate\Console\Command;
+use Illuminate\Contracts\Config\Repository;
+use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ExportPostmanCommand extends Command
 {
