@@ -2,7 +2,7 @@
 
 namespace AndreasElia\PostmanGenerator;
 
-class PostmanMapper
+class PostmanExporter
 {
     public string $filename;
 
