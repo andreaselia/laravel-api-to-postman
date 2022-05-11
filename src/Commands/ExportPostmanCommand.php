@@ -168,6 +168,16 @@ class ExportPostmanCommand extends Command
                         return ! is_null($value) && $value !== '';
                     });
 
+                    if (! $this->createCrudFolders()) {
+                        if (in_array(end($routeNames), ['index', 'store', 'show', 'update', 'destroy'])) {
+                            unset($routeNames[array_key_last($routeNames)]);
+                        }
+
+                        if ($routeNames[0] == 'api') {
+                            unset($routeNames[0]);
+                        }
+                    }
+
                     $this->buildTree($this->structure, $routeNames, $request);
                 } else {
                     $this->structure['item'][] = $request;
@@ -385,6 +395,11 @@ class ExportPostmanCommand extends Command
     protected function isStructured()
     {
         return $this->config['structured'];
+    }
+
+    protected function createCrudFolders()
+    {
+        return $this->config['crud_folders'];
     }
 
     /**
