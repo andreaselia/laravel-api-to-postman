@@ -19,15 +19,9 @@ class PostmanExporter
         return $this;
     }
 
-    public function setAuthType(?string $authType)
+    public function setAuth(?string $authType, ?string $authToken)
     {
         $this->authType = $authType;
-
-        return $this;
-    }
-
-    public function setAuthToken(?string $authToken)
-    {
         $this->authToken = $authToken;
 
         return $this;

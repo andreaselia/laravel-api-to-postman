@@ -39,8 +39,7 @@ class ExportPostmanCommand extends Command
 
         $exporter = (new PostmanExporter)
             ->setFilename($filename)
-            ->setAuthType($authType)
-            ->setAuthToken($authToken);
+            ->setAuth($authType, $authToken);
 
         Storage::disk($this->config['disk'])
             ->put('postman/'.$filename, $exporter->getStructure());
