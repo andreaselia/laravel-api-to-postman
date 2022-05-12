@@ -8,6 +8,8 @@ class PostmanExporter
 
     public ?string $authType;
 
+    public ?string $authToken;
+
     protected array $structure;
 
     public function setFilename(string $filename)
@@ -20,6 +22,13 @@ class PostmanExporter
     public function setAuthType(?string $authType)
     {
         $this->authType = $authType;
+
+        return $this;
+    }
+
+    public function setAuthToken(?string $authToken)
+    {
+        $this->authToken = $authToken;
 
         return $this;
     }

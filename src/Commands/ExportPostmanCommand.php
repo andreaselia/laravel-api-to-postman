@@ -35,10 +35,12 @@ class ExportPostmanCommand extends Command
         );
 
         $authType = $this->option('bearer') ? 'bearer' : ($this->option('basic') ? 'basic' : null);
+        $authToken = $authType === 'bearer' ? $this->option('bearer') : ($authType === 'basic' ? $this->option('basic') : null);
 
         $exporter = (new PostmanExporter)
             ->setFilename($filename)
-            ->setAuthType($authType);
+            ->setAuthType($authType)
+            ->setAuthToken($authToken);
 
         Storage::disk($this->config['disk'])
             ->put('postman/'.$filename, $exporter->getStructure());
