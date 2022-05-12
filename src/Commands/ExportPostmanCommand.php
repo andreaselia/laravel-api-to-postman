@@ -17,12 +17,7 @@ class ExportPostmanCommand extends Command
 
     protected $description = 'Automatically generate a Postman collection for your API routes';
 
-    protected array $config;
-
-    protected array $authOptions = [
-        'bearer',
-        'basic',
-    ];
+    protected array $config = [];
 
     public function handle(Router $router, Repository $config): void
     {
