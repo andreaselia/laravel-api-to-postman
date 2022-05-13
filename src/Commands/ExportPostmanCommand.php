@@ -19,11 +19,6 @@ class ExportPostmanCommand extends Command
 
     protected array $config = [];
 
-    protected array $authOptions = [
-        'bearer',
-        'basic',
-    ];
-
     public function handle(Router $router, Repository $config): void
     {
         $this->config = $config['api-postman'];
@@ -48,7 +43,7 @@ class ExportPostmanCommand extends Command
 
     protected function getAuth()
     {
-        foreach ($this->authTypes as $authType) {
+        foreach ($this->authOptions as $authType) {
             if ($token = $this->option($authType)) {
                 return [
                     'type' => $authType,
