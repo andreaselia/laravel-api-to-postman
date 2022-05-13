@@ -128,4 +128,15 @@ return [
 
     'disk' => 'local',
 
+    /*
+    |--------------------------------------------------------------------------
+    | Authentication Method
+    |--------------------------------------------------------------------------
+    |
+    | Specify the authentication method to be used for the endpoints.
+    |
+    */
+
+    'authentication_method' => \AndreasElia\PostmanGenerator\Authentication\Bearer::class,
+
 ];
