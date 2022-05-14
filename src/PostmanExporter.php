@@ -2,15 +2,24 @@
 
 namespace AndreasElia\PostmanGenerator;
 
+use AndreasElia\PostmanGenerator\Authentication\AuthenticationMethod;
+use Illuminate\Config\Repository;
+use Illuminate\Support\Str;
+
 class PostmanExporter
 {
     public string $filename;
 
-    public ?string $authType;
-
-    public ?string $authToken;
-
     protected array $structure;
+
+    protected Repository $config;
+
+    protected ?AuthenticationMethod $authentication = null;
+
+    public function __construct(Repository $config)
+    {
+        $this->config = $config;
+    }
 
     public function setFilename(string $filename)
     {
@@ -19,16 +28,30 @@ class PostmanExporter
         return $this;
     }
 
-    public function setAuth(?string $authType, ?string $authToken)
-    {
-        $this->authType = $authType;
-        $this->authToken = $authToken;
-
-        return $this;
-    }
-
     public function getStructure()
     {
         return json_encode($this->structure);
+    }
+
+    public function export()
+    {
+        $this->resolveAuth();
+
+        dd($this->authentication);
+    }
+
+    public function resolveAuth(): self
+    {
+        $config = $this->config->get('api-postman.authentication');
+
+        if ($config['method']) {
+            $className = Str::of(__NAMESPACE__.'\\Authentication\\')
+                ->append(ucfirst($config['method']))
+                ->toString();
+
+            $this->authentication = new $className;
+        }
+
+        return $this;
     }
 }

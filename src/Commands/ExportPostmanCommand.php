@@ -4,8 +4,6 @@ namespace AndreasElia\PostmanGenerator\Commands;
 
 use AndreasElia\PostmanGenerator\PostmanExporter;
 use Illuminate\Console\Command;
-use Illuminate\Contracts\Config\Repository;
-use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -17,44 +15,21 @@ class ExportPostmanCommand extends Command
 
     protected $description = 'Automatically generate a Postman collection for your API routes';
 
-    protected array $config = [];
-
-    public function handle(Router $router, Repository $config): void
+    public function handle(PostmanExporter $exporter): void
     {
-        $this->config = $config['api-postman'];
-
         $filename = str_replace(
             ['{timestamp}', '{app}'],
             [date('Y_m_d_His'), Str::snake(config('app.name'))],
-            $this->config['filename']
+            config('api-postman.filename')
         );
 
-        $auth = $this->getAuth();
-
-        $exporter = (new PostmanExporter)
+        $exporter
             ->setFilename($filename)
-            ->setAuth($auth['type'], $auth['token']);
+            ->export();
 
-        Storage::disk($this->config['disk'])
+        Storage::disk(config('api-postman.disk'))
             ->put('postman/'.$filename, $exporter->getStructure());
 
         $this->info('Postman Collection Exported: '.storage_path('app/postman/'.$filename));
-    }
-
-    protected function getAuth()
-    {
-        foreach ($this->authOptions as $authType) {
-            if ($token = $this->option($authType)) {
-                return [
-                    'type' => $authType,
-                    'token' => $token ?? null,
-                ];
-            }
-        }
-
-        return [
-            'type' => null,
-            'token' => null,
-        ];
     }
 }
