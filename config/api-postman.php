@@ -130,13 +130,16 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Authentication Method
+    | Authentication
     |--------------------------------------------------------------------------
     |
-    | Specify the authentication method to be used for the endpoints.
+    | Specify the authentication to be used for the endpoints.
     |
     */
 
-    'authentication_method' => \AndreasElia\PostmanGenerator\Authentication\Bearer::class,
+    'authentication' => [
+        'method' => env('POSTMAN_EXPORT_AUTH_METHOD'),
+        'token' => env('POSTMAN_EXPORT_AUTH_TOKEN'),
+    ],
 
 ];
