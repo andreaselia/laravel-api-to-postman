@@ -2,11 +2,9 @@
 
 namespace AndreasElia\PostmanGenerator\Authentication;
 
-use AndreasElia\PostmanGenerator\Contracts\AuthenticationMethod;
-
-class Bearer implements AuthenticationMethod
+class Bearer extends AuthenticationMethod
 {
-    public function resolve(): array
+    public function toArray(): array
     {
         return [];
     }
