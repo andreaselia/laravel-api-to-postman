@@ -33,6 +33,8 @@ class ExampleController extends Controller
 
     public function storeWithFormRequest(ExampleFormRequest $request): string
     {
+        $request->validate();
+
         return 'storeWithFormRequest';
     }
 }
