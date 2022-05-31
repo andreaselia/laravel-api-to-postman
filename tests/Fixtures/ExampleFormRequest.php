@@ -2,8 +2,9 @@
 
 namespace AndreasElia\PostmanGenerator\Tests\Fixtures;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\In;
+use Illuminate\Foundation\Http\FormRequest;
+use AndreasElia\PostmanGenerator\Tests\Fixtures\UppercaseRule;
 
 class ExampleFormRequest extends FormRequest
 {
@@ -16,6 +17,7 @@ class ExampleFormRequest extends FormRequest
             'field_4' => 'nullable|integer',
             'field_5' => 'required|integer|max:30|min:1',
             'field_6' => new In([1, 2, 3]),
+            'field_7' => new UppercaseRule,
         ];
     }
 }
