@@ -2,9 +2,9 @@
 
 namespace AndreasElia\PostmanGenerator\Tests\Fixtures;
 
-use Illuminate\Validation\Rules\In;
 use Illuminate\Foundation\Http\FormRequest;
 use AndreasElia\PostmanGenerator\Tests\Fixtures\UppercaseRule;
+use Illuminate\Validation\Rules\In;
 
 class ExampleFormRequest extends FormRequest
 {
