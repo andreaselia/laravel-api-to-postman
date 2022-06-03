@@ -1,0 +1,15 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Execute tests (Unit and Feature tests) via PHPUnit
+        run: php vendor/bin/phpunit --stop-on-failure
