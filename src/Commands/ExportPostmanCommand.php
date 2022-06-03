@@ -310,7 +310,6 @@ class ExportPostmanCommand extends Command
      */
     protected function parseRulesIntoHumanReadable($attribute, $rules): string
     {
-
         // ... bail if user has asked for non interpreted strings:
         if (! $this->config['rules_to_human_readable']) {
             return is_array($rules) ? implode(', ', $rules) : $this->safelyStringifyClassBasedRule($rules);
@@ -433,10 +432,10 @@ class ExportPostmanCommand extends Command
      */
     protected function safelyStringifyClassBasedRule($probableRule): string
     {
-        if (is_object($probableRule) && (is_subclass_of($probableRule, Rule::class) || method_exists($probableRule, '__toString'))) {
-            return (string) $probableRule;
+        if (!is_object($probableRule) || is_subclass_of($probableRule, Rule::class) || !method_exists($probableRule, '__toString')) {
+            return '';
         }
 
-        return '';
+        return (string) $probableRule;
     }
 }
