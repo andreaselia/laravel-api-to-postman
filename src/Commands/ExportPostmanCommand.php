@@ -432,7 +432,7 @@ class ExportPostmanCommand extends Command
      */
     protected function safelyStringifyClassBasedRule($probableRule): string
     {
-        if (is_object($probableRule) && method_exists($probableRule, '__toString')) {
+        if (is_object($probableRule)) {
             if (method_exists($probableRule, '__toString')) {
                 return (string) $probableRule;
             }
