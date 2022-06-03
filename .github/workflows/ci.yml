@@ -11,5 +11,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Execute tests (Unit and Feature tests) via PHPUnit
+      - name: Execute tests via PHPUnit
         run: php vendor/bin/phpunit --stop-on-failure
