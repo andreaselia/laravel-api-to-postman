@@ -197,6 +197,7 @@ class ExportPostmanTest extends TestCase
          * "'in' => 'The selected :attribute is invalid. Allowable values: :values',"
          **/
         $this->assertCount(1, $fields->where('key', 'field_6')->where('description', 'The selected field 6 is invalid.'));
+        $this->assertCount(1, $fields->where('key', 'field_7')->where('description', 'The field 7 field is required.'));
     }
 
     public function providerFormDataEnabled(): array
