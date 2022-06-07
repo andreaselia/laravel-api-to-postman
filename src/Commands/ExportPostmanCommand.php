@@ -313,7 +313,8 @@ class ExportPostmanCommand extends Command
         // ... bail if user has asked for non interpreted strings:
         if (! $this->config['rules_to_human_readable']) {
             foreach ($rules as $i => $rule) {
-                if (is_object($rule) && is_subclass_of($rule, Rule::class)) {
+                // because we don't support custom rule classes, we remove them from the rules
+                if (is_subclass_of($rule, Rule::class)) {
                     unset($rules[$i]);
                 }
             }
