@@ -312,6 +312,12 @@ class ExportPostmanCommand extends Command
     {
         // ... bail if user has asked for non interpreted strings:
         if (! $this->config['rules_to_human_readable']) {
+            foreach ($rules as $i => $rule) {
+                if (is_object($rule)) {
+                    unset($rules[$i]);
+                }
+            }
+
             return is_array($rules) ? implode(', ', $rules) : $this->safelyStringifyClassBasedRule($rules);
         }
 
@@ -327,6 +333,12 @@ class ExportPostmanCommand extends Command
          * Handle string based rules (e.g. required|string|max:30)
          */
         if (is_array($rules)) {
+            foreach ($rules as $i => $rule) {
+                if (is_object($rule)) {
+                    unset($rules[$i]);
+                }
+            }
+
             $this->validator = Validator::make([], [$attribute => implode('|', $rules)]);
 
             foreach ($rules as $rule) {
