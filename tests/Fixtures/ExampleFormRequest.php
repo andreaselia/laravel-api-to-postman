@@ -16,7 +16,9 @@ class ExampleFormRequest extends FormRequest
             'field_4' => 'nullable|integer',
             'field_5' => 'required|integer|max:30|min:1',
             'field_6' => new In([1, 2, 3]),
-            'field_7' => new UppercaseRule,
+            'field_7' => ['required', new In([1, 2, 3])],
+            'field_8' => new UppercaseRule,
+            'field_9' => ['required', 'string', new UppercaseRule],
         ];
     }
 }
