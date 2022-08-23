@@ -203,7 +203,6 @@ class ExportPostmanTest extends TestCase
         $this->assertCount(1, $fields->where('key', 'field_9')->where('description', 'The field 9 field is required., The field 9 must be a string.'));
     }
 
-
     public function test_event_export_works()
     {
         $eventScriptPath = 'tests/Fixtures/ExampleEvent.js';
