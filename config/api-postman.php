@@ -77,7 +77,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | If you want to configure the prequest and test scripts for the collection,
-    | then please provide paths to the javascript script files.
+    | then please provide paths to the JavaScript files.
     |
     */
 
