@@ -206,7 +206,7 @@ class ExportPostmanTest extends TestCase
 
     public function test_event_export_works()
     {
-        $eventScriptPath = "tests/Fixtures/ExampleEvent.js";
+        $eventScriptPath = 'tests/Fixtures/ExampleEvent.js';
 
         config([
             'api-postman.prerequest_script' => $eventScriptPath,

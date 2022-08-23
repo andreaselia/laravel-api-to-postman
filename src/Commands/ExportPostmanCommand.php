@@ -375,7 +375,7 @@ class ExportPostmanCommand extends Command
                 'schema' => 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
             ],
             'item' => [],
-            'event' => []
+            'event' => [],
         ];
 
         $prerequestPath = $this->config['prerequest_script'];
