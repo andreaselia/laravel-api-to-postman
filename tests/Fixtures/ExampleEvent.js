@@ -1,1 +1,1 @@
-console.log("example event")
+console.log("example event");
