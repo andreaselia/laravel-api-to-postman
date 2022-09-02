@@ -73,6 +73,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Events
+    |--------------------------------------------------------------------------
+    |
+    | If you want to configure the prequest and test scripts for the collection,
+    | then please provide paths to the JavaScript files.
+    |
+    */
+
+    'prerequest_script' => '', // This script will execute before every request in the collection.
+    'test_script' => '', // This script will execute after every request in the collection.
+
+    /*
+    |--------------------------------------------------------------------------
     | Enable Form Data
     |--------------------------------------------------------------------------
     |

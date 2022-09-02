@@ -203,6 +203,34 @@ class ExportPostmanTest extends TestCase
         $this->assertCount(1, $fields->where('key', 'field_9')->where('description', 'The field 9 field is required., The field 9 must be a string.'));
     }
 
+    public function test_event_export_works()
+    {
+        $eventScriptPath = 'tests/Fixtures/ExampleEvent.js';
+
+        config([
+            'api-postman.prerequest_script' => $eventScriptPath,
+            'api-postman.test_script' => $eventScriptPath,
+        ]);
+
+        $this->artisan('export:postman')->assertExitCode(0);
+
+        $this->assertTrue(true);
+
+        $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['event']);
+
+        $events = $collection
+            ->whereIn('listen', ['prerequest', 'test'])
+            ->all();
+
+        $this->assertCount(2, $events);
+
+        $content = file_get_contents($eventScriptPath);
+
+        foreach ($events as $event) {
+            $this->assertEquals($event['script']['exec'], $content);
+        }
+    }
+
     public function providerFormDataEnabled(): array
     {
         return [
