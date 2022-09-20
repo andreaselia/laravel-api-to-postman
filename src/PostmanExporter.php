@@ -54,7 +54,7 @@ class PostmanExporter
 
     protected function generateInitialStructure(): array
     {
-        return [
+        $structure = [
             'variable' => [
                 [
                     'key' => 'base_url',
@@ -69,10 +69,12 @@ class PostmanExporter
         ];
 
         if ($this->token) {
-            $this->structure['variable'][] = [
+            $structure['variable'][] = [
                 'key' => 'token',
                 'value' => $this->token,
             ];
         }
+
+        return $structure;
     }
 }
