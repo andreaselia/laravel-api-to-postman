@@ -33,8 +33,6 @@ class PostmanExporter
     public function export()
     {
         $this->resolveAuth();
-
-        dd($this->authentication);
     }
 
     public function resolveAuth(): self
