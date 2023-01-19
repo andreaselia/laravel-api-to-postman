@@ -20,7 +20,7 @@ class ExportPostmanWithCacheTest extends TestCase
     {
         parent::setUp();
 
-        $this->defineCacheRoutes(<<<PHP
+        $this->defineCacheRoutes(<<<'PHP'
 <?php
 Route::middleware('api')->group(function () {
     Route::get('serialized-route', function () {
@@ -43,7 +43,6 @@ PHP);
 
         parent::tearDown();
     }
-
 
     public function test_cached_export_works()
     {
