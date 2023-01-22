@@ -19,6 +19,6 @@ jobs:
       - name: Install Dependencies
         run: php /usr/bin/composer install -q --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
       - name: Install Testbench
-        run: php /usr/bin/composer require -q --dev --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist orchestra/testbench:${{ matrix.testbench }}
+        run: php /usr/bin/composer require -q --dev -W --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist orchestra/testbench:${{ matrix.testbench }}
       - name: Execute tests via PHPUnit
         run: php vendor/bin/phpunit --stop-on-failure
