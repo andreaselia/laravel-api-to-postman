@@ -28,16 +28,6 @@ PHP);
         Storage::disk()->deleteDirectory('postman');
     }
 
-    /**
-     * Teardown the test environment.
-     */
-    protected function tearDown(): void
-    {
-        $this->tearDownInteractsWithPublishedFiles();
-
-        parent::tearDown();
-    }
-
     public function test_cached_export_works()
     {
         $this->get('serialized-route')
