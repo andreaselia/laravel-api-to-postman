@@ -9,12 +9,6 @@ use Illuminate\Support\Facades\Storage;
 class ExportPostmanWithCacheTest extends TestCase
 {
     use \Orchestra\Testbench\Concerns\HandlesRoutes;
-    use \Orchestra\Testbench\Concerns\InteractsWithPublishedFiles;
-
-    protected $files = [
-        'routes/testbench.php',
-        'bootstrap/cache/routes-v7.php',
-    ];
 
     protected function setUp(): void
     {
