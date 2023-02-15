@@ -49,6 +49,6 @@
         "phpunit/phpunit": "^10.0"
     },
     "scripts": {
-        "test": "@php vendor/bin/phpunit"
+        "test": "phpunit"
     }
 }
