@@ -15,7 +15,7 @@ jobs:
         testbench: ['^6.12', '^7.19']
     name: Testbench ${{ matrix.testbench }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install Dependencies
         run: php /usr/bin/composer install -q --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
       - name: Install Testbench
