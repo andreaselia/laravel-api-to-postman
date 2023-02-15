@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        testbench: ['^6.12', '^7.19']
+        testbench: ['^8.0']
     name: Testbench ${{ matrix.testbench }}
     steps:
       - uses: actions/checkout@v2

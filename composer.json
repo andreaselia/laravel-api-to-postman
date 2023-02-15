@@ -29,11 +29,11 @@
     "require": {
         "php": "^7.4|^8.0",
         "ext-json": "*",
-        "illuminate/config": "^6.0|^7.0|^8.0|^9.0",
-        "illuminate/console": "^6.0|^7.0|^8.0|^9.0",
-        "illuminate/contracts": "^6.0|^7.0|^8.0|^9.0",
-        "illuminate/support": "^6.0|^7.0|^8.0|^9.0",
-        "illuminate/routing": "^6.0|^7.0|^8.0|^9.0"
+        "illuminate/config": "^6.0|^7.0|^8.0|^9.0|^10.0",
+        "illuminate/console": "^6.0|^7.0|^8.0|^9.0|^10.0",
+        "illuminate/contracts": "^6.0|^7.0|^8.0|^9.0|^10.0",
+        "illuminate/support": "^6.0|^7.0|^8.0|^9.0|^10.0",
+        "illuminate/routing": "^6.0|^7.0|^8.0|^9.0|^10.0"
     },
     "extra": {
         "laravel": {
@@ -45,7 +45,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require-dev": {
-        "orchestra/testbench": "^6.12",
-        "phpunit/phpunit": "^9.5"
+        "orchestra/testbench": "^8.0",
+        "phpunit/phpunit": "^10.0"
     }
 }
