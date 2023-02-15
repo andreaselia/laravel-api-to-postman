@@ -213,7 +213,11 @@ class ExportPostmanCommand extends Command
 
     public static function containsSerializedClosure(array $action): bool
     {
-        return is_string($action['uses']) && Str::startsWith($action['uses'], ['C:32:"Opis\\Closure\\SerializableClosure', 'O:47:"Laravel\SerializableClosure\SerializableClosure']);
+        return is_string($action['uses']) && Str::startsWith($action['uses'], [
+            'C:32:"Opis\\Closure\\SerializableClosure',
+            'O:47:"Laravel\SerializableClosure\\SerializableClosure',
+            'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure',
+        ]);
     }
 
     protected function buildTree(array &$routes, array $segments, array $request): void
