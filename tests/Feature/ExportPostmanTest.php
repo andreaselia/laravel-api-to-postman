@@ -231,7 +231,7 @@ class ExportPostmanTest extends TestCase
         }
     }
 
-    public function providerFormDataEnabled(): array
+    public static function providerFormDataEnabled(): array
     {
         return [
             [
