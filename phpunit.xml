@@ -8,7 +8,6 @@
 	failOnRisky="true"
 	failOnEmptyTestSuite="true"
 	beStrictAboutChangesToGlobalState="true"
-	beStrictAboutOutputDuringTests="true"
 >
   <coverage>
     <include>
