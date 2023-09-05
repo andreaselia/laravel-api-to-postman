@@ -4,8 +4,8 @@ namespace AndreasElia\PostmanGenerator\Authentication;
 
 class Bearer extends AuthenticationMethod
 {
-    public function toArray(): array
+    public function prefix(): string
     {
-        return [];
+        return 'Bearer';
     }
 }
