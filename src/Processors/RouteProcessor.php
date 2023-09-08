@@ -86,9 +86,9 @@ class RouteProcessor
                 ->after('/')
                 ->replaceMatches('/{([[:alnum:]]+)}/', ':$1');
 
-//            if (!$uri->toString()) {
-//                return [];
-//            }
+            //            if (!$uri->toString()) {
+            //                return [];
+            //            }
 
             $data = [
                 'name' => $route->uri(),
@@ -296,6 +296,7 @@ class RouteProcessor
         foreach ($messages as $key => $message) {
             if ($message === 'validation.nullable') {
                 $messages[$key] = '(Nullable)';
+
                 continue;
             }
 
@@ -309,9 +310,6 @@ class RouteProcessor
 
     /**
      * In this case we have received what is most likely a Rule Object but are not certain.
-     *
-     * @param  $probableRule
-     * @return string
      */
     protected function safelyStringifyClassBasedRule($probableRule): string
     {
