@@ -307,8 +307,8 @@ class ExportPostmanCommand extends Command
      * Process a rule set and utilize the Validator to create human readable descriptions
      * to help users provide valid data.
      *
-     * @param $attribute
-     * @param $rules
+     * @param  $attribute
+     * @param  $rules
      * @return string
      */
     protected function parseRulesIntoHumanReadable($attribute, $rules): string
@@ -466,7 +466,7 @@ class ExportPostmanCommand extends Command
     /**
      * In this case we have received what is most likely a Rule Object but are not certain.
      *
-     * @param $probableRule
+     * @param  $probableRule
      * @return string
      */
     protected function safelyStringifyClassBasedRule($probableRule): string
