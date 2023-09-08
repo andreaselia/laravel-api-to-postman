@@ -125,7 +125,7 @@ class RouteProcessor
         return collect([
             'method' => strtoupper($method),
             'header' => collect($this->config['headers'])
-                ->push($this->authentication->toArray())
+                ->push($this->authentication?->toArray())
                 ->all(),
             'url' => [
                 'raw' => '{{base_url}}/'.$uri,
