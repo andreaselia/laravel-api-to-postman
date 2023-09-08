@@ -194,10 +194,10 @@ class RouteProcessor
     private function containsSerializedClosure(array $action): bool
     {
         return is_string($action['uses']) && Str::startsWith($action['uses'], [
-                'C:32:"Opis\\Closure\\SerializableClosure',
-                'O:47:"Laravel\SerializableClosure\\SerializableClosure',
-                'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure',
-            ]);
+            'C:32:"Opis\\Closure\\SerializableClosure',
+            'O:47:"Laravel\SerializableClosure\\SerializableClosure',
+            'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure',
+        ]);
     }
 
     protected function buildTree(array &$routes, array $segments, array $request): void
@@ -310,7 +310,7 @@ class RouteProcessor
     /**
      * In this case we have received what is most likely a Rule Object but are not certain.
      *
-     * @param $probableRule
+     * @param  $probableRule
      * @return string
      */
     protected function safelyStringifyClassBasedRule($probableRule): string
