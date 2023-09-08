@@ -122,18 +122,21 @@ class RouteProcessor
 
     protected function processRequest(string $method, Stringable $uri, Collection $rules): array
     {
-        $variables = $uri->matchAll('/(?<={)[[:alnum:]]+(?=})/m');
-
         return collect([
             'method' => strtoupper($method),
-//            'header' => $headers,
+            'header' => collect($this->config['headers'])
+                ->push($this->authentication->toArray())
+                ->all(),
             'url' => [
                 'raw' => '{{base_url}}/'.$uri,
                 'host' => ['{{base_url}}'],
                 'path' => $uri->explode('/')->filter()->all(),
-                'variable' => $variables->transform(function ($variable) {
-                    return ['key' => $variable, 'value' => ''];
-                })->all(),
+                'variable' => $uri
+                    ->matchAll('/(?<={)[[:alnum:]]+(?=})/m')
+                    ->transform(function ($variable) {
+                        return ['key' => $variable, 'value' => ''];
+                    })
+                    ->all(),
             ],
         ])
             ->when($rules, function (Collection $collection, Collection $rules) {
