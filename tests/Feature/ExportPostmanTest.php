@@ -131,8 +131,6 @@ class ExportPostmanTest extends TestCase
 
         $this->artisan('export:postman')->assertExitCode(0);
 
-        $this->assertTrue(true);
-
         $collection = json_decode(Storage::get('postman/'.config('api-postman.filename')), true);
 
         $routes = $this->app['router']->getRoutes();
@@ -151,8 +149,6 @@ class ExportPostmanTest extends TestCase
         ]);
 
         $this->artisan('export:postman')->assertExitCode(0);
-
-        $this->assertTrue(true);
 
         $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['item']);
 
@@ -212,8 +208,6 @@ class ExportPostmanTest extends TestCase
 
         $this->artisan('export:postman')->assertExitCode(0);
 
-        $this->assertTrue(true);
-
         $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['item']);
 
         $targetRequest = $collection
@@ -248,8 +242,6 @@ class ExportPostmanTest extends TestCase
         ]);
 
         $this->artisan('export:postman')->assertExitCode(0);
-
-        $this->assertTrue(true);
 
         $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['event']);
 
