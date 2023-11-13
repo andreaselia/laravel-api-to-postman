@@ -20,7 +20,8 @@ class ExportPostmanCommand extends Command
     /** @var string */
     protected $signature = 'export:postman
                             {--bearer= : The bearer token to use on your endpoints}
-                            {--basic= : The basic auth to use on your endpoints}';
+                            {--basic= : The basic auth to use on your endpoints}
+                            {--continue-on-errors= : Continues even if an error occurs in any route, middleware or method (boolean)}';
 
     /** @var string */
     protected $description = 'Automatically generate a Postman collection for your API routes';
@@ -49,6 +50,9 @@ class ExportPostmanCommand extends Command
         'basic',
     ];
 
+    /** @var bool */
+    private $stopOnErrors = true;
+
     /** @var \Illuminate\Validation\Validator */
     private $validator;
 
@@ -64,11 +68,13 @@ class ExportPostmanCommand extends Command
     {
         $this->setFilename();
         $this->setAuthToken();
+        $this->setOptions();
         $this->initializeStructure();
 
         foreach ($this->router->getRoutes() as $route) {
             $methods = array_filter($route->methods(), fn ($value) => $value !== 'HEAD');
-            $middlewares = $route->gatherMiddleware();
+
+            $middlewares = $this->handleCallable(fn () => $route->gatherMiddleware());
 
             foreach ($methods as $method) {
                 $includedMiddleware = false;
@@ -87,7 +93,7 @@ class ExportPostmanCommand extends Command
 
                 $routeAction = $route->getAction();
 
-                $reflectionMethod = $this->getReflectionMethod($routeAction);
+                $reflectionMethod = $this->handleCallable(fn () => $this->getReflectionMethod($routeAction));
 
                 if (! $reflectionMethod) {
                     continue;
@@ -188,6 +194,18 @@ class ExportPostmanCommand extends Command
         Storage::disk($this->config['disk'])->put($exportName = "postman/$this->filename", json_encode($this->structure));
 
         $this->info('Postman Collection Exported: '.storage_path('app/'.$exportName));
+    }
+
+    protected function handleCallable($callable)
+    {
+        try {
+            return $callable();
+        } catch (\Throwable $th) {
+            if ($this->stopOnErrors) {
+                throw $th;
+            }
+            \Illuminate\Support\Facades\Log::error($th->getMessage()."\n[stacktrace]\n".$th->getTraceAsString()."\n");
+        }
     }
 
     protected function getReflectionMethod(array $routeAction): ?object
@@ -427,6 +445,13 @@ class ExportPostmanCommand extends Command
                 $this->token = $token ?? null;
                 $this->authType = $option;
             }
+        }
+    }
+
+    protected function setOptions()
+    {
+        if ($this->option('continue-on-errors')) {
+            $this->stopOnErrors = false;
         }
     }
 

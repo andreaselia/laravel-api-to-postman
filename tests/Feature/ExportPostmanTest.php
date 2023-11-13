@@ -119,6 +119,32 @@ class ExportPostmanTest extends TestCase
         }
     }
 
+    public function test_continue_on_errors_works()
+    {
+        $router = $this->app['router'];
+
+        $router->middleware('api')->group(function ($router) {
+            $router->get('endpoint/with/error', [NonExistentController::class, 'index']);
+            $router->get('endpoint/without/error', function () {
+                return 'index';
+            });
+        });
+
+        $this->artisan('export:postman --continue-on-errors=true')->assertExitCode(0);
+
+        $collection = json_decode(Storage::get('postman/'.config('api-postman.filename')), true);
+
+        $collectionRoute = Arr::first($collection['item'], function ($item) {
+            return $item['name'] == 'endpoint/without/error';
+        });
+        $this->assertNotNull($collectionRoute);
+
+        $collectionRoute = Arr::first($collection['item'], function ($item) {
+            return $item['name'] == 'endpoint/with/error';
+        });
+        $this->assertNull($collectionRoute);
+    }
+
     /**
      * @dataProvider providerFormDataEnabled
      */
