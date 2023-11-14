@@ -8,6 +8,7 @@ use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -204,7 +205,7 @@ class ExportPostmanCommand extends Command
             if ($this->stopOnErrors) {
                 throw $th;
             }
-            \Illuminate\Support\Facades\Log::error($th->getMessage()."\n[stacktrace]\n".$th->getTraceAsString()."\n");
+            Log::error($th->getMessage()."\n[stacktrace]\n".$th->getTraceAsString()."\n");
         }
     }
 
