@@ -22,7 +22,7 @@ class ExportPostmanCommand extends Command
     protected $signature = 'export:postman
                             {--bearer= : The bearer token to use on your endpoints}
                             {--basic= : The basic auth to use on your endpoints}
-                            {--continue-on-errors= : Continues even if an error occurs in any route, middleware or method (boolean)}';
+                            {--continue-on-errors : Continues even if an error occurs in any route, middleware or method (boolean)}';
 
     /** @var string */
     protected $description = 'Automatically generate a Postman collection for your API routes';

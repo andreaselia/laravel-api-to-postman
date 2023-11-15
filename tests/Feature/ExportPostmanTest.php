@@ -130,7 +130,7 @@ class ExportPostmanTest extends TestCase
             });
         });
 
-        $this->artisan('export:postman --continue-on-errors=true')->assertExitCode(0);
+        $this->artisan('export:postman --continue-on-errors')->assertExitCode(0);
 
         $collection = json_decode(Storage::get('postman/'.config('api-postman.filename')), true);
 
