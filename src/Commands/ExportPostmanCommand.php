@@ -451,7 +451,7 @@ class ExportPostmanCommand extends Command
 
     protected function setOptions()
     {
-        if ($this->option('continue-on-errors')) {
+        if ($this->option('continue-on-errors') === true) {
             $this->stopOnErrors = false;
         }
     }
