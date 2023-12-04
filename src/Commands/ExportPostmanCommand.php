@@ -107,7 +107,7 @@ class ExportPostmanCommand extends Command
                     continue;
                 }
 
-                if ($this->config('include_doccomments')) {
+                if ($this->config['include_doccomments']) {
                     try {
                         $docComment = $reflectionMethod->getDocComment();
                         $tokens = new TokenIterator($this->lexer->tokenize($docComment));
