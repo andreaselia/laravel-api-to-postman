@@ -327,10 +327,18 @@ class ExportPostmanCommand extends Command
                 ];
             }
 
-            $data['request']['body'] = [
-                'mode' => 'urlencoded',
-                'urlencoded' => $ruleData,
-            ];
+            if ($method === 'GET') {
+                foreach ($ruleData as &$rule) {
+                    unset($rule['type']);
+                    $rule['disabled'] = false;
+                }
+                $data['request']['url']['query'] = $ruleData;
+            } else {
+                $data['request']['body'] = [
+                    'mode' => 'urlencoded',
+                    'urlencoded' => $ruleData,
+                ];
+            }
         }
 
         return $data;
