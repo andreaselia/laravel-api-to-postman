@@ -77,6 +77,7 @@ class ExportPostmanCommand extends Command
         $this->setFilename();
         $this->setAuthToken();
         $this->initializeStructure();
+        $this->initializePhpDocParser();
 
         foreach ($this->router->getRoutes() as $route) {
             $methods = array_filter($route->methods(), fn ($value) => $value !== 'HEAD');
