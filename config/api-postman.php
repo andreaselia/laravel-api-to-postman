@@ -94,8 +94,8 @@ return [
     |
     */
 
-    'include_doccomments' => false,
-    
+    'include_doc_comments' => false,
+
     /*
     |--------------------------------------------------------------------------
     | Enable Form Data

@@ -108,7 +108,7 @@ class ExportPostmanCommand extends Command
                     continue;
                 }
 
-                if ($this->config['include_doccomments']) {
+                if ($this->config['include_doc_comments']) {
                     try {
                         $docComment = $reflectionMethod->getDocComment();
                         $tokens = new TokenIterator($this->lexer->tokenize($docComment));
@@ -116,13 +116,12 @@ class ExportPostmanCommand extends Command
 
                         foreach ($phpDocNode->children as $child) {
                             if ($child instanceof PhpDocTextNode) {
-                                $requestDescription .= ' ' . $child->text;
+                                $requestDescription .= ' '.$child->text;
                             }
                         }
                         $requestDescription = Str::squish($requestDescription);
                     } catch (\Exception $e) {
-                        $requestDescription = 'Error at parsing phpdoc at ' . $reflectionMethod->class . '::' . $reflectionMethod->name;
-                        $this->warn($requestDescription);
+                        $this->warn('Error at parsing phpdoc at '.$reflectionMethod->class.'::'.$reflectionMethod->name);
                     }
                 }
 
@@ -407,7 +406,7 @@ class ExportPostmanCommand extends Command
     }
 
     /**
-     * Initializes the phpDocParser and lexer
+     * Initializes the phpDocParser and lexer.
      */
     protected function initializePhpDocParser(): void
     {
