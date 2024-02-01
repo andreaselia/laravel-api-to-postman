@@ -266,6 +266,25 @@ class ExportPostmanTest extends TestCase
         }
     }
 
+    public function test_php_doc_comment_export()
+    {
+        config([
+            'api-postman.include_doc_comments' => true,
+        ]);
+
+        $this->artisan('export:postman')->assertExitCode(0);
+
+        $this->assertTrue(true);
+
+        $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['item']);
+
+        $targetRequest = $collection
+            ->where('name', 'example/phpDocRoute')
+            ->first();
+
+        $this->assertEquals($targetRequest['request']['description'], 'This is the php doc route. Which is also multi-line. and has a blank line.');
+    }
+
     public static function providerFormDataEnabled(): array
     {
         return [

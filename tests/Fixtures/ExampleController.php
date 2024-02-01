@@ -40,4 +40,18 @@ class ExampleController extends Controller
     {
         return 'getWithFormRequest';
     }
+
+    /**
+     * This is the php doc route.
+     * Which is also multi-line.
+     * 
+     * and has a blank line.
+     * 
+     * @param string $non-existing param
+     * @return string
+     */
+    public function phpDocRoute(): string
+    {
+        return 'phpDocRoute';
+    }
 }
