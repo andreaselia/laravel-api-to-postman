@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Storage;
@@ -358,7 +359,7 @@ class ExportPostmanCommand extends Command
         if (! $this->config['rules_to_human_readable']) {
             foreach ($rules as $i => $rule) {
                 // because we don't support custom rule classes, we remove them from the rules
-                if (is_subclass_of($rule, Rule::class)) {
+                if (is_subclass_of($rule, Rule::class) || is_subclass_of($rule, ValidationRule::class)) {
                     unset($rules[$i]);
                 }
             }
@@ -523,7 +524,7 @@ class ExportPostmanCommand extends Command
      */
     protected function safelyStringifyClassBasedRule($probableRule): string
     {
-        if (! is_object($probableRule) || is_subclass_of($probableRule, Rule::class) || ! method_exists($probableRule, '__toString')) {
+        if (! is_object($probableRule) || is_subclass_of($probableRule, Rule::class) || is_subclass_of($probableRule, ValidationRule::class) || ! method_exists($probableRule, '__toString')) {
             return '';
         }
 
