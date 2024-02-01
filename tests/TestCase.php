@@ -20,6 +20,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
             $router->delete('delete', [ExampleController::class, 'delete'])->name('delete');
             $router->get('showWithReflectionMethod', [ExampleController::class, 'showWithReflectionMethod'])->name('show-with-reflection-method');
             $router->post('storeWithFormRequest', [ExampleController::class, 'storeWithFormRequest'])->name('store-with-form-request');
+            $router->get('getWithFormRequest', [ExampleController::class, 'getWithFormRequest'])->name('get-with-form-request');
         });
     }
 }

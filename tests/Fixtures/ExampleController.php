@@ -35,4 +35,9 @@ class ExampleController extends Controller
     {
         return 'storeWithFormRequest';
     }
+
+    public function getWithFormRequest(ExampleFormRequest $request): string
+    {
+        return 'getWithFormRequest';
+    }
 }
