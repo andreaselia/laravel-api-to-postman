@@ -144,4 +144,18 @@ return [
 
     'disk' => 'local',
 
+    /*
+    |--------------------------------------------------------------------------
+    | Protocol Profile Behavior
+    |--------------------------------------------------------------------------
+    |
+    | Set of configurations used to alter the usual behavior of sending the request.
+    | These can be defined in a collection at Item or ItemGroup level which will be inherited if applicable.
+    |
+    */
+
+    'protocol_profile_behavior' => [
+        'disableBodyPruning' => false,  // Control request body pruning for following methods: GET, COPY, HEAD, PURGE, UNLOCK
+    ]
+
 ];
