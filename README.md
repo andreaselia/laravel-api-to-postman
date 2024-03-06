@@ -54,12 +54,6 @@ The following usage will generate routes with the basic auth specified.
 php artisan export:postman --basic="username:password123"
 ```
 
-The following usage will continue until the end, even if it has error or incompatible endpoints.
-
-```bash
-php artisan export:postman --continue-on-errors
-```
-
 If both auths are specified, bearer will be favored.
 
 ## Examples
