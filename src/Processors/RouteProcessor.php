@@ -90,14 +90,25 @@ class RouteProcessor
             //                return [];
             //            }
 
+            if ($this->config['include_doc_comments']) {
+                $description = (new DocBlockProcessor)($reflectionMethod);
+            }
+
             $data = [
                 'name' => $route->uri(),
-                'request' => $this->processRequest(
-                    $method,
-                    $uri,
-                    $this->config['enable_formdata'] ? (new FormDataProcessor)->process($reflectionMethod) : collect()
+                'request' => array_merge(
+                    $this->processRequest(
+                        $method,
+                        $uri,
+                        $this->config['enable_formdata'] ? (new FormDataProcessor)->process($reflectionMethod) : collect()
+                    ),
+                    ['description' => $description ?? '']
                 ),
                 'response' => [],
+
+                'protocolProfileBehavior' => [
+                    'disableBodyPruning' => $this->config['protocol_profile_behavior']['disable_body_pruning'] ?? false,
+                ],
             ];
 
             if ($this->config['structured']) {
@@ -139,19 +150,26 @@ class RouteProcessor
                     ->all(),
             ],
         ])
-            ->when($rules, function (Collection $collection, Collection $rules) {
+            ->when($rules, function (Collection $collection, Collection $rules) use ($method) {
                 if ($rules->isEmpty()) {
                     return $collection;
                 }
 
+                $rules->transform(fn ($rule) => [
+                    'key' => $rule['name'],
+                    'value' => $this->config['formdata'][$rule['name']] ?? null,
+                    'description' => $this->config['print_rules'] ? $this->parseRulesIntoHumanReadable($rule['name'], $rule['description']) : null,
+                ]);
+
+                if ($method === 'GET') {
+                    return $collection->put('url', [
+                        'query' => $rules->map(fn ($value) => array_merge($value, ['disabled' => false]))
+                    ]);
+                }
+
                 return $collection->put('body', [
                     'mode' => 'urlencoded',
-                    'urlencoded' => $rules->map(fn ($rule) => [
-                        'key' => $rule['name'],
-                        'value' => $this->config['formdata'][$rule['name']] ?? null,
-                        'type' => 'text',
-                        'description' => $this->config['print_rules'] ? $this->parseRulesIntoHumanReadable($rule['name'], $rule['description']) : null,
-                    ]),
+                    'urlencoded' => $rules->map(fn ($value) => array_merge($value, ['type' => 'text'])),
                 ]);
             })
             ->all();
