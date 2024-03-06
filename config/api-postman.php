@@ -155,7 +155,7 @@ return [
     */
 
     'protocol_profile_behavior' => [
-        'disableBodyPruning' => false,  // Control request body pruning for following methods: GET, COPY, HEAD, PURGE, UNLOCK
+        'disable_body_pruning' => false,  // Control request body pruning for following methods: GET, COPY, HEAD, PURGE, UNLOCK
     ]
 
 ];
