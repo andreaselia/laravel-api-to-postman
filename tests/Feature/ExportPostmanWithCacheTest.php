@@ -38,7 +38,12 @@ PHP);
 
         $collection = json_decode(Storage::get('postman/'.config('api-postman.filename')), true);
 
-        $routes = $this->app['router']->getRoutes();
+        $routes = $this->app['router']->getRoutes()->getRoutesByName();
+
+        // Filter out workbench routes from orchestra/workbench
+        $routes = array_filter($routes, function ($route) {
+            return strpos($route->uri(), 'workbench') === false;
+        });
 
         $collectionItems = $collection['item'];
 
