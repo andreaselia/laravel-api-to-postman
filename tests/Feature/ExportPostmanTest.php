@@ -167,6 +167,41 @@ class ExportPostmanTest extends TestCase
         $this->assertCount(1, $fields->where('key', 'field_6')->where('description', 'in:"1","2","3"'));
     }
 
+    public function test_rules_printing_get_export_works()
+    {
+        config([
+            'api-postman.enable_formdata' => true,
+            'api-postman.print_rules' => true,
+            'api-postman.rules_to_human_readable' => false,
+        ]);
+
+        $this->artisan('export:postman')->assertExitCode(0);
+
+        $this->assertTrue(true);
+
+        $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['item']);
+
+        $targetRequest = $collection
+            ->where('name', 'example/getWithFormRequest')
+            ->first();
+
+        $fields = collect($targetRequest['request']['url']['query']);
+        $this->assertCount(1, $fields->where('key', 'field_1')->where('description', 'required'));
+        $this->assertCount(1, $fields->where('key', 'field_2')->where('description', 'required, integer'));
+        $this->assertCount(1, $fields->where('key', 'field_5')->where('description', 'required, integer, max:30, min:1'));
+        $this->assertCount(1, $fields->where('key', 'field_6')->where('description', 'in:"1","2","3"'));
+
+        // Check for the required structure of the get request query
+        foreach ($fields as $field) {
+            $this->assertEqualsCanonicalizing([
+                'key' => $field['key'],
+                'value' => null,
+                'disabled' => false,
+                'description' => $field['description']
+            ], $field);
+        }
+    }
+
     public function test_rules_printing_export_to_human_readable_works()
     {
         config([
@@ -229,6 +264,25 @@ class ExportPostmanTest extends TestCase
         foreach ($events as $event) {
             $this->assertEquals($event['script']['exec'], $content);
         }
+    }
+
+    public function test_php_doc_comment_export()
+    {
+        config([
+            'api-postman.include_doc_comments' => true,
+        ]);
+
+        $this->artisan('export:postman')->assertExitCode(0);
+
+        $this->assertTrue(true);
+
+        $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['item']);
+
+        $targetRequest = $collection
+            ->where('name', 'example/phpDocRoute')
+            ->first();
+
+        $this->assertEquals($targetRequest['request']['description'], 'This is the php doc route. Which is also multi-line. and has a blank line.');
     }
 
     public static function providerFormDataEnabled(): array

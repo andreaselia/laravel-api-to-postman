@@ -6,12 +6,19 @@ use Closure;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationRuleParser;
+use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTextNode;
+use PHPStan\PhpDocParser\Lexer\Lexer;
+use PHPStan\PhpDocParser\Parser\ConstExprParser;
+use PHPStan\PhpDocParser\Parser\PhpDocParser;
+use PHPStan\PhpDocParser\Parser\TokenIterator;
+use PHPStan\PhpDocParser\Parser\TypeParser;
 use ReflectionClass;
 use ReflectionFunction;
 
@@ -43,6 +50,12 @@ class ExportPostmanCommand extends Command
     /** @var string */
     private $authType;
 
+    /** @var Lexer */
+    private Lexer $lexer;
+
+    /** @var PhpDocParser */
+    private PhpDocParser $phpDocParser;
+
     /** @var array */
     private const AUTH_OPTIONS = [
         'bearer',
@@ -65,6 +78,7 @@ class ExportPostmanCommand extends Command
         $this->setFilename();
         $this->setAuthToken();
         $this->initializeStructure();
+        $this->initializePhpDocParser();
 
         foreach ($this->router->getRoutes() as $route) {
             $methods = array_filter($route->methods(), fn ($value) => $value !== 'HEAD');
@@ -85,12 +99,31 @@ class ExportPostmanCommand extends Command
 
                 $requestRules = [];
 
+                $requestDescription = '';
+
                 $routeAction = $route->getAction();
 
                 $reflectionMethod = $this->getReflectionMethod($routeAction);
 
                 if (! $reflectionMethod) {
                     continue;
+                }
+
+                if ($this->config['include_doc_comments']) {
+                    try {
+                        $docComment = $reflectionMethod->getDocComment();
+                        $tokens = new TokenIterator($this->lexer->tokenize($docComment));
+                        $phpDocNode = $this->phpDocParser->parse($tokens);
+
+                        foreach ($phpDocNode->children as $child) {
+                            if ($child instanceof PhpDocTextNode) {
+                                $requestDescription .= ' '.$child->text;
+                            }
+                        }
+                        $requestDescription = Str::squish($requestDescription);
+                    } catch (\Exception $e) {
+                        $this->warn('Error at parsing phpdoc at '.$reflectionMethod->class.'::'.$reflectionMethod->name);
+                    }
                 }
 
                 if ($this->config['enable_formdata']) {
@@ -149,7 +182,7 @@ class ExportPostmanCommand extends Command
                     }
                 }
 
-                $request = $this->makeRequest($route, $method, $routeHeaders, $requestRules);
+                $request = $this->makeRequest($route, $method, $routeHeaders, $requestRules, $requestDescription);
 
                 if ($this->isStructured()) {
                     $routeNames = $route->action['as'] ?? null;
@@ -258,7 +291,7 @@ class ExportPostmanCommand extends Command
         }
     }
 
-    public function makeRequest($route, $method, $routeHeaders, $requestRules)
+    public function makeRequest($route, $method, $routeHeaders, $requestRules, $requestDescription)
     {
         $printRules = $this->config['print_rules'];
 
@@ -279,6 +312,7 @@ class ExportPostmanCommand extends Command
                         return ['key' => $variable, 'value' => ''];
                     })->all(),
                 ],
+                'description' => $requestDescription,
             ],
         ];
 
@@ -294,10 +328,18 @@ class ExportPostmanCommand extends Command
                 ];
             }
 
-            $data['request']['body'] = [
-                'mode' => 'urlencoded',
-                'urlencoded' => $ruleData,
-            ];
+            if ($method === 'GET') {
+                foreach ($ruleData as &$rule) {
+                    unset($rule['type']);
+                    $rule['disabled'] = false;
+                }
+                $data['request']['url']['query'] = $ruleData;
+            } else {
+                $data['request']['body'] = [
+                    'mode' => 'urlencoded',
+                    'urlencoded' => $ruleData,
+                ];
+            }
         }
 
         return $data;
@@ -317,7 +359,7 @@ class ExportPostmanCommand extends Command
         if (! $this->config['rules_to_human_readable']) {
             foreach ($rules as $i => $rule) {
                 // because we don't support custom rule classes, we remove them from the rules
-                if (is_subclass_of($rule, Rule::class)) {
+                if (is_subclass_of($rule, Rule::class) || is_subclass_of($rule, ValidationRule::class)) {
                     unset($rules[$i]);
                 }
             }
@@ -362,6 +404,17 @@ class ExportPostmanCommand extends Command
 
         // ...safely return a safe value if we encounter neither a string or object based rule set:
         return '';
+    }
+
+    /**
+     * Initializes the phpDocParser and lexer.
+     */
+    protected function initializePhpDocParser(): void
+    {
+        $this->lexer = new Lexer();
+        $constExprParser = new ConstExprParser();
+        $typeParser = new TypeParser($constExprParser);
+        $this->phpDocParser = new PhpDocParser($typeParser, $constExprParser);
     }
 
     protected function initializeStructure(): void
@@ -471,7 +524,7 @@ class ExportPostmanCommand extends Command
      */
     protected function safelyStringifyClassBasedRule($probableRule): string
     {
-        if (! is_object($probableRule) || is_subclass_of($probableRule, Rule::class) || ! method_exists($probableRule, '__toString')) {
+        if (! is_object($probableRule) || is_subclass_of($probableRule, Rule::class) || is_subclass_of($probableRule, ValidationRule::class) || ! method_exists($probableRule, '__toString')) {
             return '';
         }
 
