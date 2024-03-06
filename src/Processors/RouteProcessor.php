@@ -115,9 +115,9 @@ class RouteProcessor
 
                 if ($this->config['structured']) {
                     $routeNameSegments = (
-                    $route->getName()
-                        ? Str::of($route->getName())->explode('.')
-                        : Str::of($route->uri())->after('api/')->explode('/')
+                        $route->getName()
+                            ? Str::of($route->getName())->explode('.')
+                            : Str::of($route->uri())->after('api/')->explode('/')
                     )->filter(fn ($value) => ! is_null($value) && $value !== '');
 
                     if (! $this->config['crud_folders']) {
@@ -168,7 +168,7 @@ class RouteProcessor
 
                 if ($method === 'GET') {
                     return $collection->put('url', [
-                        'query' => $rules->map(fn ($value) => array_merge($value, ['disabled' => false]))
+                        'query' => $rules->map(fn ($value) => array_merge($value, ['disabled' => false])),
                     ]);
                 }
 
