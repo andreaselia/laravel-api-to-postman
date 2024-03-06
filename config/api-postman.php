@@ -168,6 +168,6 @@ return [
 
     'protocol_profile_behavior' => [
         'disable_body_pruning' => false,  // Control request body pruning for following methods: GET, COPY, HEAD, PURGE, UNLOCK
-    ]
+    ],
 
 ];

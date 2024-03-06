@@ -197,7 +197,7 @@ class ExportPostmanTest extends TestCase
                 'key' => $field['key'],
                 'value' => null,
                 'disabled' => false,
-                'description' => $field['description']
+                'description' => $field['description'],
             ], $field);
         }
     }

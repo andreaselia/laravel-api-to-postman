@@ -2,8 +2,8 @@
 
 namespace AndreasElia\PostmanGenerator\Tests\Fixtures;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
 
 class UppercaseRule implements ValidationRule
 {
@@ -15,7 +15,7 @@ class UppercaseRule implements ValidationRule
      * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
      * @return void
      */
-    public function validate(string $attribute, mixed $value, Closure $fail): void 
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         if (strtoupper($value) !== $value) {
             $fail("The {$attribute} must be uppercase.");

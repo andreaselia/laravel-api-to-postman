@@ -316,7 +316,7 @@ class ExportPostmanCommand extends Command
             ],
         ];
 
-        if($this->config['protocol_profile_behavior']['disable_body_pruning']) {
+        if ($this->config['protocol_profile_behavior']['disable_body_pruning']) {
             $data['protocolProfileBehavior'] = [
                 'disableBodyPruning' => true,
             ];
