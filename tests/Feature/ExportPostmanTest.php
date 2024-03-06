@@ -131,8 +131,6 @@ class ExportPostmanTest extends TestCase
 
         $this->artisan('export:postman')->assertExitCode(0);
 
-        $this->assertTrue(true);
-
         $collection = json_decode(Storage::get('postman/'.config('api-postman.filename')), true);
 
         $routes = $this->app['router']->getRoutes();
@@ -151,8 +149,6 @@ class ExportPostmanTest extends TestCase
         ]);
 
         $this->artisan('export:postman')->assertExitCode(0);
-
-        $this->assertTrue(true);
 
         $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['item']);
 
@@ -212,8 +208,6 @@ class ExportPostmanTest extends TestCase
 
         $this->artisan('export:postman')->assertExitCode(0);
 
-        $this->assertTrue(true);
-
         $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['item']);
 
         $targetRequest = $collection
@@ -234,7 +228,7 @@ class ExportPostmanTest extends TestCase
          **/
         $this->assertCount(1, $fields->where('key', 'field_6')->where('description', 'The selected field 6 is invalid.'));
         $this->assertCount(1, $fields->where('key', 'field_7')->where('description', 'The field 7 field is required.'));
-        $this->assertCount(1, $fields->where('key', 'field_8')->where('description', 'validation.'));
+        $this->assertCount(1, $fields->where('key', 'field_8')->where('description', 'The field 8 field must be uppercase.'));
         $this->assertCount(1, $fields->where('key', 'field_9')->where('description', 'The field 9 field is required., The field 9 field must be a string.'));
     }
 
@@ -248,8 +242,6 @@ class ExportPostmanTest extends TestCase
         ]);
 
         $this->artisan('export:postman')->assertExitCode(0);
-
-        $this->assertTrue(true);
 
         $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['event']);
 

@@ -48,7 +48,6 @@ class ExampleController extends Controller
      * and has a blank line.
      *
      * @param  string  $non-existing  param
-     * @return string
      */
     public function phpDocRoute(): string
     {

@@ -1,0 +1,15 @@
+name: CS
+
+on:
+    pull_request:
+
+jobs:
+    tests:
+        runs-on: ubuntu-latest
+        name: Code Style
+        steps:
+            - uses: actions/checkout@v2
+            - name: Install Dependencies
+              run: php /usr/bin/composer install -q --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
+            - name: Verify
+              run: php vendor/bin/pint --test

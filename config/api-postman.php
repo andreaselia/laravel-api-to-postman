@@ -89,7 +89,7 @@ return [
     | Include Doc Comments
     |--------------------------------------------------------------------------
     |
-    | Determines whether or not to set the PHP Doc comments to the description
+    | Determines whether to set the PHP Doc comments to the description
     | in postman.
     |
     */
@@ -155,6 +155,20 @@ return [
     */
 
     'disk' => 'local',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Authentication
+    |--------------------------------------------------------------------------
+    |
+    | Specify the authentication to be used for the endpoints.
+    |
+    */
+
+    'authentication' => [
+        'method' => env('POSTMAN_EXPORT_AUTH_METHOD'),
+        'token' => env('POSTMAN_EXPORT_AUTH_TOKEN'),
+    ],
 
     /*
     |--------------------------------------------------------------------------
