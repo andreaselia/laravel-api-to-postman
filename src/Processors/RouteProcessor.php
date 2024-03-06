@@ -9,6 +9,7 @@ use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Routing\Route;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
@@ -54,80 +55,84 @@ class RouteProcessor
      */
     protected function processRoute(Route $route)
     {
-        $methods = array_filter($route->methods(), fn ($value) => $value !== 'HEAD');
-        $middlewares = $route->gatherMiddleware();
+        try {
+            $methods = array_filter($route->methods(), fn ($value) => $value !== 'HEAD');
+            $middlewares = $route->gatherMiddleware();
 
-        foreach ($methods as $method) {
-            $includedMiddleware = false;
+            foreach ($methods as $method) {
+                $includedMiddleware = false;
 
-            foreach ($middlewares as $middleware) {
-                if (in_array($middleware, $this->config['include_middleware'])) {
-                    $includedMiddleware = true;
-                }
-            }
-
-            if (empty($middlewares) || ! $includedMiddleware) {
-                continue;
-            }
-
-            $reflectionMethod = $this->getReflectionMethod($route->getAction());
-
-            if (! $reflectionMethod) {
-                continue;
-            }
-
-            $routeHeaders = $this->config['headers'];
-
-            if ($this->authentication && in_array($this->config['auth_middleware'], $middlewares)) {
-                $routeHeaders[] = $this->authentication->toArray();
-            }
-
-            $uri = Str::of($route->uri())
-                ->after('/')
-                ->replaceMatches('/{([[:alnum:]]+)}/', ':$1');
-
-            //            if (!$uri->toString()) {
-            //                return [];
-            //            }
-
-            if ($this->config['include_doc_comments']) {
-                $description = (new DocBlockProcessor)($reflectionMethod);
-            }
-
-            $data = [
-                'name' => $route->uri(),
-                'request' => array_merge(
-                    $this->processRequest(
-                        $method,
-                        $uri,
-                        $this->config['enable_formdata'] ? (new FormDataProcessor)->process($reflectionMethod) : collect()
-                    ),
-                    ['description' => $description ?? '']
-                ),
-                'response' => [],
-
-                'protocolProfileBehavior' => [
-                    'disableBodyPruning' => $this->config['protocol_profile_behavior']['disable_body_pruning'] ?? false,
-                ],
-            ];
-
-            if ($this->config['structured']) {
-                $routeNameSegments = (
-                    $route->getName()
-                        ? Str::of($route->getName())->explode('.')
-                        : Str::of($route->uri())->after('api/')->explode('/')
-                )->filter(fn ($value) => ! is_null($value) && $value !== '');
-
-                if (! $this->config['crud_folders']) {
-                    if (in_array($routeNameSegments->last(), ['index', 'store', 'show', 'update', 'destroy'])) {
-                        $routeNameSegments->forget($routeNameSegments->count() - 1);
+                foreach ($middlewares as $middleware) {
+                    if (in_array($middleware, $this->config['include_middleware'])) {
+                        $includedMiddleware = true;
                     }
                 }
 
-                $this->buildTree($this->output, $routeNameSegments->all(), $data);
-            } else {
-                $this->output['item'][] = $data;
+                if (empty($middlewares) || ! $includedMiddleware) {
+                    continue;
+                }
+
+                $reflectionMethod = $this->getReflectionMethod($route->getAction());
+
+                if (! $reflectionMethod) {
+                    continue;
+                }
+
+                $routeHeaders = $this->config['headers'];
+
+                if ($this->authentication && in_array($this->config['auth_middleware'], $middlewares)) {
+                    $routeHeaders[] = $this->authentication->toArray();
+                }
+
+                $uri = Str::of($route->uri())
+                    ->after('/')
+                    ->replaceMatches('/{([[:alnum:]]+)}/', ':$1');
+
+                //            if (!$uri->toString()) {
+                //                return [];
+                //            }
+
+                if ($this->config['include_doc_comments']) {
+                    $description = (new DocBlockProcessor)($reflectionMethod);
+                }
+
+                $data = [
+                    'name' => $route->uri(),
+                    'request' => array_merge(
+                        $this->processRequest(
+                            $method,
+                            $uri,
+                            $this->config['enable_formdata'] ? (new FormDataProcessor)->process($reflectionMethod) : collect()
+                        ),
+                        ['description' => $description ?? '']
+                    ),
+                    'response' => [],
+
+                    'protocolProfileBehavior' => [
+                        'disableBodyPruning' => $this->config['protocol_profile_behavior']['disable_body_pruning'] ?? false,
+                    ],
+                ];
+
+                if ($this->config['structured']) {
+                    $routeNameSegments = (
+                    $route->getName()
+                        ? Str::of($route->getName())->explode('.')
+                        : Str::of($route->uri())->after('api/')->explode('/')
+                    )->filter(fn ($value) => ! is_null($value) && $value !== '');
+
+                    if (! $this->config['crud_folders']) {
+                        if (in_array($routeNameSegments->last(), ['index', 'store', 'show', 'update', 'destroy'])) {
+                            $routeNameSegments->forget($routeNameSegments->count() - 1);
+                        }
+                    }
+
+                    $this->buildTree($this->output, $routeNameSegments->all(), $data);
+                } else {
+                    $this->output['item'][] = $data;
+                }
             }
+        } catch (\Exception $e) {
+            Log::warning('Failed to process route: '.$route->uri());
         }
     }
 
