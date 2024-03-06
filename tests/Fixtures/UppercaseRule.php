@@ -21,4 +21,9 @@ class UppercaseRule implements ValidationRule
             $fail("The {$attribute} must be uppercase.");
         }
     }
+
+    public function __toString(): string
+    {
+        return 'uppercase';
+    }
 }
