@@ -266,8 +266,6 @@ class ExportPostmanTest extends TestCase
 
         $this->artisan('export:postman')->assertExitCode(0);
 
-        $this->assertTrue(true);
-
         $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['item']);
 
         $targetRequest = $collection
@@ -275,6 +273,20 @@ class ExportPostmanTest extends TestCase
             ->first();
 
         $this->assertEquals($targetRequest['request']['description'], 'This is the php doc route. Which is also multi-line. and has a blank line.');
+    }
+
+    public function test_uri_is_correct()
+    {
+        $this->artisan('export:postman')->assertExitCode(0);
+
+        $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['item']);
+
+        $targetRequest = $collection
+            ->where('name', 'example/phpDocRoute')
+            ->first();
+
+        $this->assertEquals($targetRequest['name'], 'example/phpDocRoute');
+        $this->assertEquals($targetRequest['request']['url']['raw'], '{{base_url}}/example/phpDocRoute');
     }
 
     public static function providerFormDataEnabled(): array

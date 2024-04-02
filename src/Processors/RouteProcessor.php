@@ -84,9 +84,7 @@ class RouteProcessor
                     $routeHeaders[] = $this->authentication->toArray();
                 }
 
-                $uri = Str::of($route->uri())
-                    ->after('/')
-                    ->replaceMatches('/{([[:alnum:]]+)}/', ':$1');
+                $uri = Str::of($route->uri())->replaceMatches('/{([[:alnum:]]+)}/', ':$1');
 
                 //            if (!$uri->toString()) {
                 //                return [];
