@@ -87,7 +87,7 @@ class RouteProcessor
                 $uri = Str::of($route->uri())
                     ->after('/')
                     ->replaceMatches('/{([[:alnum:]]+)}/', ':$1')
-                    ->prepend($route->getPrefix());
+                    ->prepend($route->getPrefix(), '/');
 
                 //            if (!$uri->toString()) {
                 //                return [];
