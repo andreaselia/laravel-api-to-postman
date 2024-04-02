@@ -266,8 +266,6 @@ class ExportPostmanTest extends TestCase
 
         $this->artisan('export:postman')->assertExitCode(0);
 
-        $this->assertTrue(true);
-
         $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['item']);
 
         $targetRequest = $collection
@@ -280,8 +278,6 @@ class ExportPostmanTest extends TestCase
     public function test_uri_is_correct()
     {
         $this->artisan('export:postman')->assertExitCode(0);
-
-        $this->assertTrue(true);
 
         $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['item']);
 
