@@ -169,11 +169,11 @@ class RouteProcessor
                 ]);
 
                 if ($method === 'GET') {
-                    return $collection->mergeRecursive(collect([
+                    return $collection->mergeRecursive([
                         'url' => [
                             'query' => $rules->map(fn ($value) => array_merge($value, ['disabled' => false])),
                         ]
-                    ]));
+                    ]);
                 }
 
                 return $collection->put('body', [
