@@ -182,11 +182,12 @@ class ExportPostmanTest extends TestCase
             ->first();
 
         $this->assertEqualsCanonicalizing([
-            'raw' => '{{base_url}}/getWithFormRequest',
+            'raw' => '{{base_url}}/example/getWithFormRequest',
             'host' => [
                 '{{base_url}}'
             ],
             'path' => [
+                'example',
                 'getWithFormRequest'
             ],
             'variable' => []
