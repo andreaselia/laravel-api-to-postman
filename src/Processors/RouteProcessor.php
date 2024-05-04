@@ -172,7 +172,7 @@ class RouteProcessor
                     return $collection->mergeRecursive([
                         'url' => [
                             'query' => $rules->map(fn ($value) => array_merge($value, ['disabled' => false])),
-                        ]
+                        ],
                     ]);
                 }
 
