@@ -32,14 +32,25 @@ class ExportPostmanTest extends TestCase
 
         $collectionItems = $collection['item'];
 
-        $this->assertCount(count($routes), $collectionItems);
+        $totalCollectionItems = $this->countCollectionItems($collection['item']);
+
+        $this->assertEquals(count($routes), $totalCollectionItems);
 
         foreach ($routes as $route) {
-            $collectionRoute = Arr::first($collectionItems, function ($item) use ($route) {
+            $methods = $route->methods();
+
+            $collectionRoutes = Arr::where($collectionItems, function ($item) use ($route) {
                 return $item['name'] == $route->uri();
             });
+
+            $collectionRoute = Arr::first($collectionRoutes);
+
+            if (! in_array($collectionRoute['request']['method'], $methods)) {
+                $methods = collect($collectionRoutes)->pluck('request.method')->toArray();
+            }
+
             $this->assertNotNull($collectionRoute);
-            $this->assertTrue(in_array($collectionRoute['request']['method'], $route->methods()));
+            $this->assertTrue(in_array($collectionRoute['request']['method'], $methods));
         }
     }
 
@@ -68,16 +79,25 @@ class ExportPostmanTest extends TestCase
 
         $this->assertCount(2, $collectionVariables);
 
-        $collectionItems = $collection['item'];
+        $totalCollectionItems = $this->countCollectionItems($collection['item']);
 
-        $this->assertCount(count($routes), $collectionItems);
+        $this->assertEquals(count($routes), $totalCollectionItems);
 
         foreach ($routes as $route) {
-            $collectionRoute = Arr::first($collectionItems, function ($item) use ($route) {
+            $methods = $route->methods();
+
+            $collectionRoutes = Arr::where($collection['item'], function ($item) use ($route) {
                 return $item['name'] == $route->uri();
             });
+
+            $collectionRoute = Arr::first($collectionRoutes);
+
+            if (! in_array($collectionRoute['request']['method'], $methods)) {
+                $methods = collect($collectionRoutes)->pluck('request.method')->toArray();
+            }
+
             $this->assertNotNull($collectionRoute);
-            $this->assertTrue(in_array($collectionRoute['request']['method'], $route->methods()));
+            $this->assertTrue(in_array($collectionRoute['request']['method'], $methods));
         }
     }
 
@@ -106,16 +126,25 @@ class ExportPostmanTest extends TestCase
 
         $this->assertCount(2, $collectionVariables);
 
-        $collectionItems = $collection['item'];
+        $totalCollectionItems = $this->countCollectionItems($collection['item']);
 
-        $this->assertCount(count($routes), $collectionItems);
+        $this->assertEquals(count($routes), $totalCollectionItems);
 
         foreach ($routes as $route) {
-            $collectionRoute = Arr::first($collectionItems, function ($item) use ($route) {
+            $methods = $route->methods();
+
+            $collectionRoutes = Arr::where($collection['item'], function ($item) use ($route) {
                 return $item['name'] == $route->uri();
             });
+
+            $collectionRoute = Arr::first($collectionRoutes);
+
+            if (! in_array($collectionRoute['request']['method'], $methods)) {
+                $methods = collect($collectionRoutes)->pluck('request.method')->toArray();
+            }
+
             $this->assertNotNull($collectionRoute);
-            $this->assertTrue(in_array($collectionRoute['request']['method'], $route->methods()));
+            $this->assertTrue(in_array($collectionRoute['request']['method'], $methods));
         }
     }
 
@@ -135,9 +164,35 @@ class ExportPostmanTest extends TestCase
 
         $routes = $this->app['router']->getRoutes();
 
-        $collectionItems = $collection['item'];
+        $totalCollectionItems = $this->countCollectionItems($collection['item']);
 
-        $this->assertCount(count($routes), $collectionItems[0]['item']);
+        $this->assertEquals(count($routes), $totalCollectionItems);
+    }
+
+    private function countCollectionItems(array $collectionItems)
+    {
+        $sum = -1;
+
+        foreach ($collectionItems as $item) {
+            $sum += $this->retrieveRoutes($item);
+        }
+
+        return $sum;
+    }
+
+    private function retrieveRoutes(array $route)
+    {
+        if (isset($route['item'])) {
+            $sum = 0;
+
+            foreach ($route['item'] as $item) {
+                $sum += $this->retrieveRoutes($item);
+            }
+
+            return $sum;
+        }
+
+        return 1;
     }
 
     public function test_rules_printing_export_works()
