@@ -181,6 +181,18 @@ class ExportPostmanTest extends TestCase
             ->where('name', 'example/getWithFormRequest')
             ->first();
 
+        $this->assertEqualsCanonicalizing([
+            'raw' => '{{base_url}}/example/getWithFormRequest',
+            'host' => [
+                '{{base_url}}',
+            ],
+            'path' => [
+                'example',
+                'getWithFormRequest',
+            ],
+            'variable' => [],
+        ], array_slice($targetRequest['request']['url'], 0, 4));
+
         $fields = collect($targetRequest['request']['url']['query']);
         $this->assertCount(1, $fields->where('key', 'field_1')->where('description', 'required'));
         $this->assertCount(1, $fields->where('key', 'field_2')->where('description', 'required, integer'));
