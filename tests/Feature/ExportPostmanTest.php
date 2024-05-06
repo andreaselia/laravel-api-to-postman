@@ -169,32 +169,6 @@ class ExportPostmanTest extends TestCase
         $this->assertEquals(count($routes), $totalCollectionItems);
     }
 
-    private function countCollectionItems(array $collectionItems)
-    {
-        $sum = -1;
-
-        foreach ($collectionItems as $item) {
-            $sum += $this->retrieveRoutes($item);
-        }
-
-        return $sum;
-    }
-
-    private function retrieveRoutes(array $route)
-    {
-        if (isset($route['item'])) {
-            $sum = 0;
-
-            foreach ($route['item'] as $item) {
-                $sum += $this->retrieveRoutes($item);
-            }
-
-            return $sum;
-        }
-
-        return 1;
-    }
-
     public function test_rules_printing_export_works()
     {
         config([
@@ -366,5 +340,31 @@ class ExportPostmanTest extends TestCase
                 true,
             ],
         ];
+    }
+
+    private function countCollectionItems(array $collectionItems)
+    {
+        $sum = -1;
+
+        foreach ($collectionItems as $item) {
+            $sum += $this->retrieveRoutes($item);
+        }
+
+        return $sum;
+    }
+
+    private function retrieveRoutes(array $route)
+    {
+        if (isset($route['item'])) {
+            $sum = 0;
+
+            foreach ($route['item'] as $item) {
+                $sum += $this->retrieveRoutes($item);
+            }
+
+            return $sum;
+        }
+
+        return 1;
     }
 }
