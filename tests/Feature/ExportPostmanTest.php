@@ -330,6 +330,21 @@ class ExportPostmanTest extends TestCase
         $this->assertEquals($targetRequest['request']['url']['raw'], '{{base_url}}/example/phpDocRoute');
     }
 
+    public function test_api_resource_routes_set_parameters_correctly()
+    {
+        $this->artisan('export:postman')->assertExitCode(0);
+
+        $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['item']);
+
+        $targetRequest = $collection
+            ->where('name', 'example/users/{user}/posts/{post}')
+            ->where('request.method', 'PATCH')
+            ->first();
+
+        $this->assertEquals($targetRequest['name'], 'example/users/{user}/posts/{post}');
+        $this->assertEquals($targetRequest['request']['url']['raw'], '{{base_url}}/example/users/:user/posts/:post');
+    }
+
     public static function providerFormDataEnabled(): array
     {
         return [
