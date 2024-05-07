@@ -18,7 +18,7 @@ trait HasAuthentication
                 ->append(ucfirst($config['method']))
                 ->toString();
 
-            $this->authentication = new $className;
+            $this->authentication = new $className($config['token']);
         }
 
         return $this;
