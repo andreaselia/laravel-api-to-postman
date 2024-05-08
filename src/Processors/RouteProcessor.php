@@ -86,10 +86,6 @@ class RouteProcessor
 
                 $uri = Str::of($route->uri())->replaceMatches('/{([[:alnum:]]+)}/', ':$1');
 
-                //            if (!$uri->toString()) {
-                //                return [];
-                //            }
-
                 if ($this->config['include_doc_comments']) {
                     $description = (new DocBlockProcessor)($reflectionMethod);
                 }

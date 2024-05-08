@@ -2,8 +2,8 @@
 
 namespace AndreasElia\PostmanGenerator\Tests;
 
-use AndreasElia\PostmanGenerator\Tests\Fixtures\ExampleController;
 use AndreasElia\PostmanGenerator\Tests\Fixtures\AuditLogController;
+use AndreasElia\PostmanGenerator\Tests\Fixtures\ExampleController;
 
 class TestCase extends \Orchestra\Testbench\TestCase
 {
