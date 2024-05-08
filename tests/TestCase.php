@@ -25,6 +25,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
             $router->get('phpDocRoute', [ExampleController::class, 'phpDocRoute'])->name('php-doc-route');
             $router->apiResource('users.audit-logs', AuditLogController::class);
             $router->apiResource('users.other_logs', AuditLogController::class);
+            $router->apiResource('users.someLogs', AuditLogController::class);
         });
     }
 }

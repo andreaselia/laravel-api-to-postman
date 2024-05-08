@@ -360,6 +360,21 @@ class ExportPostmanTest extends TestCase
         $this->assertEquals($targetRequest['request']['url']['raw'], '{{base_url}}/example/users/:user/other_logs/:other_log');
     }
 
+    public function test_api_resource_routes_set_parameters_correctly_with_camel_case()
+    {
+        $this->artisan('export:postman')->assertExitCode(0);
+
+        $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['item']);
+
+        $targetRequest = $collection
+            ->where('name', 'example/users/{user}/someLogs/{someLog}')
+            ->where('request.method', 'PATCH')
+            ->first();
+
+        $this->assertEquals($targetRequest['name'], 'example/users/{user}/someLogs/{someLog}');
+        $this->assertEquals($targetRequest['request']['url']['raw'], '{{base_url}}/example/users/:user/someLogs/:someLog');
+    }
+
     public static function providerFormDataEnabled(): array
     {
         return [
@@ -374,7 +389,7 @@ class ExportPostmanTest extends TestCase
 
     private function countCollectionItems(array $collectionItems)
     {
-        $sum = -2;
+        $sum = -3;
 
         foreach ($collectionItems as $item) {
             $sum += $this->retrieveRoutes($item);
