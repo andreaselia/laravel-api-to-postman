@@ -24,6 +24,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
             $router->get('getWithFormRequest', [ExampleController::class, 'getWithFormRequest'])->name('get-with-form-request');
             $router->get('phpDocRoute', [ExampleController::class, 'phpDocRoute'])->name('php-doc-route');
             $router->apiResource('users.audit-logs', AuditLogController::class);
+            $router->apiResource('users.other_logs', AuditLogController::class);
         });
     }
 }

@@ -330,7 +330,7 @@ class ExportPostmanTest extends TestCase
         $this->assertEquals($targetRequest['request']['url']['raw'], '{{base_url}}/example/phpDocRoute');
     }
 
-    public function test_api_resource_routes_set_parameters_correctly()
+    public function test_api_resource_routes_set_parameters_correctly_with_hyphens()
     {
         $this->artisan('export:postman')->assertExitCode(0);
 
@@ -343,6 +343,21 @@ class ExportPostmanTest extends TestCase
 
         $this->assertEquals($targetRequest['name'], 'example/users/{user}/audit-logs/{audit_log}');
         $this->assertEquals($targetRequest['request']['url']['raw'], '{{base_url}}/example/users/:user/audit-logs/:audit_log');
+    }
+
+    public function test_api_resource_routes_set_parameters_correctly_with_underscores()
+    {
+        $this->artisan('export:postman')->assertExitCode(0);
+
+        $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['item']);
+
+        $targetRequest = $collection
+            ->where('name', 'example/users/{user}/other_logs/{other_log}')
+            ->where('request.method', 'PATCH')
+            ->first();
+
+        $this->assertEquals($targetRequest['name'], 'example/users/{user}/other_logs/{other_log}');
+        $this->assertEquals($targetRequest['request']['url']['raw'], '{{base_url}}/example/users/:user/other_logs/:other_log');
     }
 
     public static function providerFormDataEnabled(): array
@@ -359,7 +374,7 @@ class ExportPostmanTest extends TestCase
 
     private function countCollectionItems(array $collectionItems)
     {
-        $sum = -1;
+        $sum = -2;
 
         foreach ($collectionItems as $item) {
             $sum += $this->retrieveRoutes($item);
