@@ -3,7 +3,7 @@
 namespace AndreasElia\PostmanGenerator\Tests;
 
 use AndreasElia\PostmanGenerator\Tests\Fixtures\ExampleController;
-use AndreasElia\PostmanGenerator\Tests\Fixtures\PostController;
+use AndreasElia\PostmanGenerator\Tests\Fixtures\AuditLogController;
 
 class TestCase extends \Orchestra\Testbench\TestCase
 {
@@ -23,7 +23,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
             $router->post('storeWithFormRequest', [ExampleController::class, 'storeWithFormRequest'])->name('store-with-form-request');
             $router->get('getWithFormRequest', [ExampleController::class, 'getWithFormRequest'])->name('get-with-form-request');
             $router->get('phpDocRoute', [ExampleController::class, 'phpDocRoute'])->name('php-doc-route');
-            $router->apiResource('users.posts', PostController::class);
+            $router->apiResource('users.audit-logs', AuditLogController::class);
         });
     }
 }

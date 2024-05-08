@@ -337,12 +337,12 @@ class ExportPostmanTest extends TestCase
         $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['item']);
 
         $targetRequest = $collection
-            ->where('name', 'example/users/{user}/posts/{post}')
+            ->where('name', 'example/users/{user}/audit-logs/{audit_log}')
             ->where('request.method', 'PATCH')
             ->first();
 
-        $this->assertEquals($targetRequest['name'], 'example/users/{user}/posts/{post}');
-        $this->assertEquals($targetRequest['request']['url']['raw'], '{{base_url}}/example/users/:user/posts/:post');
+        $this->assertEquals($targetRequest['name'], 'example/users/{user}/audit-logs/{audit_log}');
+        $this->assertEquals($targetRequest['request']['url']['raw'], '{{base_url}}/example/users/:user/audit-logs/:audit_log');
     }
 
     public static function providerFormDataEnabled(): array

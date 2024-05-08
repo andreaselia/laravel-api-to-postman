@@ -5,7 +5,7 @@ namespace AndreasElia\PostmanGenerator\Tests\Fixtures;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
-class PostController extends Controller
+class AuditLogController extends Controller
 {
     public function index()
     {
@@ -19,7 +19,7 @@ class PostController extends Controller
     {
     }
 
-    public function update(Request $request, ExampleModel $post)
+    public function update(Request $request, ExampleModel $auditLog)
     {
     }
 
