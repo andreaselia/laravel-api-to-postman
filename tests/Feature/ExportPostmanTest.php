@@ -389,7 +389,7 @@ class ExportPostmanTest extends TestCase
 
     private function countCollectionItems(array $collectionItems)
     {
-        $sum = -3;
+        $sum = 0;
 
         foreach ($collectionItems as $item) {
             $sum += $this->retrieveRoutes($item);
@@ -400,6 +400,11 @@ class ExportPostmanTest extends TestCase
 
     private function retrieveRoutes(array $route)
     {
+        // Skip patch routes
+        if (isset($route['request']['method']) && $route['request']['method'] === 'PATCH') {
+            return 0;
+        }
+
         if (isset($route['item'])) {
             $sum = 0;
 
