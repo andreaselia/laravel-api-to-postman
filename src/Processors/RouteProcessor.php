@@ -84,11 +84,7 @@ class RouteProcessor
                     $routeHeaders[] = $this->authentication->toArray();
                 }
 
-                $uri = Str::of($route->uri())->replaceMatches('/{([[:alnum:]]+)}/', ':$1');
-
-                //            if (!$uri->toString()) {
-                //                return [];
-                //            }
+                $uri = Str::of($route->uri())->replaceMatches('/{([[:alnum:]_]+)}/', ':$1');
 
                 if ($this->config['include_doc_comments']) {
                     $description = (new DocBlockProcessor)($reflectionMethod);

@@ -2,12 +2,15 @@
 
 namespace AndreasElia\PostmanGenerator\Tests\Feature;
 
+use AndreasElia\PostmanGenerator\Tests\Fixtures\CollectionHelpersTrait;
 use AndreasElia\PostmanGenerator\Tests\TestCase;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 
 class ExportPostmanTest extends TestCase
 {
+    use CollectionHelpersTrait;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -32,14 +35,25 @@ class ExportPostmanTest extends TestCase
 
         $collectionItems = $collection['item'];
 
-        $this->assertCount(count($routes), $collectionItems);
+        $totalCollectionItems = $this->countCollectionItems($collection['item']);
+
+        $this->assertEquals(count($routes), $totalCollectionItems);
 
         foreach ($routes as $route) {
-            $collectionRoute = Arr::first($collectionItems, function ($item) use ($route) {
+            $methods = $route->methods();
+
+            $collectionRoutes = Arr::where($collectionItems, function ($item) use ($route) {
                 return $item['name'] == $route->uri();
             });
+
+            $collectionRoute = Arr::first($collectionRoutes);
+
+            if (! in_array($collectionRoute['request']['method'], $methods)) {
+                $methods = collect($collectionRoutes)->pluck('request.method')->toArray();
+            }
+
             $this->assertNotNull($collectionRoute);
-            $this->assertTrue(in_array($collectionRoute['request']['method'], $route->methods()));
+            $this->assertTrue(in_array($collectionRoute['request']['method'], $methods));
         }
     }
 
@@ -68,16 +82,25 @@ class ExportPostmanTest extends TestCase
 
         $this->assertCount(2, $collectionVariables);
 
-        $collectionItems = $collection['item'];
+        $totalCollectionItems = $this->countCollectionItems($collection['item']);
 
-        $this->assertCount(count($routes), $collectionItems);
+        $this->assertEquals(count($routes), $totalCollectionItems);
 
         foreach ($routes as $route) {
-            $collectionRoute = Arr::first($collectionItems, function ($item) use ($route) {
+            $methods = $route->methods();
+
+            $collectionRoutes = Arr::where($collection['item'], function ($item) use ($route) {
                 return $item['name'] == $route->uri();
             });
+
+            $collectionRoute = Arr::first($collectionRoutes);
+
+            if (! in_array($collectionRoute['request']['method'], $methods)) {
+                $methods = collect($collectionRoutes)->pluck('request.method')->toArray();
+            }
+
             $this->assertNotNull($collectionRoute);
-            $this->assertTrue(in_array($collectionRoute['request']['method'], $route->methods()));
+            $this->assertTrue(in_array($collectionRoute['request']['method'], $methods));
         }
     }
 
@@ -106,16 +129,25 @@ class ExportPostmanTest extends TestCase
 
         $this->assertCount(2, $collectionVariables);
 
-        $collectionItems = $collection['item'];
+        $totalCollectionItems = $this->countCollectionItems($collection['item']);
 
-        $this->assertCount(count($routes), $collectionItems);
+        $this->assertEquals(count($routes), $totalCollectionItems);
 
         foreach ($routes as $route) {
-            $collectionRoute = Arr::first($collectionItems, function ($item) use ($route) {
+            $methods = $route->methods();
+
+            $collectionRoutes = Arr::where($collection['item'], function ($item) use ($route) {
                 return $item['name'] == $route->uri();
             });
+
+            $collectionRoute = Arr::first($collectionRoutes);
+
+            if (! in_array($collectionRoute['request']['method'], $methods)) {
+                $methods = collect($collectionRoutes)->pluck('request.method')->toArray();
+            }
+
             $this->assertNotNull($collectionRoute);
-            $this->assertTrue(in_array($collectionRoute['request']['method'], $route->methods()));
+            $this->assertTrue(in_array($collectionRoute['request']['method'], $methods));
         }
     }
 
@@ -135,9 +167,9 @@ class ExportPostmanTest extends TestCase
 
         $routes = $this->app['router']->getRoutes();
 
-        $collectionItems = $collection['item'];
+        $totalCollectionItems = $this->countCollectionItems($collection['item']);
 
-        $this->assertCount(count($routes), $collectionItems[0]['item']);
+        $this->assertEquals(count($routes), $totalCollectionItems);
     }
 
     public function test_rules_printing_export_works()
@@ -299,6 +331,51 @@ class ExportPostmanTest extends TestCase
 
         $this->assertEquals($targetRequest['name'], 'example/phpDocRoute');
         $this->assertEquals($targetRequest['request']['url']['raw'], '{{base_url}}/example/phpDocRoute');
+    }
+
+    public function test_api_resource_routes_set_parameters_correctly_with_hyphens()
+    {
+        $this->artisan('export:postman')->assertExitCode(0);
+
+        $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['item']);
+
+        $targetRequest = $collection
+            ->where('name', 'example/users/{user}/audit-logs/{audit_log}')
+            ->where('request.method', 'PATCH')
+            ->first();
+
+        $this->assertEquals($targetRequest['name'], 'example/users/{user}/audit-logs/{audit_log}');
+        $this->assertEquals($targetRequest['request']['url']['raw'], '{{base_url}}/example/users/:user/audit-logs/:audit_log');
+    }
+
+    public function test_api_resource_routes_set_parameters_correctly_with_underscores()
+    {
+        $this->artisan('export:postman')->assertExitCode(0);
+
+        $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['item']);
+
+        $targetRequest = $collection
+            ->where('name', 'example/users/{user}/other_logs/{other_log}')
+            ->where('request.method', 'PATCH')
+            ->first();
+
+        $this->assertEquals($targetRequest['name'], 'example/users/{user}/other_logs/{other_log}');
+        $this->assertEquals($targetRequest['request']['url']['raw'], '{{base_url}}/example/users/:user/other_logs/:other_log');
+    }
+
+    public function test_api_resource_routes_set_parameters_correctly_with_camel_case()
+    {
+        $this->artisan('export:postman')->assertExitCode(0);
+
+        $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['item']);
+
+        $targetRequest = $collection
+            ->where('name', 'example/users/{user}/someLogs/{someLog}')
+            ->where('request.method', 'PATCH')
+            ->first();
+
+        $this->assertEquals($targetRequest['name'], 'example/users/{user}/someLogs/{someLog}');
+        $this->assertEquals($targetRequest['request']['url']['raw'], '{{base_url}}/example/users/:user/someLogs/:someLog');
     }
 
     public static function providerFormDataEnabled(): array
