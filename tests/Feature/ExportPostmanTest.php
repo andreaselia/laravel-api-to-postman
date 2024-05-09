@@ -5,9 +5,12 @@ namespace AndreasElia\PostmanGenerator\Tests\Feature;
 use AndreasElia\PostmanGenerator\Tests\TestCase;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
+use AndreasElia\PostmanGenerator\Tests\Fixtures\CollectionHelpersTrait;
 
 class ExportPostmanTest extends TestCase
 {
+    use CollectionHelpersTrait;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -385,36 +388,5 @@ class ExportPostmanTest extends TestCase
                 true,
             ],
         ];
-    }
-
-    private function countCollectionItems(array $collectionItems)
-    {
-        $sum = 0;
-
-        foreach ($collectionItems as $item) {
-            $sum += $this->retrieveRoutes($item);
-        }
-
-        return $sum;
-    }
-
-    private function retrieveRoutes(array $route)
-    {
-        // Skip patch routes
-        if (isset($route['request']['method']) && $route['request']['method'] === 'PATCH') {
-            return 0;
-        }
-
-        if (isset($route['item'])) {
-            $sum = 0;
-
-            foreach ($route['item'] as $item) {
-                $sum += $this->retrieveRoutes($item);
-            }
-
-            return $sum;
-        }
-
-        return 1;
     }
 }
