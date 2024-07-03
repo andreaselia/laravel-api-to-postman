@@ -12,7 +12,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use Illuminate\Support\Stringable;
 use Illuminate\Validation\ValidationRuleParser;
 use ReflectionClass;
 use ReflectionFunction;
@@ -84,7 +83,8 @@ class RouteProcessor
                     $routeHeaders[] = $this->authentication->toArray();
                 }
 
-                $uri = Str::of($route->uri())->replaceMatches('/{([[:alnum:]_]+)}/', ':$1');
+//                $uri = Str::of($route->uri())->replaceMatches('/{([[:alnum:]_]+)}/', ':$1');
+                $uri = preg_replace('/{([[:alnum:]_]+)}/', ':$1', $route->uri());
 
                 if ($this->config['include_doc_comments']) {
                     $description = (new DocBlockProcessor)($reflectionMethod);
@@ -108,11 +108,10 @@ class RouteProcessor
                 ];
 
                 if ($this->config['structured']) {
-                    $routeNameSegments = (
-                        $route->getName()
-                            ? Str::of($route->getName())->explode('.')
-                            : Str::of($route->uri())->after('api/')->explode('/')
-                    )->filter(fn ($value) => ! is_null($value) && $value !== '');
+                    $arRouteNameSegments = $route->getName()
+                        ? explode('.', $route->getName())
+                        : explode('/', Str::after($route->uri(), 'api/'));
+                    $routeNameSegments = collect($arRouteNameSegments)->filter(fn ($value) => ! is_null($value) && $value !== '');
 
                     if (! $this->config['crud_folders']) {
                         if (in_array($routeNameSegments->last(), ['index', 'store', 'show', 'update', 'destroy'])) {
@@ -130,21 +129,20 @@ class RouteProcessor
         }
     }
 
-    protected function processRequest(string $method, Stringable $uri, Collection $rules): array
+    protected function processRequest(string $method, string $uri, Collection $rules): array
     {
         return collect([
             'method' => strtoupper($method),
             'header' => collect($this->config['headers'])
-                ->push($this->authentication?->toArray())
+                ->push($this->authentication ? $this->authentication->toArray() : null)
                 ->filter()
                 ->values()
                 ->all(),
             'url' => [
                 'raw' => '{{base_url}}/'.$uri,
                 'host' => ['{{base_url}}'],
-                'path' => $uri->explode('/')->filter()->all(),
-                'variable' => $uri
-                    ->matchAll('/(?<={)[[:alnum:]]+(?=})/m')
+                'path' => collect(explode('/', $uri))->filter()->all(),
+                'variable' => self::matchAll('/(?<={)[[:alnum:]]+(?=})/m', $uri)
                     ->transform(function ($variable) {
                         return ['key' => $variable, 'value' => ''];
                     })
@@ -339,5 +337,16 @@ class RouteProcessor
         }
 
         return (string) $probableRule;
+    }
+
+    public static function matchAll($pattern, $subject)
+    {
+        preg_match_all($pattern, $subject, $matches);
+
+        if (empty($matches[0])) {
+            return collect();
+        }
+
+        return collect($matches[1] ?? $matches[0]);
     }
 }
