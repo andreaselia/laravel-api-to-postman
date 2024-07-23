@@ -8,6 +8,7 @@ abstract class AuthenticationMethod implements Arrayable
 {
     public function __construct(protected ?string $token = null)
     {
+        //
     }
 
     public function toArray(): array
