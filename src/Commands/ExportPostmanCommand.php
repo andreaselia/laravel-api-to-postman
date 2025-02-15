@@ -20,9 +20,15 @@ class ExportPostmanCommand extends Command
     public function handle(Exporter $exporter): void
     {
         $filename = str_replace(
-            ['{timestamp}', '{app}'],
-            [date('Y_m_d_His'), Str::snake(config('app.name'))],
-            config('api-postman.filename')
+            ["{timestamp}", "{app}"],
+            [date("Y_m_d_His"), Str::snake(config("app.name"))],
+            config("api-postman.filename")
+        );
+
+        $collectionName = str_replace(
+            "{app}",
+            config("app.name"),
+            config("api-postman.collection_name")
         );
 
         config()->set('api-postman.authentication', [
@@ -32,6 +38,7 @@ class ExportPostmanCommand extends Command
 
         $exporter
             ->to($filename)
+            ->collectionName($collectionName)
             ->setAuthentication(value(function () {
                 if (filled($this->option('bearer'))) {
                     return new \AndreasElia\PostmanGenerator\Authentication\Bearer($this->option('bearer'));
@@ -45,9 +52,9 @@ class ExportPostmanCommand extends Command
             }))
             ->export();
 
-        Storage::disk(config('api-postman.disk'))
-            ->put('postman/'.$filename, $exporter->getOutput());
+        Storage::disk(config("api-postman.disk"))
+            ->put("postman/" . $filename,$exporter->getOutput());
 
-        $this->info('Postman Collection Exported: '.storage_path('app/postman/'.$filename));
+        $this->info("Postman Collection Exported: " . storage_path("app/postman/" . $filename));
     }
 }

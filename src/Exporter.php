@@ -12,6 +12,8 @@ class Exporter
 
     protected string $filename;
 
+    protected string $collectionName;
+
     protected array $output;
 
     private array $config;
@@ -24,6 +26,13 @@ class Exporter
     public function to(string $filename): self
     {
         $this->filename = $filename;
+
+        return $this;
+    }
+
+    public function collectionName(?string $collectionName = null): self
+    {
+        $this->collectionName = $collectionName ?? '';
 
         return $this;
     }
@@ -50,7 +59,7 @@ class Exporter
                 ],
             ],
             'info' => [
-                'name' => $this->filename,
+                'name' => $this->collectionName ?: $this->filename,
                 'schema' => 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
             ],
             'item' => [],
