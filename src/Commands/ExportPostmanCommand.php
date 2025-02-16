@@ -2,6 +2,7 @@
 
 namespace AndreasElia\PostmanGenerator\Commands;
 
+use AndreasElia\PostmanGenerator\Authentication\AuthenticationMethod;
 use AndreasElia\PostmanGenerator\Exporter;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
@@ -15,7 +16,9 @@ class ExportPostmanCommand extends Command
                             {--basic= : The basic auth to use on your endpoints}';
 
     /** @var string */
-    protected $description = 'Automatically generate a Postman collection for your API routes';
+    protected $description = "Automatically generate a Postman collection for your API routes";
+
+    protected ?AuthenticationMethod $authenticationMethod = null;
 
     public function handle(Exporter $exporter): void
     {
@@ -31,30 +34,45 @@ class ExportPostmanCommand extends Command
             config("api-postman.collection_name")
         );
 
-        config()->set('api-postman.authentication', [
-            'method' => $this->option('bearer') ? 'bearer' : ($this->option('basic') ? 'basic' : null),
-            'token' => $this->option('bearer') ?? $this->option('basic') ?? null,
+        $this->resolveAuth();
+
+        config()->set("api-postman.authentication", [
+            "method" => $this->authenticationMethod?->prefix() ?? null,
+            "token" => $this->authenticationMethod?->getToken() ?? null,
         ]);
 
         $exporter
             ->to($filename)
             ->collectionName($collectionName)
-            ->setAuthentication(value(function () {
-                if (filled($this->option('bearer'))) {
-                    return new \AndreasElia\PostmanGenerator\Authentication\Bearer($this->option('bearer'));
-                }
-
-                if (filled($this->option('basic'))) {
-                    return new \AndreasElia\PostmanGenerator\Authentication\Basic($this->option('basic'));
-                }
-
-                return null;
-            }))
             ->export();
 
         Storage::disk(config("api-postman.disk"))
-            ->put("postman/" . $filename,$exporter->getOutput());
+            ->put("postman/" . $filename, $exporter->getOutput());
 
         $this->info("Postman Collection Exported: " . storage_path("app/postman/" . $filename));
+    }
+
+    protected function resolveAuth(): void
+    {
+        $optionDefault = config("api-postman.authentication.method");
+        $tokenDefault = config("api-postman.authentication.token");
+
+        $option = $this->option("bearer")
+            ? "bearer"
+            : ($this->option("basic")
+                ? "basic"
+                : $optionDefault);
+
+        if ($option === "bearer") {
+            $this->authenticationMethod = new \AndreasElia\PostmanGenerator\Authentication\Bearer(
+                $this->option("bearer") ?: $tokenDefault
+            );
+        }
+
+        if ($option === "basic") {
+            $this->authenticationMethod = new \AndreasElia\PostmanGenerator\Authentication\Basic(
+                $this->option("basic") ?: $tokenDefault
+            );
+        }
     }
 }
