@@ -2,6 +2,8 @@
 
 namespace AndreasElia\PostmanGenerator\Commands;
 
+use AndreasElia\PostmanGenerator\Authentication\Basic;
+use AndreasElia\PostmanGenerator\Authentication\Bearer;
 use AndreasElia\PostmanGenerator\Exporter;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
@@ -34,11 +36,11 @@ class ExportPostmanCommand extends Command
             ->to($filename)
             ->setAuthentication(value(function () {
                 if (filled($this->option('bearer'))) {
-                    return new \AndreasElia\PostmanGenerator\Authentication\Bearer($this->option('bearer'));
+                    return new Bearer($this->option('bearer'));
                 }
 
                 if (filled($this->option('basic'))) {
-                    return new \AndreasElia\PostmanGenerator\Authentication\Basic($this->option('basic'));
+                    return new Basic($this->option('basic'));
                 }
 
                 return null;
