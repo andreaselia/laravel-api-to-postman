@@ -3,39 +3,43 @@
 namespace AndreasElia\PostmanGenerator\Processors;
 
 use Illuminate\Support\Str;
-use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTextNode;
-use PHPStan\PhpDocParser\Lexer\Lexer;
-use PHPStan\PhpDocParser\Parser\ConstExprParser;
-use PHPStan\PhpDocParser\Parser\PhpDocParser;
-use PHPStan\PhpDocParser\Parser\TokenIterator;
-use PHPStan\PhpDocParser\Parser\TypeParser;
 use ReflectionFunction;
 use ReflectionMethod;
-use Throwable;
 
 class DocBlockProcessor
 {
     public function __invoke(ReflectionMethod|ReflectionFunction $reflectionMethod): string
     {
-        try {
-            $lexer = new Lexer;
-            $constExprParser = new ConstExprParser;
-            $parser = new PhpDocParser(new TypeParser($constExprParser), $constExprParser);
+        $comment = $reflectionMethod->getDocComment();
 
-            $description = '';
-            $comment = $reflectionMethod->getDocComment();
-            $tokens = new TokenIterator($lexer->tokenize($comment));
-            $phpDocNode = $parser->parse($tokens);
-
-            foreach ($phpDocNode->children as $child) {
-                if ($child instanceof PhpDocTextNode) {
-                    $description .= ' '.$child->text;
-                }
-            }
-
-            return Str::squish($description);
-        } catch (Throwable $e) {
+        if (! $comment) {
             return '';
         }
+
+        $description = collect(preg_split('/\R/', $comment) ?: [])
+            ->map(function (string $line) {
+                $line = trim($line);
+
+                if (in_array($line, ['/**', '/*', '*/', '*'], true)) {
+                    return '';
+                }
+
+                if (Str::startsWith($line, ['/**', '/*'])) {
+                    $line = ltrim(substr($line, 3));
+                } elseif (Str::startsWith($line, '*')) {
+                    $line = ltrim(substr($line, 1));
+                }
+
+                if (Str::endsWith($line, '*/')) {
+                    $line = rtrim(substr($line, 0, -2));
+                }
+
+                return $line;
+            })
+            ->reject(fn (string $line) => $line === '')
+            ->reject(fn (string $line) => Str::startsWith($line, '@'))
+            ->implode(' ');
+
+        return Str::squish($description);
     }
 }

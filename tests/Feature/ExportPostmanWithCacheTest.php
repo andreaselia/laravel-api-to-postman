@@ -5,10 +5,11 @@ namespace AndreasElia\PostmanGenerator\Tests\Feature;
 use AndreasElia\PostmanGenerator\Tests\TestCase;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
+use Orchestra\Testbench\Concerns\HandlesRoutes;
 
 class ExportPostmanWithCacheTest extends TestCase
 {
-    use \Orchestra\Testbench\Concerns\HandlesRoutes;
+    use HandlesRoutes;
 
     protected function setUp(): void
     {

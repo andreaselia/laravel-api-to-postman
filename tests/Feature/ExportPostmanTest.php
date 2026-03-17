@@ -6,6 +6,7 @@ use AndreasElia\PostmanGenerator\Tests\Fixtures\CollectionHelpersTrait;
 use AndreasElia\PostmanGenerator\Tests\TestCase;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class ExportPostmanTest extends TestCase
 {
@@ -20,9 +21,7 @@ class ExportPostmanTest extends TestCase
         Storage::disk()->deleteDirectory('postman');
     }
 
-    /**
-     * @dataProvider providerFormDataEnabled
-     */
+    #[DataProvider('providerFormDataEnabled')]
     public function test_standard_export_works(bool $formDataEnabled)
     {
         config()->set('api-postman.enable_formdata', $formDataEnabled);
@@ -57,9 +56,7 @@ class ExportPostmanTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider providerFormDataEnabled
-     */
+    #[DataProvider('providerFormDataEnabled')]
     public function test_bearer_export_works(bool $formDataEnabled)
     {
         config()->set('api-postman.enable_formdata', $formDataEnabled);
@@ -104,9 +101,7 @@ class ExportPostmanTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider providerFormDataEnabled
-     */
+    #[DataProvider('providerFormDataEnabled')]
     public function test_basic_export_works(bool $formDataEnabled)
     {
         config()->set('api-postman.enable_formdata', $formDataEnabled);
@@ -151,9 +146,7 @@ class ExportPostmanTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider providerFormDataEnabled
-     */
+    #[DataProvider('providerFormDataEnabled')]
     public function test_structured_export_works(bool $formDataEnabled)
     {
         config([
@@ -316,7 +309,7 @@ class ExportPostmanTest extends TestCase
             ->where('name', 'example/phpDocRoute')
             ->first();
 
-        $this->assertEquals($targetRequest['request']['description'], 'This is the php doc route. Which is also multi-line. and has a blank line.');
+        $this->assertSame('This is the php doc route. Which is also multi-line. and has a blank line.', $targetRequest['request']['description']);
     }
 
     public function test_uri_is_correct()
