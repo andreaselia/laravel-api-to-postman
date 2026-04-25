@@ -18,6 +18,10 @@ class PostmanGeneratorServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__.'/../config/api-postman.php' => config_path('api-postman.php'),
             ], 'postman-config');
+
+            $this->publishes([
+                __DIR__.'/../config/api-postman.php' => config_path('api-postman.php'),
+            ], 'config');
         }
 
         $this->commands(ExportPostmanCommand::class);

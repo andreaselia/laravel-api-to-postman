@@ -371,6 +371,35 @@ class ExportPostmanTest extends TestCase
         $this->assertEquals($targetRequest['request']['url']['raw'], '{{base_url}}/example/users/:user/someLogs/:someLog');
     }
 
+    public function test_json_body_format_export_works()
+    {
+        config([
+            'api-postman.enable_formdata' => true,
+            'api-postman.body_format' => 'json',
+            'api-postman.formdata' => [
+                'field_1' => 'value_1',
+                'field_2' => 123,
+            ],
+        ]);
+
+        $this->artisan('export:postman')->assertExitCode(0);
+
+        $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['item']);
+
+        $targetRequest = $collection
+            ->where('name', 'example/storeWithFormRequest')
+            ->first();
+
+        $this->assertEquals('raw', $targetRequest['request']['body']['mode']);
+        $this->assertEquals('json', $targetRequest['request']['body']['options']['raw']['language']);
+
+        $rawBody = json_decode($targetRequest['request']['body']['raw'], true);
+        $this->assertEquals('value_1', $rawBody['field_1']);
+        $this->assertEquals(123, $rawBody['field_2']);
+        $this->assertArrayHasKey('field_5', $rawBody);
+        $this->assertNull($rawBody['field_5']);
+    }
+
     public static function providerFormDataEnabled(): array
     {
         return [

@@ -92,13 +92,10 @@ class RouteProcessor
 
                 $data = [
                     'name' => $route->uri(),
-                    'request' => array_merge(
-                        $this->processRequest(
-                            $method,
-                            $uri,
-                            $this->config['enable_formdata'] ? (new FormDataProcessor)->process($reflectionMethod) : collect()
-                        ),
-                        ['description' => $description ?? '']
+                    'request' => $this->processRequest(
+                        $method,
+                        $uri,
+                        $this->config['enable_formdata'] ? (new FormDataProcessor)->process($reflectionMethod) : collect()
                     ),
                     'response' => [],
 
@@ -106,6 +103,8 @@ class RouteProcessor
                         'disableBodyPruning' => $this->config['protocol_profile_behavior']['disable_body_pruning'] ?? false,
                     ],
                 ];
+
+                $data['request']['description'] = $description ?? '';
 
                 if ($this->config['structured']) {
                     $routeNameSegments = (
@@ -132,13 +131,15 @@ class RouteProcessor
 
     protected function processRequest(string $method, Stringable $uri, Collection $rules): array
     {
+        $headers = collect($this->config['headers'])
+            ->push($this->authentication?->toArray())
+            ->filter()
+            ->values()
+            ->all();
+
         return collect([
             'method' => strtoupper($method),
-            'header' => collect($this->config['headers'])
-                ->push($this->authentication?->toArray())
-                ->filter()
-                ->values()
-                ->all(),
+            'header' => $headers,
             'url' => [
                 'raw' => '{{base_url}}/'.$uri,
                 'host' => ['{{base_url}}'],
@@ -156,24 +157,73 @@ class RouteProcessor
                     return $collection;
                 }
 
-                $rules->transform(fn ($rule) => [
-                    'key' => $rule['name'],
-                    'value' => $this->config['formdata'][$rule['name']] ?? null,
-                    'description' => $this->config['print_rules'] ? $this->parseRulesIntoHumanReadable($rule['name'], $rule['description']) : null,
-                ]);
-
                 if ($method === 'GET') {
                     return $collection->mergeRecursive([
                         'url' => [
-                            'query' => $rules->map(fn ($value) => array_merge($value, ['disabled' => false])),
+                            'query' => $rules->transform(fn ($rule, $name) => [
+                                'key' => $name,
+                                'value' => $this->config['formdata'][$name] ?? null,
+                                'description' => $this->config['print_rules'] ? $this->parseRulesIntoHumanReadable($name, $rule) : null,
+                                'disabled' => false,
+                            ])->values()->all(),
                         ],
                     ]);
                 }
 
-                return $collection->put('body', [
-                    'mode' => 'urlencoded',
-                    'urlencoded' => $rules->map(fn ($value) => array_merge($value, ['type' => 'text'])),
-                ]);
+                $bodyMode = $this->config['body_mode'] ?? 'default';
+
+                if ($bodyMode === 'auto') {
+                    $bodyMode = (new BodyModeResolver)->resolve($rules->all());
+                }
+
+                if ($bodyMode === 'default') {
+                    if ($this->config['body_format'] === 'json') {
+                        return $collection->put('body', [
+                            'mode' => 'raw',
+                            'raw' => json_encode($rules->mapWithKeys(fn ($rule, $name) => [$name => $this->config['formdata'][$name] ?? null])->all(), JSON_PRETTY_PRINT),
+                            'options' => [
+                                'raw' => [
+                                    'language' => 'json',
+                                ],
+                            ],
+                        ]);
+                    }
+
+                    return $collection->put('body', [
+                        'mode' => 'urlencoded',
+                        'urlencoded' => $rules->map(fn ($rule, $name) => [
+                            'key' => $name,
+                            'value' => $this->config['formdata'][$name] ?? null,
+                            'description' => $this->config['print_rules'] ? $this->parseRulesIntoHumanReadable($name, $rule) : null,
+                        ])->values()->all(),
+                    ]);
+                }
+
+                if ($bodyMode === 'json') {
+                    return $collection->put('body', [
+                        'mode' => 'raw',
+                        'raw' => json_encode((new RequestSchemaBuilder)->build($rules->all()), JSON_PRETTY_PRINT),
+                        'options' => [
+                            'raw' => [
+                                'language' => 'json',
+                            ],
+                        ],
+                    ]);
+                }
+
+                if ($bodyMode === 'formdata') {
+                    return $collection->put('body', [
+                        'mode' => 'formdata',
+                        'formdata' => $rules->map(fn ($rule, $name) => [
+                            'key' => $name,
+                            'value' => $this->config['formdata'][$name] ?? null,
+                            'description' => $this->config['print_rules'] ? $this->parseRulesIntoHumanReadable($name, $rule) : null,
+                            'type' => 'text',
+                        ])->values()->all(),
+                    ]);
+                }
+
+                return $collection;
             })
             ->all();
     }
@@ -261,16 +311,24 @@ class RouteProcessor
 
     protected function parseRulesIntoHumanReadable($attribute, $rules): string
     {
+        if (is_string($rules)) {
+            $rules = explode('|', $rules);
+        }
+
         // ... bail if user has asked for non interpreted strings:
         if (! $this->config['rules_to_human_readable']) {
-            foreach ($rules as $i => $rule) {
-                // because we don't support custom rule classes, we remove them from the rules
-                if (is_subclass_of($rule, Rule::class)) {
-                    unset($rules[$i]);
+            if (is_array($rules)) {
+                foreach ($rules as $i => $rule) {
+                    // because we don't support custom rule classes, we remove them from the rules
+                    if (is_object($rule) && ! method_exists($rule, '__toString')) {
+                        unset($rules[$i]);
+                    }
                 }
             }
 
-            return is_array($rules) ? implode(', ', $rules) : $this->safelyStringifyClassBasedRule($rules);
+            return is_array($rules)
+                ? implode(', ', array_map(fn ($rule) => (string) $rule, $rules))
+                : (is_object($rules) ? $this->safelyStringifyClassBasedRule($rules) : (string) $rules);
         }
 
         /*
