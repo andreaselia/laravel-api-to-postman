@@ -14,13 +14,30 @@ class ExportPostmanCommand extends Command
     /** @var string */
     protected $signature = 'export:postman
                             {--bearer= : The bearer token to use on your endpoints}
-                            {--basic= : The basic auth to use on your endpoints}';
+                            {--basic= : The basic auth to use on your endpoints}
+                            {--filename= : The name of the file to be saved}
+                            {--body-mode= : The mode of the request body (formdata, json, auto)}
+                            {--body-format= : The format of the request body (urlencoded, json)}';
 
     /** @var string */
     protected $description = 'Automatically generate a Postman collection for your API routes';
 
-    public function handle(Exporter $exporter): void
+    public function handle(): void
     {
+        if ($this->option('filename')) {
+            config()->set('api-postman.filename', $this->option('filename'));
+        }
+
+        if ($this->option('body-mode')) {
+            config()->set('api-postman.body_mode', $this->option('body-mode'));
+        }
+
+        if ($this->option('body-format')) {
+            config()->set('api-postman.body_format', $this->option('body-format'));
+        }
+
+        $exporter = app(Exporter::class);
+
         $filename = str_replace(
             ['{timestamp}', '{app}'],
             [date('Y_m_d_His'), Str::snake(config('app.name'))],

@@ -8,6 +8,9 @@
 This package allows you to automatically generate a Postman collection based on your API routes. It also provides basic configuration and support for bearer auth tokens and basic auth for routes behind an auth middleware.
 
 For ```POST``` and ```PUT``` requests that utilizes a FormRequest, you can optionally scaffold the request, and publish rules in raw or human readable format.
+
+The request body can be exported in two formats: `urlencoded` (default) and `json`. You can configure this in the `api-postman.php` config file using the `body_format` attribute.
+
 ## Postman Schema
 
 The generator works for the latest version of the Postman Schema at the time of publication (v2.1.0).
@@ -23,12 +26,26 @@ composer require andreaselia/laravel-api-to-postman
 Publish the config file:
 
 ```bash
-php artisan vendor:publish --provider="AndreasElia\PostmanGenerator\PostmanGeneratorServiceProvider"
+php artisan vendor:publish --tag="config"
 ```
 
 ## Configuration
 
 You can modify any of the `api-postman.php` config values to suit your export requirements.
+
+### JSON Support
+
+You can configure the request body format to be exported as `json` by updating the `body_format` attribute in your `api-postman.php` config file:
+
+```php
+'body_format' => 'json',
+```
+
+You can also specify the `body_mode` to automatically detect if the request should be `json` or `formdata` (e.g. when uploading files):
+
+```php
+'body_mode' => 'auto',
+```
 
 Click [here](/config/api-postman.php) to view the config attributes.
 

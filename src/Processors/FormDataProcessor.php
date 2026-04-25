@@ -27,22 +27,12 @@ class FormDataProcessor
             $classRules = method_exists($class, 'rules') ? $class->rules() : [];
 
             foreach ($classRules as $fieldName => $rule) {
-                if (is_string($rule)) {
-                    $rule = preg_split('/\s*\|\s*/', $rule);
-                }
-
-                $printRules = config('api-postman.print_rules');
-
-                $rules->push([
-                    'name' => $fieldName,
-                    'description' => $printRules ? $rule : '',
-                ]);
+                $rules->put($fieldName, $rule);
 
                 if (is_array($rule) && in_array('confirmed', $rule)) {
-                    $rules->push([
-                        'name' => $fieldName.'_confirmation',
-                        'description' => $printRules ? $rule : '',
-                    ]);
+                    $rules->put($fieldName.'_confirmation', $rule);
+                } elseif (is_string($rule) && str_contains($rule, 'confirmed')) {
+                    $rules->put($fieldName.'_confirmation', $rule);
                 }
             }
         }
