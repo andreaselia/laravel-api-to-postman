@@ -3,13 +3,21 @@ name: CS
 on:
     pull_request:
 
+permissions:
+    contents: read
+
 jobs:
     tests:
         runs-on: ubuntu-latest
         name: Code Style
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v7
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.4'
+                  coverage: none
             - name: Install Dependencies
-              run: php /usr/bin/composer install -q --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
+              run: composer update --prefer-dist --no-interaction --no-progress
             - name: Verify
-              run: php vendor/bin/pint --test
+              run: vendor/bin/pint --test

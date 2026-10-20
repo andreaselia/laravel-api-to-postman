@@ -27,10 +27,16 @@ class ExportPostmanCommand extends Command
             config('api-postman.filename')
         );
 
-        config()->set('api-postman.authentication', [
-            'method' => $this->option('bearer') ? 'bearer' : ($this->option('basic') ? 'basic' : null),
-            'token' => $this->option('bearer') ?? $this->option('basic') ?? null,
-        ]);
+        if (filled($this->option('bearer')) || filled($this->option('basic'))) {
+            config()->set('api-postman.authentication', [
+                'method' => filled($this->option('bearer')) ? 'bearer' : 'basic',
+                'token' => filled($this->option('bearer')) ? $this->option('bearer') : $this->option('basic'),
+            ]);
+        }
+
+        if (filled(config('api-postman.authentication.method')) && blank(config('api-postman.authentication.token'))) {
+            $this->warn('No authentication token configured, the {{token}} collection variable will be used instead.');
+        }
 
         $exporter
             ->to($filename)
@@ -47,9 +53,10 @@ class ExportPostmanCommand extends Command
             }))
             ->export();
 
-        Storage::disk(config('api-postman.disk'))
-            ->put('postman/'.$filename, $exporter->getOutput());
+        $disk = Storage::disk(config('api-postman.disk'));
 
-        $this->info('Postman Collection Exported: '.storage_path('app/postman/'.$filename));
+        $disk->put('postman/'.$filename, $exporter->getOutput());
+
+        $this->info('Postman Collection Exported: '.$disk->path('postman/'.$filename));
     }
 }

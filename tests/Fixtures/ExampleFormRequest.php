@@ -19,6 +19,7 @@ class ExampleFormRequest extends FormRequest
             'field_7' => ['required', new In([1, 2, 3])],
             'field_8' => new UppercaseRule,
             'field_9' => ['required', 'string', new UppercaseRule],
+            'field_10' => ['required', new NonStringableRule],
         ];
     }
 }

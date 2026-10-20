@@ -80,11 +80,11 @@ class RouteProcessor
 
                 $routeHeaders = $this->config['headers'];
 
-                if ($this->authentication && in_array($this->config['auth_middleware'], $middlewares)) {
+                if ($this->authentication && $this->requiresAuthentication($middlewares)) {
                     $routeHeaders[] = $this->authentication->toArray();
                 }
 
-                $uri = Str::of($route->uri())->replaceMatches('/{([[:alnum:]_]+)}/', ':$1');
+                $uri = Str::of($route->uri())->replaceMatches('/{([[:alnum:]_]+)\??}/', ':$1');
 
                 if ($this->config['include_doc_comments']) {
                     $description = (new DocBlockProcessor)($reflectionMethod);
@@ -96,7 +96,8 @@ class RouteProcessor
                         $this->processRequest(
                             $method,
                             $uri,
-                            $this->config['enable_formdata'] ? (new FormDataProcessor)->process($reflectionMethod) : collect()
+                            $this->config['enable_formdata'] ? (new FormDataProcessor)->process($reflectionMethod) : collect(),
+                            $routeHeaders
                         ),
                         ['description' => $description ?? '']
                     ),
@@ -130,12 +131,23 @@ class RouteProcessor
         }
     }
 
-    protected function processRequest(string $method, Stringable $uri, Collection $rules): array
+    protected function requiresAuthentication(array $middlewares): bool
+    {
+        // Match the configured middleware, as well as any auth guard (e.g. auth:sanctum)
+        return collect($middlewares)->contains(function ($middleware) {
+            return is_string($middleware) && (
+                $middleware === $this->config['auth_middleware']
+                || $middleware === 'auth'
+                || Str::startsWith($middleware, 'auth:')
+            );
+        });
+    }
+
+    protected function processRequest(string $method, Stringable $uri, Collection $rules, array $headers): array
     {
         return collect([
             'method' => strtoupper($method),
-            'header' => collect($this->config['headers'])
-                ->push($this->authentication?->toArray())
+            'header' => collect($headers)
                 ->filter()
                 ->values()
                 ->all(),
@@ -144,7 +156,7 @@ class RouteProcessor
                 'host' => ['{{base_url}}'],
                 'path' => $uri->explode('/')->filter()->all(),
                 'variable' => $uri
-                    ->matchAll('/(?<={)[[:alnum:]]+(?=})/m')
+                    ->matchAll('/(?<=:)[[:alnum:]_]+/')
                     ->transform(function ($variable) {
                         return ['key' => $variable, 'value' => ''];
                     })
@@ -265,7 +277,7 @@ class RouteProcessor
         if (! $this->config['rules_to_human_readable']) {
             foreach ($rules as $i => $rule) {
                 // because we don't support custom rule classes, we remove them from the rules
-                if (is_subclass_of($rule, Rule::class)) {
+                if (is_subclass_of($rule, Rule::class) || (is_object($rule) && ! method_exists($rule, '__toString'))) {
                     unset($rules[$i]);
                 }
             }

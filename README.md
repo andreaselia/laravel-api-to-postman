@@ -1,7 +1,6 @@
 ![Laravel API to Postman Header](/header.png)
 
 [![Latest Stable Version](https://poser.pugx.org/andreaselia/laravel-api-to-postman/v)](//packagist.org/packages/andreaselia/laravel-api-to-postman)
-[![StyleCI](https://github.styleci.io/repos/323709695/shield?branch=master)](https://github.styleci.io/repos/323709695?branch=master)
 
 # Laravel API to Postman
 
@@ -34,7 +33,7 @@ Click [here](/config/api-postman.php) to view the config attributes.
 
 ## Usage
 
-The output of the command being ran is your storage/app directory.
+The collection is saved in the `postman` directory of the disk configured by the `disk` option (the `local` disk by default, which is `storage/app/private` on Laravel 11+ and `storage/app` on older versions). The full path is printed once the export has finished.
 
 To use the command simply run:
 
@@ -55,6 +54,17 @@ php artisan export:postman --basic="username:password123"
 ```
 
 If both auths are specified, bearer will be favored.
+
+The auth header is only added to routes that use the middleware configured by the `auth_middleware` option (`auth:api` by default), or any `auth` / `auth:*` middleware such as `auth:sanctum`.
+
+Instead of passing an option, you can also configure the authentication in your `.env` file. Options passed to the command take precedence over these values.
+
+```dotenv
+POSTMAN_EXPORT_AUTH_METHOD=bearer # or basic
+POSTMAN_EXPORT_AUTH_TOKEN=your-token
+```
+
+If a method is set without a token, the requests will use the `{{token}}` collection variable, which you can fill in from within Postman.
 
 ## Examples
 

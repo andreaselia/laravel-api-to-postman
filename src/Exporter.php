@@ -35,7 +35,9 @@ class Exporter
 
     public function export(): void
     {
-        $this->resolveAuth();
+        if (! $this->authentication) {
+            $this->resolveAuth();
+        }
 
         $this->output = $this->generateStructure();
     }
