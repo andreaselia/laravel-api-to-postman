@@ -432,6 +432,16 @@ class ExportPostmanTest extends TestCase
         $this->assertContains(['key' => 'token', 'value' => ''], $collection['variable']);
     }
 
+    public function test_unsupported_auth_method_throws_a_clear_exception()
+    {
+        config()->set('api-postman.authentication', ['method' => 'oauth', 'token' => 'abc']);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unsupported authentication method [oauth], use bearer or basic.');
+
+        $this->artisan('export:postman');
+    }
+
     public function test_url_variables_are_set_for_route_parameters()
     {
         $this->artisan('export:postman')->assertExitCode(0);
