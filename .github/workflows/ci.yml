@@ -55,10 +55,8 @@ jobs:
           coverage: none
 
       - name: Install Dependencies
-        env:
-          # End-of-life Laravel releases have unpatched advisories, so Composer's
-          # security blocking would otherwise fall back to the -dev branches.
-          COMPOSER_NO_SECURITY_BLOCKING: 1
+        # Every tagged release of an end-of-life Laravel version has an unpatched
+        # advisory, so Composer installs its -dev branch (minimum-stability: dev)
         run: |
           composer require --dev --no-update --no-interaction "orchestra/testbench:${{ matrix.testbench }}"
           composer update --prefer-dist --no-interaction --no-progress
