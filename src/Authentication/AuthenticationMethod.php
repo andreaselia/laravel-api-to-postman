@@ -15,13 +15,13 @@ abstract class AuthenticationMethod implements Arrayable
     {
         return [
             'key' => 'Authorization',
-            'value' => sprintf('%s %s', $this->prefix(), $this->token ?? '{{token}}'),
+            'value' => sprintf('%s %s', $this->prefix(), $this->token ?: '{{token}}'),
         ];
     }
 
     public function getToken(): string
     {
-        return $this->token;
+        return $this->token ?? '';
     }
 
     abstract public function prefix(): string;

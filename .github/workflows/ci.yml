@@ -6,25 +6,60 @@ on:
   schedule:
     - cron: '0 0 * * *'
 
+permissions:
+  contents: read
+
 jobs:
   tests:
     runs-on: ubuntu-latest
 
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
-        testbench: [^8.0, ^11.0]
+        php: ['8.1', '8.2', '8.3', '8.4', '8.5']
+        laravel: ['10', '11', '12', '13']
+        include:
+          - laravel: '10'
+            testbench: '^8.0'
+          - laravel: '11'
+            testbench: '^9.0'
+          - laravel: '12'
+            testbench: '^10.0'
+          - laravel: '13'
+            testbench: '^11.0'
+        exclude:
+          - laravel: '10'
+            php: '8.4'
+          - laravel: '10'
+            php: '8.5'
+          - laravel: '11'
+            php: '8.1'
+          - laravel: '11'
+            php: '8.5'
+          - laravel: '12'
+            php: '8.1'
+          - laravel: '13'
+            php: '8.1'
+          - laravel: '13'
+            php: '8.2'
 
-    name: Testbench ${{ matrix.testbench }}
+    name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
 
       - name: Install Dependencies
-        run: php /usr/bin/composer install -q --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
-
-      - name: Install Testbench
-        run: php /usr/bin/composer require -q --dev -W --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist orchestra/testbench:${{ matrix.testbench }}
+        # Every tagged release of an end-of-life Laravel version has an unpatched
+        # advisory, so Composer installs its -dev branch (minimum-stability: dev)
+        run: |
+          composer require --dev --no-update --no-interaction "orchestra/testbench:${{ matrix.testbench }}"
+          composer update --prefer-dist --no-interaction --no-progress
 
       - name: Execute tests via PHPUnit
-        run: php vendor/bin/phpunit --stop-on-failure
+        run: vendor/bin/phpunit --stop-on-failure

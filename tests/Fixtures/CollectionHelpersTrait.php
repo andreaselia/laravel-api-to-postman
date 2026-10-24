@@ -24,6 +24,15 @@ trait CollectionHelpersTrait
         return 1;
     }
 
+    private function exportableRoutes(): array
+    {
+        return collect($this->app['router']->getRoutes())
+            ->filter(fn ($route) => collect($route->gatherMiddleware())
+                ->contains(fn ($middleware) => in_array($middleware, config('api-postman.include_middleware'))))
+            ->values()
+            ->all();
+    }
+
     private function countCollectionItems(array $collectionItems)
     {
         $sum = 0;

@@ -30,7 +30,7 @@ class ExportPostmanTest extends TestCase
 
         $collection = json_decode(Storage::get('postman/'.config('api-postman.filename')), true);
 
-        $routes = $this->app['router']->getRoutes();
+        $routes = $this->exportableRoutes();
 
         $collectionItems = $collection['item'];
 
@@ -65,7 +65,7 @@ class ExportPostmanTest extends TestCase
 
         $collection = json_decode(Storage::get('postman/'.config('api-postman.filename')), true);
 
-        $routes = $this->app['router']->getRoutes();
+        $routes = $this->exportableRoutes();
 
         $collectionVariables = $collection['variable'];
 
@@ -110,7 +110,7 @@ class ExportPostmanTest extends TestCase
 
         $collection = json_decode(Storage::get('postman/'.config('api-postman.filename')), true);
 
-        $routes = $this->app['router']->getRoutes();
+        $routes = $this->exportableRoutes();
 
         $collectionVariables = $collection['variable'];
 
@@ -158,7 +158,7 @@ class ExportPostmanTest extends TestCase
 
         $collection = json_decode(Storage::get('postman/'.config('api-postman.filename')), true);
 
-        $routes = $this->app['router']->getRoutes();
+        $routes = $this->exportableRoutes();
 
         $totalCollectionItems = $this->countCollectionItems($collection['item']);
 
@@ -186,6 +186,7 @@ class ExportPostmanTest extends TestCase
         $this->assertCount(1, $fields->where('key', 'field_2')->where('description', 'required, integer'));
         $this->assertCount(1, $fields->where('key', 'field_5')->where('description', 'required, integer, max:30, min:1'));
         $this->assertCount(1, $fields->where('key', 'field_6')->where('description', 'in:"1","2","3"'));
+        $this->assertCount(1, $fields->where('key', 'field_10')->where('description', 'required'));
     }
 
     public function test_rules_printing_get_export_works()
@@ -267,6 +268,7 @@ class ExportPostmanTest extends TestCase
         $this->assertCount(1, $fields->where('key', 'field_7')->where('description', 'The field 7 field is required.'));
         $this->assertCount(1, $fields->where('key', 'field_8')->where('description', 'The field 8 field must be uppercase.'));
         $this->assertCount(1, $fields->where('key', 'field_9')->where('description', 'The field 9 field is required., The field 9 field must be a string.'));
+        $this->assertCount(1, $fields->where('key', 'field_10')->where('description', 'The field 10 field is required.'));
     }
 
     public function test_event_export_works()
@@ -369,6 +371,108 @@ class ExportPostmanTest extends TestCase
 
         $this->assertEquals($targetRequest['name'], 'example/users/{user}/someLogs/{someLog}');
         $this->assertEquals($targetRequest['request']['url']['raw'], '{{base_url}}/example/users/:user/someLogs/:someLog');
+    }
+
+    public function test_auth_header_is_only_added_to_routes_with_auth_middleware()
+    {
+        $this->artisan('export:postman --bearer=1234567890')->assertExitCode(0);
+
+        $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['item']);
+
+        $securedRequest = $collection->where('name', 'example/secured')->first();
+        $sanctumRequest = $collection->where('name', 'example/sanctum')->first();
+        $publicRequest = $collection->where('name', 'example/index')->first();
+
+        $this->assertContains(['key' => 'Authorization', 'value' => 'Bearer 1234567890'], $securedRequest['request']['header']);
+        $this->assertContains(['key' => 'Authorization', 'value' => 'Bearer 1234567890'], $sanctumRequest['request']['header']);
+        $this->assertNotContains('Authorization', array_column($publicRequest['request']['header'], 'key'));
+    }
+
+    public function test_configured_auth_is_used_when_no_option_is_given()
+    {
+        config()->set('api-postman.authentication', ['method' => 'bearer', 'token' => 'config-token']);
+
+        $this->artisan('export:postman')->assertExitCode(0);
+
+        $collection = json_decode(Storage::get('postman/'.config('api-postman.filename')), true);
+
+        $securedRequest = collect($collection['item'])->where('name', 'example/secured')->first();
+
+        $this->assertContains(['key' => 'Authorization', 'value' => 'Bearer config-token'], $securedRequest['request']['header']);
+        $this->assertContains(['key' => 'token', 'value' => 'config-token'], $collection['variable']);
+    }
+
+    public function test_auth_option_overrides_configured_auth()
+    {
+        config()->set('api-postman.authentication', ['method' => 'basic', 'token' => 'username:password1234']);
+
+        $this->artisan('export:postman --bearer=1234567890')->assertExitCode(0);
+
+        $collection = json_decode(Storage::get('postman/'.config('api-postman.filename')), true);
+
+        $securedRequest = collect($collection['item'])->where('name', 'example/secured')->first();
+
+        $this->assertContains(['key' => 'Authorization', 'value' => 'Bearer 1234567890'], $securedRequest['request']['header']);
+        $this->assertContains(['key' => 'token', 'value' => '1234567890'], $collection['variable']);
+    }
+
+    public function test_auth_method_without_token_uses_token_variable()
+    {
+        config()->set('api-postman.authentication', ['method' => 'bearer', 'token' => null]);
+
+        $this->artisan('export:postman')
+            ->expectsOutput('No authentication token configured, the {{token}} collection variable will be used instead.')
+            ->assertExitCode(0);
+
+        $collection = json_decode(Storage::get('postman/'.config('api-postman.filename')), true);
+
+        $securedRequest = collect($collection['item'])->where('name', 'example/secured')->first();
+
+        $this->assertContains(['key' => 'Authorization', 'value' => 'Bearer {{token}}'], $securedRequest['request']['header']);
+        $this->assertContains(['key' => 'token', 'value' => ''], $collection['variable']);
+    }
+
+    public function test_unsupported_auth_method_throws_a_clear_exception()
+    {
+        config()->set('api-postman.authentication', ['method' => 'oauth', 'token' => 'abc']);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unsupported authentication method [oauth], use bearer or basic.');
+
+        $this->artisan('export:postman');
+    }
+
+    public function test_url_variables_are_set_for_route_parameters()
+    {
+        $this->artisan('export:postman')->assertExitCode(0);
+
+        $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['item']);
+
+        $targetRequest = $collection
+            ->where('name', 'example/users/{user}/audit-logs/{audit_log}')
+            ->where('request.method', 'PATCH')
+            ->first();
+
+        $this->assertEquals([
+            ['key' => 'user', 'value' => ''],
+            ['key' => 'audit_log', 'value' => ''],
+        ], $targetRequest['request']['url']['variable']);
+
+        $optionalRequest = $collection
+            ->where('name', 'example/optional/{id?}')
+            ->first();
+
+        $this->assertEquals('{{base_url}}/example/optional/:id', $optionalRequest['request']['url']['raw']);
+        $this->assertEquals([['key' => 'id', 'value' => '']], $optionalRequest['request']['url']['variable']);
+    }
+
+    public function test_export_message_shows_path_on_configured_disk()
+    {
+        $path = Storage::disk(config('api-postman.disk'))->path('postman/'.config('api-postman.filename'));
+
+        $this->artisan('export:postman')
+            ->expectsOutput('Postman Collection Exported: '.$path)
+            ->assertExitCode(0);
     }
 
     public static function providerFormDataEnabled(): array

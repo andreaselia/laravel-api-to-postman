@@ -1,0 +1,8 @@
+/.github            export-ignore
+/examples           export-ignore
+/tests              export-ignore
+/.editorconfig      export-ignore
+/.gitattributes     export-ignore
+/.gitignore         export-ignore
+/header.png         export-ignore
+/phpunit.xml        export-ignore

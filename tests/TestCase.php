@@ -23,6 +23,9 @@ class TestCase extends \Orchestra\Testbench\TestCase
             $router->post('storeWithFormRequest', [ExampleController::class, 'storeWithFormRequest'])->name('store-with-form-request');
             $router->get('getWithFormRequest', [ExampleController::class, 'getWithFormRequest'])->name('get-with-form-request');
             $router->get('phpDocRoute', [ExampleController::class, 'phpDocRoute'])->name('php-doc-route');
+            $router->get('secured', [ExampleController::class, 'index'])->middleware('auth:api')->name('secured');
+            $router->get('sanctum', [ExampleController::class, 'index'])->middleware('auth:sanctum')->name('sanctum');
+            $router->get('optional/{id?}', [ExampleController::class, 'show'])->name('optional');
             $router->apiResource('users.audit-logs', AuditLogController::class);
             $router->apiResource('users.other_logs', AuditLogController::class);
             $router->apiResource('users.someLogs', AuditLogController::class);
